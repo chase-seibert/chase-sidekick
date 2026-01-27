@@ -236,11 +236,10 @@ class JiraClient:
         max_depth: int = 10,
         fields: Optional[list] = None
     ):
-        """Recursively fetch issue hierarchy as an iterator that yields results.
+        """Fetch issue hierarchy as an iterator using breadth-first traversal with batched queries.
 
         Traverses both parent-child relationships and linked issues, staying within
-        the specified project. Yields results as they're fetched for better performance
-        and immediate feedback.
+        the specified project. Uses batched queries to minimize API calls.
 
         Args:
             root_issue_key: Starting issue key (e.g., "DBX-123")
@@ -260,71 +259,107 @@ class JiraClient:
             for item in client.get_issue_hierarchy("DBX-100", "DBX"):
                 print(f"{item['issue']['key']} at depth {item['depth']}")
         """
+        if fields is None:
+            fields = ["key", "summary", "status", "assignee", "labels", "issuetype", "description", "issuelinks", "parent"]
+        else:
+            # Ensure issuelinks and parent are included
+            if "issuelinks" not in fields:
+                fields = fields + ["issuelinks"]
+            if "parent" not in fields:
+                fields = fields + ["parent"]
+
         visited = set()
 
-        def _traverse(issue_key: str, depth: int, relationship: str, parent_key: Optional[str]):
-            """Internal recursive generator."""
-            if depth > max_depth or issue_key in visited:
-                return
+        # Queue: (issue_key, depth, relationship, parent_key)
+        current_level = [(root_issue_key, 0, "root", None)]
 
-            visited.add(issue_key)
+        while current_level and current_level[0][1] <= max_depth:
+            # Batch fetch all issues at current level
+            issue_keys_to_fetch = [key for key, _, _, _ in current_level if key not in visited]
 
-            # Get issue
-            try:
-                issue = self.get_issue(issue_key)
-            except ValueError:
-                return
+            if not issue_keys_to_fetch:
+                break
 
-            # Filter by issue type if specified
-            if issue_type:
-                issue_type_name = issue.get("fields", {}).get("issuetype", {}).get("name", "")
-                if issue_type_name != issue_type:
-                    # Skip this issue but still check children/links
-                    pass
-                else:
-                    # Yield this issue
+            # Mark as visited
+            for key in issue_keys_to_fetch:
+                visited.add(key)
+
+            # Fetch all issues in batch using JQL
+            if len(issue_keys_to_fetch) == 1:
+                jql = f"key = {issue_keys_to_fetch[0]}"
+            else:
+                keys_str = ", ".join(issue_keys_to_fetch)
+                jql = f"key IN ({keys_str})"
+
+            # Fetch issues
+            result = self.query_issues(jql, max_results=len(issue_keys_to_fetch), fields=fields)
+            issues_by_key = {issue["key"]: issue for issue in result.get("issues", [])}
+
+            # Yield current level issues and collect their children/links
+            next_level = []
+            parent_keys_for_children = []
+
+            for issue_key, depth, relationship, parent_key in current_level:
+                if issue_key not in issues_by_key:
+                    continue
+
+                issue = issues_by_key[issue_key]
+
+                # Filter by issue type if specified
+                should_yield = True
+                if issue_type:
+                    issue_type_name = issue.get("fields", {}).get("issuetype", {}).get("name", "")
+                    should_yield = (issue_type_name == issue_type)
+
+                if should_yield:
                     yield {
                         "issue": issue,
                         "depth": depth,
                         "relationship": relationship,
                         "parent_key": parent_key
                     }
-            else:
-                # No filter, yield this issue
-                yield {
-                    "issue": issue,
-                    "depth": depth,
-                    "relationship": relationship,
-                    "parent_key": parent_key
-                }
 
-            # Build JQL to find children
-            jql = f"parent = {issue_key} AND project = {project}"
-            if issue_type:
-                jql += f' AND issuetype = "{issue_type}"'
+                # Collect parent keys for batched children query
+                parent_keys_for_children.append(issue_key)
 
-            # Get children
-            children_result = self.query_issues(jql, max_results=100, fields=fields)
-            children_issues = children_result.get("issues", [])
+                # Extract linked issues
+                issuelinks = issue.get("fields", {}).get("issuelinks", [])
+                for link in issuelinks:
+                    linked_issue = link.get("inwardIssue") or link.get("outwardIssue")
+                    if linked_issue:
+                        linked_key = linked_issue.get("key", "")
+                        # Only include if in the same project and not visited
+                        if linked_key.startswith(project + "-") and linked_key not in visited:
+                            next_level.append((linked_key, depth + 1, "linked", issue_key))
 
-            # Traverse children
-            for child in children_issues:
-                child_key = child.get("key")
-                if child_key and child_key not in visited:
-                    yield from _traverse(child_key, depth + 1, "child", issue_key)
+            # Batch query for all children of current level
+            if parent_keys_for_children:
+                if len(parent_keys_for_children) == 1:
+                    children_jql = f"parent = {parent_keys_for_children[0]} AND project = {project}"
+                else:
+                    parents_str = ", ".join(parent_keys_for_children)
+                    children_jql = f"parent IN ({parents_str}) AND project = {project}"
 
-            # Extract and traverse linked issues
-            issuelinks = issue.get("fields", {}).get("issuelinks", [])
-            for link in issuelinks:
-                linked_issue = link.get("inwardIssue") or link.get("outwardIssue")
-                if linked_issue:
-                    linked_key = linked_issue.get("key", "")
-                    # Only include if in the same project
-                    if linked_key.startswith(project + "-") and linked_key not in visited:
-                        yield from _traverse(linked_key, depth + 1, "linked", issue_key)
+                if issue_type:
+                    children_jql += f' AND issuetype = "{issue_type}"'
 
-        # Start traversal from root
-        yield from _traverse(root_issue_key, 0, "root", None)
+                # Fetch all children in one query
+                children_result = self.query_issues(children_jql, max_results=100 * len(parent_keys_for_children), fields=fields)
+                children_issues = children_result.get("issues", [])
+
+                # Add children to next level
+                for child in children_issues:
+                    child_key = child.get("key")
+                    parent_field = child.get("fields", {}).get("parent", {})
+                    child_parent_key = parent_field.get("key") if parent_field else None
+
+                    if child_key and child_key not in visited:
+                        # Determine depth based on parent
+                        parent_depth = next((d for k, d, _, _ in current_level if k == child_parent_key), 0)
+                        next_level.append((child_key, parent_depth + 1, "child", child_parent_key))
+
+            # Move to next level
+            current_level = next_level
 
 
 def _format_issue(issue: dict) -> str:

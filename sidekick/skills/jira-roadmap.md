@@ -173,9 +173,18 @@ Each yielded item is a dict with:
 
 The iterator approach provides:
 - **Immediate results**: See issues as they're fetched, no waiting for entire hierarchy
-- **Memory efficient**: Processes one issue at a time, doesn't build large in-memory tree
+- **Memory efficient**: Processes one level at a time, doesn't build large in-memory tree
+- **Batched queries**: Fetches all issues at same level together (major performance win)
 - **Early termination**: Can stop iteration early if you find what you need
 - **Progress feedback**: Can show progress indicators as you iterate
+
+### Query Optimization
+
+The implementation uses breadth-first traversal with batching:
+1. **Level-by-level**: Processes all issues at depth 0, then depth 1, etc.
+2. **Batch issue fetch**: `key IN (KEY1, KEY2, ...)` to get multiple issues in one call
+3. **Batch children fetch**: `parent IN (KEY1, KEY2, ...)` to get all children in one call
+4. **Dramatic reduction**: From 2N API calls to ~2L calls (where L = max depth)
 
 ## Limitations
 
@@ -187,8 +196,12 @@ The iterator approach provides:
 ## Performance Notes
 
 - **Streaming**: Results appear immediately as they're fetched from the API
-- **API Calls**: Makes one API call per issue plus one call per parent to find children
-- **Large Hierarchies**: For 100+ issues, consider filtering by issue type to reduce scope
+- **Optimized Queries**: Uses breadth-first traversal with batched queries
+  - Old approach: 2 API calls per issue (2N total)
+  - New approach: 1-2 API calls per hierarchy level (~2L total, where L is depth)
+  - Example: 100 issues at depth 5 = ~10 API calls vs 200 calls
+- **Batching**: Fetches all issues at the same level in one query, all children in one query
+- **Large Hierarchies**: Efficient for 100+ issues due to batching
 - **Early Exit**: In Python, you can break from the loop early if you find what you need
 
 ## Tips

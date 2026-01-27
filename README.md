@@ -94,6 +94,8 @@ chase-sidekick/
 
 - **JIRA** (`sidekick/skills/jira.md`) - Query and manage JIRA issues
 - **JIRA Roadmap** (`sidekick/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
+  - Uses optimized batched queries (2L API calls vs 2N, where L=depth, N=issues)
+  - Streams results as they're fetched for immediate feedback
 
 ## Roadmap
 
