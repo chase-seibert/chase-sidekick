@@ -186,3 +186,7 @@ When customizing fields, you can use any JIRA field name:
 - `parent` - Parent issue (for subtasks)
 - `project` - Project details
 - `customfield_*` - Custom fields (check your JIRA instance)
+
+## Related Skills
+
+- **JIRA Roadmap** (`jira-roadmap.md`) - Recursively explore issue hierarchies for roadmap planning

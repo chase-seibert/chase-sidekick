@@ -48,6 +48,10 @@ python3 sidekick/clients/jira.py query-by-parent PROJ-100
 # Query by label
 python3 sidekick/clients/jira.py query-by-label backend
 
+# Get roadmap hierarchy (recursively find all children and linked issues)
+python3 sidekick/clients/jira.py roadmap-hierarchy DBX-100 DBX
+python3 sidekick/clients/jira.py roadmap-hierarchy DBX-100 DBX Story
+
 # Update issue
 python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New title"}'
 ```
@@ -89,6 +93,7 @@ chase-sidekick/
 ## Available Skills
 
 - **JIRA** (`sidekick/skills/jira.md`) - Query and manage JIRA issues
+- **JIRA Roadmap** (`sidekick/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
 
 ## Roadmap
 

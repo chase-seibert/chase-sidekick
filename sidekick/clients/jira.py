@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import base64
+import time
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -27,6 +28,7 @@ class JiraClient:
         self.api_token = api_token
         self.timeout = timeout
         self.api_version = "3"  # JIRA Cloud API v3
+        self.api_call_count = 0  # Track API calls for debugging
 
     def _get_auth_headers(self) -> dict:
         """Generate Basic Auth headers."""
@@ -73,6 +75,7 @@ class JiraClient:
 
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                self.api_call_count += 1
                 return json.loads(response.read().decode())
         except urllib.error.HTTPError as e:
             error_body = e.read().decode() if e.fp else ""
@@ -225,6 +228,104 @@ class JiraClient:
         result = self.query_issues(jql, max_results=max_results, fields=fields)
         return result.get("issues", [])
 
+    def get_issue_hierarchy(
+        self,
+        root_issue_key: str,
+        project: str,
+        issue_type: Optional[str] = None,
+        max_depth: int = 10,
+        fields: Optional[list] = None
+    ):
+        """Recursively fetch issue hierarchy as an iterator that yields results.
+
+        Traverses both parent-child relationships and linked issues, staying within
+        the specified project. Yields results as they're fetched for better performance
+        and immediate feedback.
+
+        Args:
+            root_issue_key: Starting issue key (e.g., "DBX-123")
+            project: Project key to filter by (e.g., "DBX")
+            issue_type: Optional issue type filter (e.g., "Story", "Epic")
+            max_depth: Maximum recursion depth to prevent infinite loops
+            fields: List of fields to return (uses default if not specified)
+
+        Yields:
+            dict with:
+            - issue: Issue data
+            - depth: Depth in hierarchy (0 = root)
+            - relationship: "root", "child", or "linked"
+            - parent_key: Parent issue key (or None for root)
+
+        Example:
+            for item in client.get_issue_hierarchy("DBX-100", "DBX"):
+                print(f"{item['issue']['key']} at depth {item['depth']}")
+        """
+        visited = set()
+
+        def _traverse(issue_key: str, depth: int, relationship: str, parent_key: Optional[str]):
+            """Internal recursive generator."""
+            if depth > max_depth or issue_key in visited:
+                return
+
+            visited.add(issue_key)
+
+            # Get issue
+            try:
+                issue = self.get_issue(issue_key)
+            except ValueError:
+                return
+
+            # Filter by issue type if specified
+            if issue_type:
+                issue_type_name = issue.get("fields", {}).get("issuetype", {}).get("name", "")
+                if issue_type_name != issue_type:
+                    # Skip this issue but still check children/links
+                    pass
+                else:
+                    # Yield this issue
+                    yield {
+                        "issue": issue,
+                        "depth": depth,
+                        "relationship": relationship,
+                        "parent_key": parent_key
+                    }
+            else:
+                # No filter, yield this issue
+                yield {
+                    "issue": issue,
+                    "depth": depth,
+                    "relationship": relationship,
+                    "parent_key": parent_key
+                }
+
+            # Build JQL to find children
+            jql = f"parent = {issue_key} AND project = {project}"
+            if issue_type:
+                jql += f' AND issuetype = "{issue_type}"'
+
+            # Get children
+            children_result = self.query_issues(jql, max_results=100, fields=fields)
+            children_issues = children_result.get("issues", [])
+
+            # Traverse children
+            for child in children_issues:
+                child_key = child.get("key")
+                if child_key and child_key not in visited:
+                    yield from _traverse(child_key, depth + 1, "child", issue_key)
+
+            # Extract and traverse linked issues
+            issuelinks = issue.get("fields", {}).get("issuelinks", [])
+            for link in issuelinks:
+                linked_issue = link.get("inwardIssue") or link.get("outwardIssue")
+                if linked_issue:
+                    linked_key = linked_issue.get("key", "")
+                    # Only include if in the same project
+                    if linked_key.startswith(project + "-") and linked_key not in visited:
+                        yield from _traverse(linked_key, depth + 1, "linked", issue_key)
+
+        # Start traversal from root
+        yield from _traverse(root_issue_key, 0, "root", None)
+
 
 def _format_issue(issue: dict) -> str:
     """Format issue as microformat: KEY: summary [status] (assignee) [labels]"""
@@ -287,6 +388,41 @@ def _print_issue_details(issue: dict) -> None:
         print(f"  Description: {desc_preview}")
 
 
+def _print_hierarchy_item(item: dict, parent_depths: dict) -> None:
+    """Print a single hierarchy item from the iterator.
+
+    Args:
+        item: Hierarchy item dict with issue, depth, relationship, parent_key
+        parent_depths: Dict tracking the last child at each depth for proper tree formatting
+    """
+    issue = item["issue"]
+    depth = item["depth"]
+    relationship = item["relationship"]
+
+    # Format the issue line
+    issue_line = _format_issue(issue)
+
+    if depth == 0:
+        # Root issue - no prefix
+        print(issue_line)
+    else:
+        # Build prefix based on depth and parent structure
+        prefix = ""
+        for d in range(1, depth):
+            if d in parent_depths and parent_depths[d]:
+                prefix += "│  "
+            else:
+                prefix += "   "
+
+        # Add final connector
+        if relationship == "linked":
+            prefix += "├~> "
+        else:
+            prefix += "├─ "
+
+        print(prefix + issue_line)
+
+
 def main():
     """CLI entry point for JIRA client.
 
@@ -307,10 +443,13 @@ def main():
         print("  query <jql> [max-results]")
         print("  query-by-parent <parent-key> [max-results]")
         print("  query-by-label <label> [project] [max-results]")
+        print("  roadmap-hierarchy <root-issue> <project> [issue-type]")
         print("  update-issue <issue-key> <fields-json>")
         sys.exit(1)
 
     try:
+        start_time = time.time()
+
         config = get_jira_config()
         client = JiraClient(
             base_url=config["url"],
@@ -357,6 +496,23 @@ def main():
             for issue in issues:
                 print(_format_issue(issue))
 
+        elif command == "roadmap-hierarchy":
+            root_issue = sys.argv[2]
+            project = sys.argv[3]
+            issue_type = sys.argv[4] if len(sys.argv) > 4 else None
+
+            type_str = f" (filtered to {issue_type})" if issue_type else ""
+            print(f"Roadmap hierarchy for {root_issue} in {project}{type_str}:\n")
+
+            # Consume iterator and display results as they come
+            count = 0
+            parent_depths = {}
+            for item in client.get_issue_hierarchy(root_issue, project, issue_type=issue_type):
+                _print_hierarchy_item(item, parent_depths)
+                count += 1
+
+            print(f"\nTotal: {count} issues")
+
         elif command == "update-issue":
             issue_key = sys.argv[2]
             fields = json.loads(sys.argv[3])
@@ -366,6 +522,10 @@ def main():
         else:
             print(f"Unknown command: {command}")
             sys.exit(1)
+
+        # Debug output
+        elapsed_time = time.time() - start_time
+        print(f"\n[Debug] API calls: {client.api_call_count}, Time: {elapsed_time:.2f}s", file=sys.stderr)
 
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
