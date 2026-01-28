@@ -210,12 +210,13 @@ The iterator approach provides:
 
 ### Traversal Approach
 
-The implementation uses depth-first traversal with recursive descent:
+The implementation uses optimized depth-first traversal with smart caching:
 1. **Depth-First**: Processes each issue and immediately traverses its descendants before moving to siblings
 2. **Correct Nesting**: Children appear immediately under their parent in the output
 3. **Streaming Results**: Issues are yielded as they're discovered
-4. **Per-Issue Queries**: Fetches each issue individually, then queries for its children
-5. **Memory Efficient**: Uses generators and doesn't build the entire tree in memory
+4. **Smart Caching**: Children fetched via parent query are cached, avoiding redundant fetches
+5. **Batch Fetching**: Linked issues are batch fetched in a single query
+6. **Memory Efficient**: Uses generators and doesn't build the entire tree in memory
 
 ## Limitations
 
@@ -229,9 +230,12 @@ The implementation uses depth-first traversal with recursive descent:
 - **Streaming**: Results appear immediately as they're fetched from the API
 - **Depth-First Traversal**: Children appear immediately under their parent in the output
 - **Iterator Pattern**: Yields results as discovered, memory efficient
-- **API Calls**: Approximately 2 calls per issue (1 to fetch issue, 1 to query children)
-  - For N issues: ~2N API calls
-  - Trade-off: Correct parent-child nesting vs batching optimization
+- **Optimized API Calls**: Smart caching and batching
+  - Root: 1 fetch + 1 children query + 1 batch linked fetch = ~3 calls
+  - Non-leaf: 0 fetch (cached) + 1 children query + 1 batch linked fetch = ~2 calls
+  - Leaf: 0 fetch (cached) + 1 children query (empty) = ~1 call
+  - **Average**: ~1.5-2 calls per issue (vs 2 calls without optimization)
+  - **Savings**: Children are cached from parent queries, linked issues are batch fetched
 - **Early Exit**: In Python, you can break from the loop early if you find what you need
 
 ## Tips

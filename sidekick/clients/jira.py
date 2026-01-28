@@ -184,6 +184,25 @@ class JiraClient:
         json_data = {"fields": fields}
         self._request("PUT", endpoint, json_data=json_data)
 
+    def add_label(self, issue_key: str, label: str) -> None:
+        """Add a label to an issue (preserving existing labels).
+
+        Args:
+            issue_key: Issue key like "PROJ-123"
+            label: Label to add (e.g., "backend", "needs-review")
+
+        Raises:
+            ValueError: If issue not found or update fails
+        """
+        # Get current issue to fetch existing labels
+        issue = self.get_issue(issue_key)
+        current_labels = issue.get("fields", {}).get("labels", [])
+
+        # Add new label if not already present
+        if label not in current_labels:
+            updated_labels = current_labels + [label]
+            self.update_issue(issue_key, {"labels": updated_labels})
+
     def query_issues_by_parent(
         self,
         parent_key: str,
@@ -274,18 +293,27 @@ class JiraClient:
                 fields = fields + ["parent"]
 
         visited = set()
+        issue_cache = {}  # Cache fetched issues to avoid redundant API calls
+
+        def fetch_issue(issue_key: str):
+            """Fetch issue from cache or API."""
+            if issue_key not in issue_cache:
+                try:
+                    issue_cache[issue_key] = self.get_issue(issue_key)
+                except ValueError:
+                    issue_cache[issue_key] = None
+            return issue_cache[issue_key]
 
         def traverse(issue_key: str, depth: int, relationship: str, parent_key: Optional[str]):
-            """Recursively traverse hierarchy depth-first."""
+            """Recursively traverse hierarchy depth-first with batched fetching."""
             if depth > max_depth or issue_key in visited:
                 return
 
             visited.add(issue_key)
 
-            # Fetch the issue
-            try:
-                issue = self.get_issue(issue_key)
-            except ValueError:
+            # Fetch the issue (from cache if available)
+            issue = fetch_issue(issue_key)
+            if issue is None:
                 return
 
             # Filter by issue type if specified
@@ -306,6 +334,7 @@ class JiraClient:
             descendants = []
 
             # Get linked issues first (they appear before children in output)
+            linked_keys = []
             issuelinks = issue.get("fields", {}).get("issuelinks", [])
             for link in issuelinks:
                 linked_issue = link.get("inwardIssue") or link.get("outwardIssue")
@@ -316,8 +345,25 @@ class JiraClient:
                         should_include = should_include and linked_key.startswith(project + "-")
                     if should_include:
                         descendants.append((linked_key, "linked"))
+                        linked_keys.append(linked_key)
 
-            # Get child issues
+            # Batch fetch linked issues that aren't cached
+            uncached_linked = [k for k in linked_keys if k not in issue_cache]
+            if uncached_linked:
+                try:
+                    if len(uncached_linked) == 1:
+                        linked_jql = f"key = {uncached_linked[0]}"
+                    else:
+                        keys_str = ", ".join(uncached_linked)
+                        linked_jql = f"key IN ({keys_str})"
+
+                    linked_result = self.query_issues(linked_jql, max_results=len(uncached_linked), fields=fields)
+                    for linked_issue in linked_result.get("issues", []):
+                        issue_cache[linked_issue["key"]] = linked_issue
+                except Exception:
+                    pass
+
+            # Query for child issues (this caches them automatically)
             children_jql = f"parent = {issue_key}"
             if project:
                 children_jql += f" AND project = {project}"
@@ -331,6 +377,8 @@ class JiraClient:
                 for child in children_issues:
                     child_key = child.get("key")
                     if child_key and child_key not in visited:
+                        # Cache the child issue
+                        issue_cache[child_key] = child
                         descendants.append((child_key, "child"))
             except Exception:
                 pass
@@ -448,6 +496,7 @@ def main():
         python3 sidekick/clients/jira.py query-by-parent PROJ-100
         python3 sidekick/clients/jira.py query-by-label backend
         python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New"}'
+        python3 sidekick/clients/jira.py add-label PROJ-123 needs-review
     """
     from sidekick.config import get_jira_config
 
@@ -461,6 +510,7 @@ def main():
         print("  query-by-label <label> [project] [max-results]")
         print("  roadmap-hierarchy <root-issue> [project] [issue-type]")
         print("  update-issue <issue-key> <fields-json>")
+        print("  add-label <issue-key> <label>")
         sys.exit(1)
 
     try:
@@ -538,6 +588,12 @@ def main():
             fields = json.loads(sys.argv[3])
             client.update_issue(issue_key, fields)
             print(f"Updated {issue_key}")
+
+        elif command == "add-label":
+            issue_key = sys.argv[2]
+            label = sys.argv[3]
+            client.add_label(issue_key, label)
+            print(f"Added label '{label}' to {issue_key}")
 
         else:
             print(f"Unknown command: {command}")
