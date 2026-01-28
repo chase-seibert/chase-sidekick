@@ -60,6 +60,9 @@ python -m sidekick.clients.jira update-issue PROJ-123 '{"summary": "New"}'
 
 # Add label to issue
 python -m sidekick.clients.jira add-label PROJ-123 needs-review
+
+# Remove label from issue
+python -m sidekick.clients.jira remove-label PROJ-123 needs-review
 ```
 
 ### Python Module Usage
@@ -87,6 +90,9 @@ result = client.query_issues(
 
 # Add a label to an issue
 client.add_label("PROJ-123", "needs-review")
+
+# Remove a label from an issue
+client.remove_label("PROJ-123", "needs-review")
 ```
 
 **Note**: `query_issues` and related methods accept a `fields` parameter to specify which fields to return from the API. Default fields are: `key`, `summary`, `status`, `assignee`, `labels`, `issuetype`, `description`.

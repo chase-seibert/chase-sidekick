@@ -203,6 +203,27 @@ class JiraClient:
             updated_labels = current_labels + [label]
             self.update_issue(issue_key, {"labels": updated_labels})
 
+    def remove_label(self, issue_key: str, label: str) -> None:
+        """Remove a label from an issue (preserving other labels).
+
+        Args:
+            issue_key: Issue key like "PROJ-123"
+            label: Label to remove (e.g., "backend", "needs-review")
+
+        Raises:
+            ValueError: If issue not found or update fails
+        """
+        # Get current issue to fetch existing labels
+        issue = self.get_issue(issue_key)
+        current_labels = issue.get("fields", {}).get("labels", [])
+
+        # Remove label if present
+        if label in current_labels:
+            updated_labels = [
+                lbl for lbl in current_labels if lbl != label
+            ]
+            self.update_issue(issue_key, {"labels": updated_labels})
+
     def query_issues_by_parent(
         self,
         parent_key: str,
@@ -497,6 +518,7 @@ def main():
         python3 sidekick/clients/jira.py query-by-label backend
         python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New"}'
         python3 sidekick/clients/jira.py add-label PROJ-123 needs-review
+        python3 sidekick/clients/jira.py remove-label PROJ-123 needs-review
     """
     from sidekick.config import get_jira_config
 
@@ -511,6 +533,7 @@ def main():
         print("  roadmap-hierarchy <root-issue> [project] [issue-type]")
         print("  update-issue <issue-key> <fields-json>")
         print("  add-label <issue-key> <label>")
+        print("  remove-label <issue-key> <label>")
         sys.exit(1)
 
     try:
@@ -594,6 +617,12 @@ def main():
             label = sys.argv[3]
             client.add_label(issue_key, label)
             print(f"Added label '{label}' to {issue_key}")
+
+        elif command == "remove-label":
+            issue_key = sys.argv[2]
+            label = sys.argv[3]
+            client.remove_label(issue_key, label)
+            print(f"Removed label '{label}' from {issue_key}")
 
         else:
             print(f"Unknown command: {command}")
