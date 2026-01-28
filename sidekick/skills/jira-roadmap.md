@@ -254,8 +254,124 @@ The implementation uses optimized depth-first traversal with smart caching:
 - `Subtask` - Child task of a Story or Task
 - `Initiative` - High-level strategic goal (if enabled in your JIRA)
 
+## Label Roadmap Hierarchy
+
+Automatically label issues in a roadmap hierarchy based on their prefix ancestry (e.g., C1, C1.1, C1.5.1).
+
+### Command
+
+```bash
+python -m sidekick.clients.jira label-roadmap <root-issue> [project] [--dry-run] [--limit N]
+```
+
+**Arguments:**
+- `<root-issue>` - Root issue key (must have valid prefix like C1, T1, etc.)
+- `[project]` - Optional: Project key to filter by (e.g., `DBX`)
+- `--dry-run` - Preview changes without applying
+- `--limit N` - Stop after labeling N issues
+
+### How It Works
+
+The operation traverses the issue hierarchy depth-first and adds labels based on prefix ancestry:
+
+1. **Root Validation**: Ensures root issue has valid prefix (e.g., C1)
+2. **Prefix Extraction**:
+   - Extracts prefixes from issue summaries using pattern matching
+   - Matches: C1, C1.5, C1.5.1, T2, M7, etc.
+   - Handles variations: "C1.", "C1 ", "C1: "
+   - Issues without prefixes inherit their parent's labels
+   - Issues with different prefix families (e.g., M7 in a C1 hierarchy) inherit parent labels plus their own prefix
+3. **Label Assignment** based on depth:
+   - **Depth 0-2**: All ancestor prefixes (1-3 labels)
+   - **Depth 3**: Root + parent + self (3 labels max)
+   - **Depth 4+**: Inherits parent's 3 labels (no prefix needed)
+4. **Clone Filtering**: Automatically skips linked issues of type "clones"
+5. **Optimization**: Skips issues that already have correct labels
+
+### Label Examples
+
+```
+Issue Hierarchy:                  Labels Added:
+DBX-1734 (C1)                    → [c1]
+├─ DBX-1739 (C1.5)              → [c1, c1.5]
+   ├─ DBX-3162 (C1.5.1)         → [c1, c1.5, c1.5.1]
+      ├─ DBX-3737 (no prefix)   → [c1, c1.5, c1.5.1]      (inherited from parent)
+      ├─ DBX-4059 (M7)          → [c1, c1.5, c1.5.1]      (inherited, M7 filtered out)
+      ├─ DBX-4060 (C1.5.1.1)    → [c1, c1.5.1, c1.5.1.1]  (root + parent + self)
+         ├─ DBX-5000 (no prefix)→ [c1, c1.5.1, c1.5.1.1]  (inherited from parent)
+   ├─ DBX-3163 (C1.5.2)         → [c1, c1.5, c1.5.2]
+      ├─ DBX-XXXX (no prefix)   → [c1, c1.5, c1.5.2]      (inherited from parent)
+```
+
+**Note**: Only prefixes matching the root family are used for labels. Cross-family issues (like M7 in a C1 hierarchy) inherit their parent's labels WITHOUT adding their own prefix.
+
+### Usage Examples
+
+**Preview changes (dry-run):**
+```bash
+python -m sidekick.clients.jira label-roadmap DBX-1734 DBX --dry-run
+```
+
+Output:
+```
+Labeling roadmap hierarchy for DBX-1734 in DBX (DRY RUN):
+
+DBX-1734: C1. Unblock Team Growth...
+  Current labels: []
+  Labels to add: [c1]
+
+DBX-1739: C1.5 Simplify Sharing
+  Current labels: [c1]
+  Labels to add: [c1.5]
+
+DBX-3162: C1.5.1 Deprecate all legacy share modals
+  Current labels: []
+  Labels to add: [c1, c1.5, c1.5.1]
+
+Summary: Processed 100 issues, labeled 85, skipped 15, 0 errors
+```
+
+**Label first 10 issues (incremental approach):**
+```bash
+python -m sidekick.clients.jira label-roadmap DBX-1734 DBX --limit 10
+```
+
+**Label entire hierarchy:**
+```bash
+python -m sidekick.clients.jira label-roadmap DBX-1734 DBX
+```
+
+### Best Practices
+
+1. **Always test with --dry-run first**: Preview changes before applying
+2. **Use --limit for large hierarchies**: Start with 10-20 issues to validate
+3. **Verify root prefix**: Ensure root issue has valid prefix before running
+4. **Monitor API calls**: Watch debug output for rate limiting concerns
+5. **Incremental labeling**: Use multiple runs with --limit to gradually apply labels
+
+### Edge Cases
+
+- **Missing prefix at depth 0-3**: Issue skipped with warning
+- **Different prefix family**: Issues with different prefix families are skipped (e.g., M7 is skipped when root is C1)
+- **Missing prefix at depth 4+**: Inherits parent's labels (normal behavior)
+- **Already has labels**: Skips issue (optimization, no API calls)
+- **Invalid root prefix**: Exits with error before processing
+- **API failures**: Logs error, increments error counter, continues processing
+
+### Performance
+
+- **Dry-run mode**: ~1.5-2 API calls per issue (hierarchy traversal only)
+- **Real mode**: ~3.5-4 API calls per issue (traversal + label updates)
+- **Large hierarchies**: Use --limit to process in batches
+
+For 100 issues:
+- Dry-run: ~150-200 API calls, ~20-30 seconds
+- Real mode: ~350-400 API calls, ~45-60 seconds
+
 ## Related Commands
 
 - `query-by-parent` - Get direct children only (no recursion)
 - `query` - Use JQL for custom queries
 - `get-issue` - Get details of a single issue
+- `add-label` - Add a single label to an issue
+- `remove-label` - Remove a label from an issue

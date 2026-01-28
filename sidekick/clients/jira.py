@@ -228,6 +228,138 @@ class JiraClient:
             ]
             self.update_issue(issue_key, {"labels": updated_labels})
 
+    def label_roadmap_hierarchy(
+        self,
+        root_issue_key: str,
+        project: Optional[str] = None,
+        dry_run: bool = False,
+        limit: Optional[int] = None
+    ) -> dict:
+        """Label issues in hierarchy based on their roadmap prefixes.
+
+        Traverses issue hierarchy and adds labels based on prefix ancestry.
+        Issues at depth 0-2 get all ancestor prefixes as labels.
+        Issues at depth 3 get root + parent + self (3 labels max).
+        Issues at depth 4+ inherit their parent's labels.
+
+        Args:
+            root_issue_key: Root issue key (e.g., 'DBX-1734')
+            project: Optional project filter
+            dry_run: If True, preview changes without applying
+            limit: Optional maximum number of issues to update
+
+        Returns:
+            Dict with stats: {
+                'processed': int,
+                'labeled': int,
+                'skipped': int,
+                'errors': int
+            }
+
+        Raises:
+            ValueError: If root issue has no valid prefix
+        """
+        # Validate root issue has a valid prefix
+        root_issue = self.get_issue(root_issue_key)
+        root_summary = root_issue.get("fields", {}).get("summary", "")
+        root_prefix = _extract_prefix(root_summary)
+
+        if not root_prefix:
+            raise ValueError(
+                f"Root issue {root_issue_key} has no valid prefix in summary: '{root_summary}'"
+            )
+
+        # Extract root family for filtering (e.g., "C" from "C1")
+        root_family = root_prefix[0]
+
+        # Initialize tracking structures
+        prefix_map = {}
+        parent_map = {}
+        label_map = {}
+        stats = {
+            'processed': 0,
+            'labeled': 0,
+            'skipped': 0,
+            'errors': 0
+        }
+
+        # Traverse hierarchy
+        for item in self.get_issue_hierarchy(root_issue_key, project):
+            issue = item["issue"]
+            depth = item["depth"]
+            parent_key = item["parent_key"]
+            issue_key = issue.get("key")
+            summary = issue.get("fields", {}).get("summary", "")
+            current_labels = issue.get("fields", {}).get("labels", [])
+
+            # Store parent relationship
+            if parent_key:
+                parent_map[issue_key] = parent_key
+
+            # Extract prefix from summary (only if matches root family)
+            prefix = _extract_prefix(summary)
+            if prefix and prefix[0] == root_family:
+                prefix_map[issue_key] = prefix
+            # If prefix doesn't match family or is missing, issue will inherit parent's labels
+
+            # Build ancestry labels
+            ancestry_labels = _build_ancestry_labels(
+                issue_key, prefix_map, parent_map, label_map, depth
+            )
+
+            # Store computed labels
+            label_map[issue_key] = ancestry_labels
+
+            # Calculate new labels to add
+            new_labels = set(ancestry_labels) - set(current_labels)
+
+            # Skip if already has correct labels
+            if not new_labels:
+                if dry_run:
+                    print(f"{issue_key}: {summary[:60]}...")
+                    print(f"  Current labels: {current_labels}")
+                    print(f"  Already has correct labels, skipped\n")
+                else:
+                    print(f"[{stats['processed'] + 1}] {issue_key}: Skipped (already has correct labels)")
+                continue
+
+            # Preview or apply changes
+            if dry_run:
+                inherited_note = " (inherited)" if depth >= 4 else ""
+                print(f"{issue_key}: {summary[:60]}...")
+                print(f"  Current labels: {current_labels}")
+                print(f"  Labels to add: {sorted(new_labels)}{inherited_note}\n")
+            else:
+                # Apply labels
+                errors_in_issue = []
+                for label in new_labels:
+                    try:
+                        self.add_label(issue_key, label)
+                    except Exception as e:
+                        errors_in_issue.append(str(e))
+                        stats['errors'] += 1
+
+                # Print progress
+                new_count = len(new_labels)
+                existing = [lbl for lbl in current_labels if lbl in ancestry_labels]
+                existing_str = f", already had: {', '.join(existing)}" if existing else ""
+                inherited_note = ", inherited" if depth >= 4 else ""
+                error_str = f" (errors: {len(errors_in_issue)})" if errors_in_issue else ""
+
+                print(
+                    f"[{stats['processed'] + 1}] {issue_key}: "
+                    f"Added labels {sorted(new_labels)} ({new_count} new{existing_str}{inherited_note}){error_str}"
+                )
+
+            stats['processed'] += 1
+            stats['labeled'] += 1
+
+            # Check limit
+            if limit and stats['labeled'] >= limit:
+                break
+
+        return stats
+
     def query_issues_by_parent(
         self,
         parent_key: str,
@@ -362,6 +494,22 @@ class JiraClient:
             linked_keys = []
             issuelinks = issue.get("fields", {}).get("issuelinks", [])
             for link in issuelinks:
+                # Skip clone-type links
+                link_type = link.get("type", {})
+                link_type_name = link_type.get("name", "").lower()
+                link_inward = link_type.get("inward", "").lower()
+                link_outward = link_type.get("outward", "").lower()
+
+                # Check if this is a clone relationship
+                is_clone = (
+                    "clone" in link_type_name or
+                    "clone" in link_inward or
+                    "clone" in link_outward
+                )
+
+                if is_clone:
+                    continue  # Skip clone links
+
                 linked_issue = link.get("inwardIssue") or link.get("outwardIssue")
                 if linked_issue:
                     linked_key = linked_issue.get("key", "")
@@ -512,6 +660,73 @@ def _print_hierarchy_item(item: dict, parent_depths: dict) -> None:
         print(prefix + issue_line)
 
 
+def _extract_prefix(summary: str) -> Optional[str]:
+    """Extract roadmap prefix from issue summary (e.g., 'C1', 'C1.5', 'C1.5.1').
+
+    Args:
+        summary: Issue summary text
+
+    Returns:
+        Extracted prefix string or None if no valid prefix found
+    """
+    import re
+    match = re.match(r'^([A-Z]\d+(?:\.\d+)*)\s*\.?\s*', summary)
+    return match.group(1) if match else None
+
+
+def _build_ancestry_labels(
+    issue_key: str,
+    prefix_map: dict,
+    parent_map: dict,
+    label_map: dict,
+    depth: int
+) -> list:
+    """Build ancestry label chain for an issue.
+
+    Strategy:
+    - Depth 0-2: Return all ancestor prefixes
+    - Depth 3: Return root + parent + self (3 labels max)
+    - Depth 4+: Inherit parent's labels
+
+    Args:
+        issue_key: Current issue key
+        prefix_map: Dictionary mapping issue_key → prefix
+        parent_map: Dictionary mapping issue_key → parent_key
+        label_map: Dictionary mapping issue_key → labels
+        depth: Current depth in hierarchy
+
+    Returns:
+        List of lowercase label strings (e.g., ['c1', 'c1.5', 'c1.5.1'])
+    """
+    # For depth >= 4, inherit parent's labels
+    if depth >= 4:
+        parent_key = parent_map.get(issue_key)
+        if parent_key and parent_key in label_map:
+            return label_map[parent_key]  # Inherit parent's labels
+        # Fallback: try to build from ancestry
+
+    # Collect full ancestry chain from issue to root
+    ancestry = []
+    current_key = issue_key
+
+    while current_key:
+        if current_key in prefix_map:
+            ancestry.append(prefix_map[current_key].lower())
+        if current_key in parent_map:
+            current_key = parent_map[current_key]
+        else:
+            break
+
+    # Reverse to get root → ... → self order
+    ancestry = list(reversed(ancestry))
+
+    # Apply depth-based strategy
+    if len(ancestry) > 3:
+        return [ancestry[0], ancestry[-2], ancestry[-1]]  # root, parent, self
+    else:
+        return ancestry
+
+
 def main():
     """CLI entry point for JIRA client.
 
@@ -523,6 +738,8 @@ def main():
         python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New"}'
         python3 sidekick/clients/jira.py add-label PROJ-123 needs-review
         python3 sidekick/clients/jira.py remove-label PROJ-123 needs-review
+        python3 sidekick/clients/jira.py label-roadmap DBX-1734 DBX --dry-run
+        python3 sidekick/clients/jira.py label-roadmap DBX-1734 DBX --limit 10
     """
     from sidekick.config import get_jira_config
 
@@ -538,6 +755,7 @@ def main():
         print("  update-issue <issue-key> <fields-json>")
         print("  add-label <issue-key> <label>")
         print("  remove-label <issue-key> <label>")
+        print("  label-roadmap <root-issue> [project] [--dry-run] [--limit N]")
         sys.exit(1)
 
     try:
@@ -627,6 +845,43 @@ def main():
             label = sys.argv[3]
             client.remove_label(issue_key, label)
             print(f"Removed label '{label}' from {issue_key}")
+
+        elif command == "label-roadmap":
+            root_issue = sys.argv[2]
+
+            # Parse optional project argument and flags
+            project = None
+            dry_run = False
+            limit = None
+
+            i = 3
+            while i < len(sys.argv):
+                arg = sys.argv[i]
+                if arg == "--dry-run":
+                    dry_run = True
+                    i += 1
+                elif arg == "--limit" and i + 1 < len(sys.argv):
+                    limit = int(sys.argv[i + 1])
+                    i += 2
+                elif not arg.startswith("--") and project is None:
+                    project = arg
+                    i += 1
+                else:
+                    i += 1
+
+            if project in ("", "None", "none"):
+                project = None
+
+            mode_str = " (DRY RUN)" if dry_run else ""
+            project_str = f" in {project}" if project else ""
+            limit_str = f" (limit: {limit})" if limit else ""
+            print(f"Labeling roadmap hierarchy for {root_issue}{project_str}{mode_str}{limit_str}:\n")
+
+            stats = client.label_roadmap_hierarchy(root_issue, project, dry_run, limit)
+
+            print(f"\nSummary: Processed {stats['processed']} issues, " +
+                  f"labeled {stats['labeled']}, skipped {stats['skipped']}, " +
+                  f"{stats['errors']} errors")
 
         else:
             print(f"Unknown command: {command}")
