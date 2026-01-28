@@ -138,8 +138,36 @@ Update issue fields. Provide fields as JSON object.
 **Common field updates:**
 - `{"summary": "text"}` - Update title
 - `{"description": "text"}` - Update description
-- `{"labels": ["label1", "label2"]}` - Set labels
+- `{"labels": ["label1", "label2"]}` - Set labels (replaces all labels)
 - `{"assignee": {"accountId": "123456"}}` - Assign to user
+
+### Add Label
+
+```bash
+python -m sidekick.clients.jira add-label PROJ-123 needs-review
+python -m sidekick.clients.jira add-label PROJ-123 backend
+```
+
+Add a label to an issue while preserving existing labels. If the label already exists on the issue, no change is made.
+
+Output:
+```
+Added label 'needs-review' to PROJ-123
+```
+
+### Remove Label
+
+```bash
+python -m sidekick.clients.jira remove-label PROJ-123 needs-review
+python -m sidekick.clients.jira remove-label PROJ-123 old-label
+```
+
+Remove a label from an issue while preserving other labels. If the label doesn't exist on the issue, no change is made.
+
+Output:
+```
+Removed label 'needs-review' from PROJ-123
+```
 
 ## Python Usage
 
@@ -177,8 +205,15 @@ backend_issues = client.query_issues_by_label(
     fields=["key", "summary", "assignee"]
 )
 
-# Update
+# Update issue fields
 client.update_issue("PROJ-123", {"summary": "New summary"})
+client.update_issue("PROJ-123", {"labels": ["backend", "bug"]})  # Replaces all labels
+
+# Add a label (preserves existing labels)
+client.add_label("PROJ-123", "needs-review")
+
+# Remove a label (preserves other labels)
+client.remove_label("PROJ-123", "old-label")
 ```
 
 ### Common Field Names
