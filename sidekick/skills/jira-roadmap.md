@@ -203,18 +203,19 @@ Each yielded item is a dict with:
 
 The iterator approach provides:
 - **Immediate results**: See issues as they're fetched, no waiting for entire hierarchy
-- **Memory efficient**: Processes one level at a time, doesn't build large in-memory tree
-- **Batched queries**: Fetches all issues at same level together (major performance win)
+- **Memory efficient**: Uses generators, doesn't build large in-memory tree
+- **Depth-first ordering**: Children appear directly under their parent in output
 - **Early termination**: Can stop iteration early if you find what you need
 - **Progress feedback**: Can show progress indicators as you iterate
 
-### Query Optimization
+### Traversal Approach
 
-The implementation uses breadth-first traversal with batching:
-1. **Level-by-level**: Processes all issues at depth 0, then depth 1, etc.
-2. **Batch issue fetch**: `key IN (KEY1, KEY2, ...)` to get multiple issues in one call
-3. **Batch children fetch**: `parent IN (KEY1, KEY2, ...)` to get all children in one call
-4. **Dramatic reduction**: From 2N API calls to ~2L calls (where L = max depth)
+The implementation uses depth-first traversal with recursive descent:
+1. **Depth-First**: Processes each issue and immediately traverses its descendants before moving to siblings
+2. **Correct Nesting**: Children appear immediately under their parent in the output
+3. **Streaming Results**: Issues are yielded as they're discovered
+4. **Per-Issue Queries**: Fetches each issue individually, then queries for its children
+5. **Memory Efficient**: Uses generators and doesn't build the entire tree in memory
 
 ## Limitations
 
@@ -226,12 +227,11 @@ The implementation uses breadth-first traversal with batching:
 ## Performance Notes
 
 - **Streaming**: Results appear immediately as they're fetched from the API
-- **Optimized Queries**: Uses breadth-first traversal with batched queries
-  - Old approach: 2 API calls per issue (2N total)
-  - New approach: 1-2 API calls per hierarchy level (~2L total, where L is depth)
-  - Example: 100 issues at depth 5 = ~10 API calls vs 200 calls
-- **Batching**: Fetches all issues at the same level in one query, all children in one query
-- **Large Hierarchies**: Efficient for 100+ issues due to batching
+- **Depth-First Traversal**: Children appear immediately under their parent in the output
+- **Iterator Pattern**: Yields results as discovered, memory efficient
+- **API Calls**: Approximately 2 calls per issue (1 to fetch issue, 1 to query children)
+  - For N issues: ~2N API calls
+  - Trade-off: Correct parent-child nesting vs batching optimization
 - **Early Exit**: In Python, you can break from the loop early if you find what you need
 
 ## Tips

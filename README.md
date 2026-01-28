@@ -170,7 +170,7 @@ chase-sidekick/
 
 - **JIRA** (`sidekick/skills/jira.md`) - Query and manage JIRA issues
 - **JIRA Roadmap** (`sidekick/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
-  - Uses optimized batched queries (2L API calls vs 2N, where L=depth, N=issues)
+  - Depth-first traversal with children appearing immediately under parents
   - Streams results as they're fetched for immediate feedback
 - **Output** (`sidekick/skills/output.md`) - Save command output with prompt metadata
   - Auto-generates filenames from prompts
