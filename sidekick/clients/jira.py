@@ -76,7 +76,11 @@ class JiraClient:
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
                 self.api_call_count += 1
-                return json.loads(response.read().decode())
+                body = response.read().decode()
+                # Some API calls (like update operations) return no content
+                if not body or body.strip() == "":
+                    return None
+                return json.loads(body)
         except urllib.error.HTTPError as e:
             error_body = e.read().decode() if e.fp else ""
             if e.code == 404:
