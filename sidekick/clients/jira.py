@@ -231,19 +231,19 @@ class JiraClient:
     def get_issue_hierarchy(
         self,
         root_issue_key: str,
-        project: str,
+        project: Optional[str] = None,
         issue_type: Optional[str] = None,
         max_depth: int = 10,
         fields: Optional[list] = None
     ):
         """Fetch issue hierarchy as an iterator using breadth-first traversal with batched queries.
 
-        Traverses both parent-child relationships and linked issues, staying within
-        the specified project. Uses batched queries to minimize API calls.
+        Traverses both parent-child relationships and linked issues. Optionally filters
+        to stay within a specified project. Uses batched queries to minimize API calls.
 
         Args:
             root_issue_key: Starting issue key (e.g., "DBX-123")
-            project: Project key to filter by (e.g., "DBX")
+            project: Optional project key to filter by (e.g., "DBX"). If None, traverses across all projects.
             issue_type: Optional issue type filter (e.g., "Story", "Epic")
             max_depth: Maximum recursion depth to prevent infinite loops
             fields: List of fields to return (uses default if not specified)
@@ -255,8 +255,13 @@ class JiraClient:
             - relationship: "root", "child", or "linked"
             - parent_key: Parent issue key (or None for root)
 
-        Example:
-            for item in client.get_issue_hierarchy("DBX-100", "DBX"):
+        Examples:
+            # Filter to single project
+            for item in client.get_issue_hierarchy("DBX-100", project="DBX"):
+                print(f"{item['issue']['key']} at depth {item['depth']}")
+
+            # Traverse across all projects
+            for item in client.get_issue_hierarchy("DBX-100"):
                 print(f"{item['issue']['key']} at depth {item['depth']}")
         """
         if fields is None:
@@ -328,18 +333,26 @@ class JiraClient:
                     linked_issue = link.get("inwardIssue") or link.get("outwardIssue")
                     if linked_issue:
                         linked_key = linked_issue.get("key", "")
-                        # Only include if in the same project and not visited
-                        if linked_key.startswith(project + "-") and linked_key not in visited:
+                        # Only include if not visited (and optionally filter by project)
+                        should_include = linked_key not in visited
+                        if project:
+                            should_include = should_include and linked_key.startswith(project + "-")
+                        if should_include:
                             next_level.append((linked_key, depth + 1, "linked", issue_key))
 
             # Batch query for all children of current level
             if parent_keys_for_children:
                 if len(parent_keys_for_children) == 1:
-                    children_jql = f"parent = {parent_keys_for_children[0]} AND project = {project}"
+                    children_jql = f"parent = {parent_keys_for_children[0]}"
                 else:
                     parents_str = ", ".join(parent_keys_for_children)
-                    children_jql = f"parent IN ({parents_str}) AND project = {project}"
+                    children_jql = f"parent IN ({parents_str})"
 
+                # Add project filter if specified
+                if project:
+                    children_jql += f" AND project = {project}"
+
+                # Add issue type filter if specified
                 if issue_type:
                     children_jql += f' AND issuetype = "{issue_type}"'
 
@@ -478,7 +491,7 @@ def main():
         print("  query <jql> [max-results]")
         print("  query-by-parent <parent-key> [max-results]")
         print("  query-by-label <label> [project] [max-results]")
-        print("  roadmap-hierarchy <root-issue> <project> [issue-type]")
+        print("  roadmap-hierarchy <root-issue> [project] [issue-type]")
         print("  update-issue <issue-key> <fields-json>")
         sys.exit(1)
 
@@ -533,11 +546,15 @@ def main():
 
         elif command == "roadmap-hierarchy":
             root_issue = sys.argv[2]
-            project = sys.argv[3]
+            # Project is optional - can be None, empty string, or "None"
+            project = sys.argv[3] if len(sys.argv) > 3 else None
+            if project in ("", "None", "none"):
+                project = None
             issue_type = sys.argv[4] if len(sys.argv) > 4 else None
 
             type_str = f" (filtered to {issue_type})" if issue_type else ""
-            print(f"Roadmap hierarchy for {root_issue} in {project}{type_str}:\n")
+            project_str = f" in {project}" if project else " (across all projects)"
+            print(f"Roadmap hierarchy for {root_issue}{project_str}{type_str}:\n")
 
             # Consume iterator and display results as they come
             count = 0

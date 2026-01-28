@@ -2,6 +2,19 @@
 
 Command-line interface for JIRA operations.
 
+## Setup
+
+```bash
+# Create and activate virtual environment (first time only)
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+**Note**: Always activate the venv before running commands:
+```bash
+source venv/bin/activate
+```
+
 ## Configuration
 
 Configuration is automatically loaded from `.env` file in project root.
@@ -19,12 +32,12 @@ Get your JIRA API token: https://id.atlassian.com/manage-profile/security/api-to
 
 ## Commands
 
-All commands run directly with Python 3 - no installation needed.
+All commands use the module form (`python -m sidekick.clients.jira`).
 
 ### Get Single Issue
 
 ```bash
-python3 sidekick/clients/jira.py get-issue PROJ-123
+python -m sidekick.clients.jira get-issue PROJ-123
 ```
 
 Displays issue details in readable format:
@@ -40,7 +53,7 @@ PROJ-123: Fix login bug
 ### Get Multiple Issues
 
 ```bash
-python3 sidekick/clients/jira.py get-issues-bulk PROJ-123 PROJ-124 PROJ-125
+python -m sidekick.clients.jira get-issues-bulk PROJ-123 PROJ-124 PROJ-125
 ```
 
 Displays issues in one-line format:
@@ -55,8 +68,8 @@ Skips any issues that don't exist.
 ### Query Issues with JQL
 
 ```bash
-python3 sidekick/clients/jira.py query "project = PROJ AND status = Open"
-python3 sidekick/clients/jira.py query "project = PROJ AND status = Open" 10
+python -m sidekick.clients.jira query "project = PROJ AND status = Open"
+python -m sidekick.clients.jira query "project = PROJ AND status = Open" 10
 ```
 
 Query using JQL (JIRA Query Language). Optional max results (default: 50).
@@ -80,8 +93,8 @@ PROJ-124: Add dark mode [To Do] (Jane Smith) [frontend]
 ### Query by Parent
 
 ```bash
-python3 sidekick/clients/jira.py query-by-parent PROJ-100
-python3 sidekick/clients/jira.py query-by-parent PROJ-100 20
+python -m sidekick.clients.jira query-by-parent PROJ-100
+python -m sidekick.clients.jira query-by-parent PROJ-100 20
 ```
 
 Get all subtasks/child issues of a parent issue. Optional max results (default: 50).
@@ -97,9 +110,9 @@ PROJ-102: Create frontend UI [In Progress] (Jane Smith) [frontend]
 ### Query by Label
 
 ```bash
-python3 sidekick/clients/jira.py query-by-label backend
-python3 sidekick/clients/jira.py query-by-label backend PROJ
-python3 sidekick/clients/jira.py query-by-label backend PROJ 20
+python -m sidekick.clients.jira query-by-label backend
+python -m sidekick.clients.jira query-by-label backend PROJ
+python -m sidekick.clients.jira query-by-label backend PROJ 20
 ```
 
 Get issues with a specific label. Optionally filter by project. Optional max results (default: 50).
@@ -115,9 +128,9 @@ PROJ-125: Update API [To Do] (Jane Smith) [backend, api]
 ### Update Issue
 
 ```bash
-python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New summary"}'
-python3 sidekick/clients/jira.py update-issue PROJ-123 '{"labels": ["backend", "bug"]}'
-python3 sidekick/clients/jira.py update-issue PROJ-123 '{"description": "Updated description"}'
+python -m sidekick.clients.jira update-issue PROJ-123 '{"summary": "New summary"}'
+python -m sidekick.clients.jira update-issue PROJ-123 '{"labels": ["backend", "bug"]}'
+python -m sidekick.clients.jira update-issue PROJ-123 '{"description": "Updated description"}'
 ```
 
 Update issue fields. Provide fields as JSON object.

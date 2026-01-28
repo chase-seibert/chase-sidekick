@@ -34,29 +34,29 @@ Configuration is automatically loaded from `.env` file. Output uses a readable m
 
 ```bash
 # Get issue (detailed view)
-python3 sidekick/clients/jira.py get-issue PROJ-123
+python -m sidekick.clients.jira get-issue PROJ-123
 # PROJ-123: Fix login bug
 #   Status: In Progress
 #   Assignee: John Doe
 
 # Query issues (one-line per issue)
-python3 sidekick/clients/jira.py query "project = PROJ"
+python -m sidekick.clients.jira query "project = PROJ"
 # Found 42 issues (showing 50):
 # PROJ-123: Fix login bug [In Progress] (John Doe) [backend, bug]
 # PROJ-124: Add dark mode [To Do] (Jane Smith) [frontend]
 
 # Query by parent
-python3 sidekick/clients/jira.py query-by-parent PROJ-100
+python -m sidekick.clients.jira query-by-parent PROJ-100
 
 # Query by label
-python3 sidekick/clients/jira.py query-by-label backend
+python -m sidekick.clients.jira query-by-label backend
 
 # Get roadmap hierarchy (recursive children + linked issues)
-python3 sidekick/clients/jira.py roadmap-hierarchy DBX-100 DBX
-python3 sidekick/clients/jira.py roadmap-hierarchy DBX-100 DBX Story
+python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX
+python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX Story
 
 # Update issue
-python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New"}'
+python -m sidekick.clients.jira update-issue PROJ-123 '{"summary": "New"}'
 ```
 
 ### Python Module Usage
@@ -100,7 +100,7 @@ sidekick/
 ### Key Patterns
 
 - **Configuration**: Use `config.py` to load from `.env` file (with fallback to environment variables)
-- **Direct Script Execution**: Run clients directly with `python3 sidekick/clients/jira.py` - no module installation needed
+- **Direct Script Execution**: Run clients directly with `python -m sidekick.clients.jira` - no module installation needed
 - **Standard Exceptions**: Use built-in Python exceptions (ValueError, RuntimeError, ConnectionError)
 - **Dictionary Returns**: Return dicts instead of custom classes for simplicity
 - **Inline Auth**: Auth logic in the client class, no separate auth module

@@ -8,3 +8,9 @@ ENV/
 .env
 .DS_Store
 *.log
+
+# Output files (saved command results)
+output/
+!output/.gitkeep
+!output/*/.gitkeep
+!output/README.md

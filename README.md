@@ -20,13 +20,27 @@ cp .env.example .env
 # Get API token: https://id.atlassian.com/manage-profile/security/api-tokens
 ```
 
+### Example Prompts
+
+Here are some natural language prompts you can use:
+
+```
+"Find roadmap items nested under DBX-1735 in the DBX Project"
+"Show me the hierarchy for PROJ-500"
+"What issues are linked to TEAM-100?"
+"Get all Story issues under EPIC-200 in the EPIC project"
+"Find all issues under DBX-1735 across all projects"
+"Query issues with status Open in the PROJ project"
+"Show me all backend issues in PROJ"
+```
+
 ### Command Line Usage
 
 Configuration is automatically loaded from `.env` file:
 
 ```bash
 # Get single issue (detailed view)
-python3 sidekick/clients/jira.py get-issue PROJ-123
+python -m sidekick.clients.jira get-issue PROJ-123
 # Output:
 # PROJ-123: Fix login bug
 #   Status: In Progress
@@ -35,7 +49,7 @@ python3 sidekick/clients/jira.py get-issue PROJ-123
 #   Type: Bug
 
 # Query issues (one per line)
-python3 sidekick/clients/jira.py query "project = PROJ AND status = Open"
+python -m sidekick.clients.jira query "project = PROJ AND status = Open"
 # Output:
 # Found 42 issues (showing 50):
 # PROJ-123: Fix login bug [In Progress] (John Doe) [backend, bug]
@@ -43,18 +57,74 @@ python3 sidekick/clients/jira.py query "project = PROJ AND status = Open"
 # ...
 
 # Query by parent (subtasks)
-python3 sidekick/clients/jira.py query-by-parent PROJ-100
+python -m sidekick.clients.jira query-by-parent PROJ-100
 
 # Query by label
-python3 sidekick/clients/jira.py query-by-label backend
+python -m sidekick.clients.jira query-by-label backend
 
 # Get roadmap hierarchy (recursively find all children and linked issues)
-python3 sidekick/clients/jira.py roadmap-hierarchy DBX-100 DBX
-python3 sidekick/clients/jira.py roadmap-hierarchy DBX-100 DBX Story
+python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX
+python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX Story
+python -m sidekick.clients.jira roadmap-hierarchy DBX-100  # All projects
 
 # Update issue
-python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New title"}'
+python -m sidekick.clients.jira update-issue PROJ-123 '{"summary": "New title"}'
 ```
+
+## Saving Output with Prompts
+
+Save command output with prompt metadata for easy tracking and refreshing:
+
+```bash
+# Save with auto-generated filename from prompt
+python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+  python -m sidekick.clients.output write \
+    "Find roadmap items nested under DBX-1735 in the DBX Project" \
+    jira \
+    "roadmap-hierarchy DBX-1735 DBX"
+# Saves to: output/jira/dbx-1735-roadmap-items.txt
+
+# Refresh existing output (preserves creation timestamp)
+python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+  python -m sidekick.clients.output write \
+    "Find roadmap items nested under DBX-1735 in the DBX Project" \
+    jira \
+    "roadmap-hierarchy DBX-1735 DBX" \
+    --refresh
+
+# List saved outputs
+python -m sidekick.clients.output list jira
+
+# Find outputs by prompt text
+python -m sidekick.clients.output find jira "DBX-1735"
+```
+
+**Features:**
+- Auto-generated filenames from prompts (e.g., `dbx-1735-roadmap-items.txt`)
+- Prompt text and command stored in file header
+- Creation and update timestamps
+- Searchable by prompt text
+- Refresh capability to update existing files
+
+See `sidekick/skills/output.md` for detailed documentation.
+
+### Simple Output Redirect
+
+You can also use simple file redirection:
+
+```bash
+# Save roadmap hierarchy
+python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX > output/jira/2025-01-27_DBX-1735_hierarchy.txt
+
+# Quick command with today's date
+TODAY=$(date +%Y-%m-%d)
+python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX > output/jira/${TODAY}_DBX-100.txt
+```
+
+**Output Location:**
+- Files are saved in `output/<client>/` directories (e.g., `output/jira/`)
+- These files are not checked into git
+- See `output/README.md` for naming guidelines
 
 ## Configuration
 
@@ -81,10 +151,16 @@ chase-sidekick/
 ├── sidekick/
 │   ├── config.py          # Configuration from .env
 │   ├── clients/           # Service clients (single files)
-│   │   └── jira.py       # JIRA client with CLI
+│   │   ├── jira.py       # JIRA client with CLI
+│   │   └── output.py     # Output manager with CLI
 │   ├── skills/           # Usage documentation
-│   │   └── jira.md       # JIRA skill docs
+│   │   ├── jira.md       # JIRA skill docs
+│   │   ├── jira-roadmap.md  # JIRA roadmap skill docs
+│   │   └── output.md     # Output management skill docs
 │   └── agents/           # Future: Multi-client scripts
+├── output/                # Saved command outputs (not in git)
+│   ├── jira/             # JIRA outputs
+│   └── README.md         # Output guidelines
 ├── .env                   # Your credentials (not in git)
 ├── .env.example          # Example configuration
 └── README.md
@@ -96,6 +172,10 @@ chase-sidekick/
 - **JIRA Roadmap** (`sidekick/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
   - Uses optimized batched queries (2L API calls vs 2N, where L=depth, N=issues)
   - Streams results as they're fetched for immediate feedback
+- **Output** (`sidekick/skills/output.md`) - Save command output with prompt metadata
+  - Auto-generates filenames from prompts
+  - Stores prompt text, command, and timestamps in file headers
+  - Searchable and refreshable outputs
 
 ## Roadmap
 
