@@ -86,7 +86,26 @@ class JiraClient:
             if e.code == 404:
                 raise ValueError(f"Resource not found: {url}")
             elif e.code == 401 or e.code == 403:
-                raise ValueError(f"Authentication failed: {e.code}")
+                # Parse error details for better messaging
+                error_message = "Authentication failed"
+                try:
+                    error_data = json.loads(error_body) if error_body else {}
+                    error_messages = error_data.get("errorMessages", [])
+                    if error_messages:
+                        error_message = ", ".join(error_messages)
+                except (json.JSONDecodeError, KeyError):
+                    pass
+
+                # Provide actionable error message for expired/invalid tokens
+                raise ValueError(
+                    f"JIRA authentication failed (HTTP {e.code}): {error_message}\n"
+                    f"\n"
+                    f"Your JIRA access token may be expired or invalid.\n"
+                    f"To fix this:\n"
+                    f"  1. Generate a new API token at: https://id.atlassian.com/manage-profile/security/api-tokens\n"
+                    f"  2. Update the JIRA_API_TOKEN in your .env file\n"
+                    f"  3. Verify your JIRA_EMAIL matches the account that created the token"
+                )
             elif 400 <= e.code < 500:
                 raise ValueError(f"Client error {e.code}: {error_body}")
             else:
