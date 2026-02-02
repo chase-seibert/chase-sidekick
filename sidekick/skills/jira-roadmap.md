@@ -22,11 +22,11 @@ Uses the same `.env` configuration as the main JIRA skill. See `jira.md` for set
 Natural language prompts that work with this skill:
 
 ```
-"Find roadmap items nested under DBX-1735 in the DBX Project"
+"Find roadmap items nested under PROJ-1735 in the PROJ Project"
 "Show me the hierarchy for PROJ-500 in PROJ"
 "What issues are linked to TEAM-100 in the TEAM project?"
 "Get all Story issues under EPIC-200 in EPIC"
-"Find all issues under DBX-1735 across all projects"
+"Find all issues under PROJ-1735 across all projects"
 "Show me the complete hierarchy for PROJ-500 without project filtering"
 ```
 
@@ -41,27 +41,27 @@ python -m sidekick.clients.jira roadmap-hierarchy <root-issue> [project] [issue-
 ```
 
 **Arguments:**
-- `<root-issue>` - Starting issue key (e.g., `DBX-123`)
-- `[project]` - Optional: Project key to filter by (e.g., `DBX`). If omitted or "None", traverses across all projects.
+- `<root-issue>` - Starting issue key (e.g., `PROJ-123`)
+- `[project]` - Optional: Project key to filter by (e.g., `PROJ`). If omitted or "None", traverses across all projects.
 - `[issue-type]` - Optional: Filter results by issue type (e.g., `Story`, `Epic`, `Task`)
 
 **Examples:**
 
 ```bash
-# Get all issues under DBX-100 in the DBX project
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX
+# Get all issues under PROJ-100 in the PROJ project
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ
 
-# Get only Story issues in the hierarchy within DBX project
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX Story
+# Get only Story issues in the hierarchy within PROJ project
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ Story
 
-# Get only Epic issues in the hierarchy within DBX project
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX Epic
+# Get only Epic issues in the hierarchy within PROJ project
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ Epic
 
-# Get all issues under DBX-100 across all projects
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100
+# Get all issues under PROJ-100 across all projects
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100
 
 # Get all issues across all projects (use "None" to skip project param but specify issue type)
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 None Story
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 None Story
 ```
 
 **Output format:**
@@ -69,18 +69,18 @@ python -m sidekick.clients.jira roadmap-hierarchy DBX-100 None Story
 Results stream as they're fetched:
 
 ```
-Roadmap hierarchy for DBX-100 in DBX:
+Roadmap hierarchy for PROJ-100 in PROJ:
 
-DBX-100: Q1 Platform Improvements [In Progress] (John Doe) [platform]
-├─ DBX-101: API Performance [In Progress] (Jane Smith) [backend, api]
-├─ DBX-102: Optimize database queries [Done] (Bob Johnson) [backend]
-├─ DBX-103: Add caching layer [In Progress] (Alice Brown) [backend]
-├─ DBX-104: Frontend Refactor [To Do] (Jane Smith) [frontend]
-├─ DBX-105: Update component library [To Do] (Carol White) [frontend]
-├─ DBX-106: Improve state management [To Do] (Dave Black) [frontend]
-├~> DBX-150: Security audit [In Progress] (Bob Johnson) [security]
-├─ DBX-107: Documentation Updates [Done] (Unassigned) [docs]
-├─ DBX-108: API documentation [Done] (Eve Green) [docs]
+PROJ-100: Q1 Platform Improvements [In Progress] (John Doe) [platform]
+├─ PROJ-101: API Performance [In Progress] (Jane Smith) [backend, api]
+├─ PROJ-102: Optimize database queries [Done] (Bob Johnson) [backend]
+├─ PROJ-103: Add caching layer [In Progress] (Alice Brown) [backend]
+├─ PROJ-104: Frontend Refactor [To Do] (Jane Smith) [frontend]
+├─ PROJ-105: Update component library [To Do] (Carol White) [frontend]
+├─ PROJ-106: Improve state management [To Do] (Dave Black) [frontend]
+├~> PROJ-150: Security audit [In Progress] (Bob Johnson) [security]
+├─ PROJ-107: Documentation Updates [Done] (Unassigned) [docs]
+├─ PROJ-108: API documentation [Done] (Eve Green) [docs]
 
 Total: 10 issues
 ```
@@ -96,7 +96,7 @@ Total: 10 issues
 Visualize your roadmap structure:
 
 ```bash
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1000 DBX
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1000 PROJ
 ```
 
 This shows the complete initiative breakdown from the root issue down through all Epics, Stories, and Subtasks.
@@ -106,7 +106,7 @@ This shows the complete initiative breakdown from the root issue down through al
 See all Stories under an Epic:
 
 ```bash
-python -m sidekick.clients.jira roadmap-hierarchy DBX-500 DBX Story
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-500 PROJ Story
 ```
 
 This filters to only show Story-type issues in the hierarchy, giving you a clear view of the Epic's Story breakdown.
@@ -116,7 +116,7 @@ This filters to only show Story-type issues in the hierarchy, giving you a clear
 Track a large initiative with multiple levels:
 
 ```bash
-python -m sidekick.clients.jira roadmap-hierarchy DBX-2000 DBX
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-2000 PROJ
 ```
 
 Shows the full tree of the initiative, including nested Epics, Stories, and Subtasks.
@@ -127,7 +127,7 @@ When multiple teams work on related issues:
 
 ```bash
 # See all issues under a shared parent
-python -m sidekick.clients.jira roadmap-hierarchy DBX-3000 DBX
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-3000 PROJ
 ```
 
 Useful for understanding dependencies and relationships across teams working in the same project.
@@ -138,7 +138,7 @@ Useful for understanding dependencies and relationships across teams working in 
 - **Recursive Traversal**: Automatically finds children at all nesting levels
 - **Link Following**: Follows issue links (blocks, relates to, depends on, etc.)
 - **Loop Prevention**: Tracks visited issues to prevent infinite loops
-- **Project Scoping**: Stays within the specified project (e.g., only DBX issues)
+- **Project Scoping**: Stays within the specified project (e.g., only PROJ issues)
 - **Type Filtering**: Optional filtering by issue type (Story, Epic, Task, Bug, etc.)
 - **Tree Visualization**: Clear hierarchical tree structure with visual connectors
 - **Live Counting**: Shows issue count as they're discovered
@@ -159,7 +159,7 @@ client = JiraClient(
 
 # Iterate through hierarchy within a project - results stream as they're fetched
 count = 0
-for item in client.get_issue_hierarchy("DBX-100", project="DBX"):
+for item in client.get_issue_hierarchy("PROJ-100", project="PROJ"):
     issue = item["issue"]
     depth = item["depth"]
     relationship = item["relationship"]  # "root", "child", or "linked"
@@ -171,19 +171,19 @@ for item in client.get_issue_hierarchy("DBX-100", project="DBX"):
 print(f"\nTotal: {count} issues")
 
 # Traverse across all projects (no project filter)
-for item in client.get_issue_hierarchy("DBX-100"):
+for item in client.get_issue_hierarchy("PROJ-100"):
     print(f"{item['issue']['key']} at depth {item['depth']}")
 
 # Filter by issue type within a project
-for item in client.get_issue_hierarchy("DBX-100", project="DBX", issue_type="Story"):
+for item in client.get_issue_hierarchy("PROJ-100", project="PROJ", issue_type="Story"):
     print(f"{item['issue']['key']} at depth {item['depth']}")
 
 # Collect all issues into a list (if needed)
-all_items = list(client.get_issue_hierarchy("DBX-100", project="DBX"))
+all_items = list(client.get_issue_hierarchy("PROJ-100", project="PROJ"))
 print(f"Collected {len(all_items)} issues")
 
 # Process only root and first-level children
-for item in client.get_issue_hierarchy("DBX-100", project="DBX"):
+for item in client.get_issue_hierarchy("PROJ-100", project="PROJ"):
     if item["depth"] <= 1:
         print(item["issue"]["key"])
 ```
@@ -266,7 +266,7 @@ python -m sidekick.clients.jira label-roadmap <root-issue> [project] [--dry-run]
 
 **Arguments:**
 - `<root-issue>` - Root issue key (must have valid prefix like C1, T1, etc.)
-- `[project]` - Optional: Project key to filter by (e.g., `DBX`)
+- `[project]` - Optional: Project key to filter by (e.g., `PROJ`)
 - `--dry-run` - Preview changes without applying
 - `--limit N` - Stop after labeling N issues
 
@@ -292,15 +292,15 @@ The operation traverses the issue hierarchy depth-first and adds labels based on
 
 ```
 Issue Hierarchy:                  Labels Added:
-DBX-1734 (C1)                    → [c1]
-├─ DBX-1739 (C1.5)              → [c1, c1.5]
-   ├─ DBX-3162 (C1.5.1)         → [c1, c1.5, c1.5.1]
-      ├─ DBX-3737 (no prefix)   → [c1, c1.5, c1.5.1]      (inherited from parent)
-      ├─ DBX-4059 (M7)          → [c1, c1.5, c1.5.1]      (inherited, M7 filtered out)
-      ├─ DBX-4060 (C1.5.1.1)    → [c1, c1.5.1, c1.5.1.1]  (root + parent + self)
-         ├─ DBX-5000 (no prefix)→ [c1, c1.5.1, c1.5.1.1]  (inherited from parent)
-   ├─ DBX-3163 (C1.5.2)         → [c1, c1.5, c1.5.2]
-      ├─ DBX-XXXX (no prefix)   → [c1, c1.5, c1.5.2]      (inherited from parent)
+PROJ-1734 (C1)                    → [c1]
+├─ PROJ-1739 (C1.5)              → [c1, c1.5]
+   ├─ PROJ-3162 (C1.5.1)         → [c1, c1.5, c1.5.1]
+      ├─ PROJ-3737 (no prefix)   → [c1, c1.5, c1.5.1]      (inherited from parent)
+      ├─ PROJ-4059 (M7)          → [c1, c1.5, c1.5.1]      (inherited, M7 filtered out)
+      ├─ PROJ-4060 (C1.5.1.1)    → [c1, c1.5.1, c1.5.1.1]  (root + parent + self)
+         ├─ PROJ-5000 (no prefix)→ [c1, c1.5.1, c1.5.1.1]  (inherited from parent)
+   ├─ PROJ-3163 (C1.5.2)         → [c1, c1.5, c1.5.2]
+      ├─ PROJ-XXXX (no prefix)   → [c1, c1.5, c1.5.2]      (inherited from parent)
 ```
 
 **Note**: Only prefixes matching the root family are used for labels. Cross-family issues (like M7 in a C1 hierarchy) inherit their parent's labels WITHOUT adding their own prefix.
@@ -309,22 +309,22 @@ DBX-1734 (C1)                    → [c1]
 
 **Preview changes (dry-run):**
 ```bash
-python -m sidekick.clients.jira label-roadmap DBX-1734 DBX --dry-run
+python -m sidekick.clients.jira label-roadmap PROJ-1734 PROJ --dry-run
 ```
 
 Output:
 ```
-Labeling roadmap hierarchy for DBX-1734 in DBX (DRY RUN):
+Labeling roadmap hierarchy for PROJ-1734 in PROJ (DRY RUN):
 
-DBX-1734: C1. Unblock Team Growth...
+PROJ-1734: C1. Unblock Team Growth...
   Current labels: []
   Labels to add: [c1]
 
-DBX-1739: C1.5 Simplify Sharing
+PROJ-1739: C1.5 Simplify Sharing
   Current labels: [c1]
   Labels to add: [c1.5]
 
-DBX-3162: C1.5.1 Deprecate all legacy share modals
+PROJ-3162: C1.5.1 Deprecate all legacy share modals
   Current labels: []
   Labels to add: [c1, c1.5, c1.5.1]
 
@@ -333,12 +333,12 @@ Summary: Processed 100 issues, labeled 85, skipped 15, 0 errors
 
 **Label first 10 issues (incremental approach):**
 ```bash
-python -m sidekick.clients.jira label-roadmap DBX-1734 DBX --limit 10
+python -m sidekick.clients.jira label-roadmap PROJ-1734 PROJ --limit 10
 ```
 
 **Label entire hierarchy:**
 ```bash
-python -m sidekick.clients.jira label-roadmap DBX-1734 DBX
+python -m sidekick.clients.jira label-roadmap PROJ-1734 PROJ
 ```
 
 ### Best Practices

@@ -25,11 +25,11 @@ cp .env.example .env
 Here are some natural language prompts you can use:
 
 ```
-"Find roadmap items nested under DBX-1735 in the DBX Project"
+"Find roadmap items nested under PROJ-1735 in the PROJ Project"
 "Show me the hierarchy for PROJ-500"
 "What issues are linked to TEAM-100?"
 "Get all Story issues under EPIC-200 in the EPIC project"
-"Find all issues under DBX-1735 across all projects"
+"Find all issues under PROJ-1735 across all projects"
 "Query issues with status Open in the PROJ project"
 "Show me all backend issues in PROJ"
 ```
@@ -63,9 +63,9 @@ python -m sidekick.clients.jira query-by-parent PROJ-100
 python -m sidekick.clients.jira query-by-label backend
 
 # Get roadmap hierarchy (recursively find all children and linked issues)
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX Story
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100  # All projects
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ Story
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100  # All projects
 
 # Update issue
 python -m sidekick.clients.jira update-issue PROJ-123 '{"summary": "New title"}'
@@ -77,30 +77,30 @@ Save command output with prompt metadata for easy tracking and refreshing:
 
 ```bash
 # Save with auto-generated filename from prompt
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
   python -m sidekick.clients.output write \
-    "Find roadmap items nested under DBX-1735 in the DBX Project" \
+    "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
     jira \
-    "roadmap-hierarchy DBX-1735 DBX"
-# Saves to: output/jira/dbx-1735-roadmap-items.txt
+    "roadmap-hierarchy PROJ-1735 PROJ"
+# Saves to: output/jira/proj-1735-roadmap-items.txt
 
 # Refresh existing output (preserves creation timestamp)
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
   python -m sidekick.clients.output write \
-    "Find roadmap items nested under DBX-1735 in the DBX Project" \
+    "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
     jira \
-    "roadmap-hierarchy DBX-1735 DBX" \
+    "roadmap-hierarchy PROJ-1735 PROJ" \
     --refresh
 
 # List saved outputs
 python -m sidekick.clients.output list jira
 
 # Find outputs by prompt text
-python -m sidekick.clients.output find jira "DBX-1735"
+python -m sidekick.clients.output find jira "PROJ-1735"
 ```
 
 **Features:**
-- Auto-generated filenames from prompts (e.g., `dbx-1735-roadmap-items.txt`)
+- Auto-generated filenames from prompts (e.g., `proj-1735-roadmap-items.txt`)
 - Prompt text and command stored in file header
 - Creation and update timestamps
 - Searchable by prompt text
@@ -114,11 +114,11 @@ You can also use simple file redirection:
 
 ```bash
 # Save roadmap hierarchy
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX > output/jira/2025-01-27_DBX-1735_hierarchy.txt
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ > output/jira/2025-01-27_PROJ-1735_hierarchy.txt
 
 # Quick command with today's date
 TODAY=$(date +%Y-%m-%d)
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX > output/jira/${TODAY}_DBX-100.txt
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ > output/jira/${TODAY}_PROJ-100.txt
 ```
 
 **Output Location:**

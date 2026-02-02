@@ -33,7 +33,7 @@ class OutputManager:
             Slug string suitable for filename
 
         Examples:
-            "Find roadmap items nested under DBX-1735" -> "dbx-1735-roadmap-items"
+            "Find roadmap items nested under PROJ-1735" -> "proj-1735-roadmap-items"
             "Show me the hierarchy for PROJ-500" -> "proj-500-hierarchy"
         """
         # Extract key identifiers (issue keys, numbers) before lowercasing
@@ -263,10 +263,10 @@ def main():
         python -m sidekick.clients.output list jira
 
         # Find outputs by prompt text
-        python -m sidekick.clients.output find jira "DBX-1735"
+        python -m sidekick.clients.output find jira "PROJ-1735"
 
         # Generate slug from prompt (for testing)
-        python -m sidekick.clients.output slug "Find roadmap items nested under DBX-1735"
+        python -m sidekick.clients.output slug "Find roadmap items nested under PROJ-1735"
     """
     if len(sys.argv) < 2:
         print("Usage: python -m sidekick.clients.output <command> [args...]")

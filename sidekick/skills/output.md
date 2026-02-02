@@ -23,10 +23,10 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 Natural language prompts that work with this skill:
 
 ```
-"Save the roadmap for DBX-1735 in the DBX project"
-"Refresh the DBX-1735 roadmap output"
+"Save the roadmap for PROJ-1735 in the PROJ project"
+"Refresh the PROJ-1735 roadmap output"
 "Show me all saved JIRA outputs"
-"Find saved outputs mentioning DBX-1735"
+"Find saved outputs mentioning PROJ-1735"
 ```
 
 ## Output File Format
@@ -35,9 +35,9 @@ Files are saved with YAML frontmatter containing metadata:
 
 ```
 ---
-prompt: Find roadmap items nested under DBX-1735 in the DBX Project
+prompt: Find roadmap items nested under PROJ-1735 in the PROJ Project
 client: jira
-command: roadmap-hierarchy DBX-1735 DBX
+command: roadmap-hierarchy PROJ-1735 PROJ
 created: 2025-01-27 14:30:22
 updated: 2025-01-27 15:45:10
 ---
@@ -49,13 +49,13 @@ updated: 2025-01-27 15:45:10
 
 Filenames are auto-generated from prompts using slug format:
 
-- `"Find roadmap items nested under DBX-1735 in the DBX Project"` → `dbx-1735-roadmap-items.txt`
+- `"Find roadmap items nested under PROJ-1735 in the PROJ Project"` → `dbx-1735-roadmap-items.txt`
 - `"Show me the hierarchy for PROJ-500"` → `proj-500-hierarchy.txt`
 - `"Get all Story issues under EPIC-200"` → `epic-200-story-issues.txt`
 
 **Rules:**
 - Lowercase
-- Extract issue keys (DBX-1735, PROJ-500, etc.)
+- Extract issue keys (PROJ-1735, PROJ-500, etc.)
 - Remove common words (the, in, for, and, etc.)
 - Replace spaces with hyphens
 - Limit to ~50 characters
@@ -69,11 +69,11 @@ Save command output with prompt metadata:
 
 ```bash
 # Auto-generated filename
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
   python -m sidekick.clients.output write \
-    "Find roadmap items nested under DBX-1735 in the DBX Project" \
+    "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
     jira \
-    "roadmap-hierarchy DBX-1735 DBX"
+    "roadmap-hierarchy PROJ-1735 PROJ"
 
 # Custom filename
 python -m sidekick.clients.jira query "project = PROJ" | \
@@ -84,11 +84,11 @@ python -m sidekick.clients.jira query "project = PROJ" | \
     proj-all-issues
 
 # Refresh existing file (preserves creation timestamp)
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
   python -m sidekick.clients.output write \
-    "Find roadmap items nested under DBX-1735 in the DBX Project" \
+    "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
     jira \
-    "roadmap-hierarchy DBX-1735 DBX" \
+    "roadmap-hierarchy PROJ-1735 PROJ" \
     --refresh
 ```
 
@@ -112,7 +112,7 @@ Output:
 Outputs for jira (3 files):
 
 dbx-1735-roadmap-items.txt
-  Prompt: Find roadmap items nested under DBX-1735 in the DBX Project
+  Prompt: Find roadmap items nested under PROJ-1735 in the PROJ Project
   Updated: 2025-01-27 15:45:10
 
 proj-500-hierarchy.txt
@@ -129,7 +129,7 @@ epic-200-story-issues.txt
 Find outputs by searching prompt text:
 
 ```bash
-python -m sidekick.clients.output find jira "DBX-1735"
+python -m sidekick.clients.output find jira "PROJ-1735"
 python -m sidekick.clients.output find jira "roadmap"
 python -m sidekick.clients.output find jira "Story issues"
 ```
@@ -139,7 +139,7 @@ python -m sidekick.clients.output find jira "Story issues"
 Test slug generation from a prompt:
 
 ```bash
-python -m sidekick.clients.output slug "Find roadmap items nested under DBX-1735"
+python -m sidekick.clients.output slug "Find roadmap items nested under PROJ-1735"
 # Output: dbx-1735-roadmap-items
 ```
 
@@ -149,18 +149,18 @@ python -m sidekick.clients.output slug "Find roadmap items nested under DBX-1735
 
 ```bash
 # Initial save
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
   python -m sidekick.clients.output write \
-    "DBX-1735 roadmap snapshot" \
+    "PROJ-1735 roadmap snapshot" \
     jira \
-    "roadmap-hierarchy DBX-1735 DBX"
+    "roadmap-hierarchy PROJ-1735 PROJ"
 
 # Refresh after changes
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
   python -m sidekick.clients.output write \
-    "DBX-1735 roadmap snapshot" \
+    "PROJ-1735 roadmap snapshot" \
     jira \
-    "roadmap-hierarchy DBX-1735 DBX" \
+    "roadmap-hierarchy PROJ-1735 PROJ" \
     --refresh
 
 # Compare versions
@@ -191,18 +191,18 @@ python -m sidekick.clients.jira query-by-label backend PROJ | \
 # Daily roadmap refresh script
 #!/bin/bash
 TODAY=$(date +%Y-%m-%d)
-python -m sidekick.clients.jira roadmap-hierarchy DBX-1735 DBX | \
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
   python -m sidekick.clients.output write \
-    "DBX-1735 roadmap $TODAY" \
+    "PROJ-1735 roadmap $TODAY" \
     jira \
-    "roadmap-hierarchy DBX-1735 DBX"
+    "roadmap-hierarchy PROJ-1735 PROJ"
 ```
 
 ### 4. Search and Review
 
 ```bash
 # Find all outputs about a specific issue
-python -m sidekick.clients.output find jira "DBX-1735"
+python -m sidekick.clients.output find jira "PROJ-1735"
 
 # List recent outputs
 python -m sidekick.clients.output list jira | head -20
@@ -221,18 +221,18 @@ manager = OutputManager()
 # Write output
 content = "Issue output content..."
 file_path = manager.write_output(
-    prompt="Find roadmap items nested under DBX-1735",
+    prompt="Find roadmap items nested under PROJ-1735",
     client="jira",
-    command="roadmap-hierarchy DBX-1735 DBX",
+    command="roadmap-hierarchy PROJ-1735 PROJ",
     content=content
 )
 print(f"Saved to: {file_path}")
 
 # Refresh existing file
 file_path = manager.write_output(
-    prompt="Find roadmap items nested under DBX-1735",
+    prompt="Find roadmap items nested under PROJ-1735",
     client="jira",
-    command="roadmap-hierarchy DBX-1735 DBX",
+    command="roadmap-hierarchy PROJ-1735 PROJ",
     content=updated_content,
     refresh=True  # Preserves creation timestamp
 )
@@ -243,12 +243,12 @@ for file_path, metadata in outputs:
     print(f"{file_path.name}: {metadata.get('prompt')}")
 
 # Find by prompt
-matches = manager.find_by_prompt("jira", "DBX-1735")
+matches = manager.find_by_prompt("jira", "PROJ-1735")
 for file_path in matches:
     print(f"Found: {file_path}")
 
 # Generate slug
-slug = manager.generate_slug("Find roadmap items nested under DBX-1735")
+slug = manager.generate_slug("Find roadmap items nested under PROJ-1735")
 print(f"Slug: {slug}")  # dbx-1735-roadmap-items
 ```
 
@@ -276,8 +276,8 @@ jira-refresh() {
 }
 
 # Usage:
-# jira-save "DBX-1735 roadmap" roadmap-hierarchy DBX-1735 DBX
-# jira-refresh "DBX-1735 roadmap" roadmap-hierarchy DBX-1735 DBX
+# jira-save "PROJ-1735 roadmap" roadmap-hierarchy PROJ-1735 PROJ
+# jira-refresh "PROJ-1735 roadmap" roadmap-hierarchy PROJ-1735 PROJ
 ```
 
 ## File Organization

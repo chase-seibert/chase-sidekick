@@ -52,8 +52,8 @@ python -m sidekick.clients.jira query-by-parent PROJ-100
 python -m sidekick.clients.jira query-by-label backend
 
 # Get roadmap hierarchy (recursive children + linked issues)
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX
-python -m sidekick.clients.jira roadmap-hierarchy DBX-100 DBX Story
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ
+python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ Story
 
 # Update issue
 python -m sidekick.clients.jira update-issue PROJ-123 '{"summary": "New"}'

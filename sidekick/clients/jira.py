@@ -262,7 +262,7 @@ class JiraClient:
         Issues at depth 4+ inherit their parent's labels.
 
         Args:
-            root_issue_key: Root issue key (e.g., 'DBX-1734')
+            root_issue_key: Root issue key (e.g., 'PROJ-1734')
             project: Optional project filter
             dry_run: If True, preview changes without applying
             limit: Optional maximum number of issues to update
@@ -437,8 +437,8 @@ class JiraClient:
         to stay within a specified project. Children appear immediately under their parent.
 
         Args:
-            root_issue_key: Starting issue key (e.g., "DBX-123")
-            project: Optional project key to filter by (e.g., "DBX"). If None, traverses across all projects.
+            root_issue_key: Starting issue key (e.g., "PROJ-123")
+            project: Optional project key to filter by (e.g., "PROJ"). If None, traverses across all projects.
             issue_type: Optional issue type filter (e.g., "Story", "Epic")
             max_depth: Maximum recursion depth to prevent infinite loops
             fields: List of fields to return (uses default if not specified)
@@ -452,11 +452,11 @@ class JiraClient:
 
         Examples:
             # Filter to single project
-            for item in client.get_issue_hierarchy("DBX-100", project="DBX"):
+            for item in client.get_issue_hierarchy("PROJ-100", project="PROJ"):
                 print(f"{item['issue']['key']} at depth {item['depth']}")
 
             # Traverse across all projects
-            for item in client.get_issue_hierarchy("DBX-100"):
+            for item in client.get_issue_hierarchy("PROJ-100"):
                 print(f"{item['issue']['key']} at depth {item['depth']}")
         """
         if fields is None:
@@ -757,8 +757,8 @@ def main():
         python3 sidekick/clients/jira.py update-issue PROJ-123 '{"summary": "New"}'
         python3 sidekick/clients/jira.py add-label PROJ-123 needs-review
         python3 sidekick/clients/jira.py remove-label PROJ-123 needs-review
-        python3 sidekick/clients/jira.py label-roadmap DBX-1734 DBX --dry-run
-        python3 sidekick/clients/jira.py label-roadmap DBX-1734 DBX --limit 10
+        python3 sidekick/clients/jira.py label-roadmap PROJ-1734 PROJ --dry-run
+        python3 sidekick/clients/jira.py label-roadmap PROJ-1734 PROJ --limit 10
     """
     from sidekick.config import get_jira_config
 
