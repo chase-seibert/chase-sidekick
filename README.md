@@ -5,7 +5,7 @@ Engineering manager task automation toolkit.
 ## Overview
 
 Chase Sidekick automates engineering manager tasks by providing:
-- **Clients**: Single-file Python interfaces to services (JIRA, Slack, etc.)
+- **Clients**: Single-file Python interfaces to services (JIRA, Confluence, Dropbox, OmniFocus, etc.)
 - **Skills**: Markdown documentation for command-line usage
 - **Agents**: (Future) Scripts coordinating multiple clients for complex workflows
 
@@ -19,7 +19,9 @@ cp .env.example .env
 # Edit .env with your credentials
 # - ATLASSIAN_URL, ATLASSIAN_EMAIL, ATLASSIAN_API_TOKEN (required for JIRA/Confluence)
 # - USER_NAME, USER_EMAIL (required for Confluence 1:1 docs)
-# Get API token: https://id.atlassian.com/manage-profile/security/api-tokens
+# - DROPBOX_ACCESS_TOKEN (required for Dropbox)
+# Get Atlassian API token: https://id.atlassian.com/manage-profile/security/api-tokens
+# Get Dropbox access token: https://www.dropbox.com/developers/apps
 ```
 
 ### Example Prompts
@@ -60,6 +62,18 @@ Here are natural language prompts you can use with each skill:
 "Complete the task 'Send report'"
 "Show all my projects"
 "List tasks tagged with 'urgent'"
+```
+
+**Dropbox Prompts:**
+```
+"Get the contents of /Documents/notes.txt"
+"Download file from https://www.dropbox.com/s/abc123/file.txt"
+"Write 'Hello World' to /Documents/test.txt"
+"Show metadata for /Paper/MyDoc.paper"
+"Get Paper doc content from /Paper/Planning.paper"
+"Get Paper doc as HTML from /Paper/Specs.paper"
+"Create a new Paper doc at /Paper/NewDoc.paper with content 'Title'"
+"Update Paper doc at /Paper/MyDoc.paper"
 ```
 
 **Output Management Prompts:**
@@ -178,6 +192,31 @@ python -m sidekick.clients.omnifocus list-projects
 python -m sidekick.clients.omnifocus list-tags
 ```
 
+#### Dropbox Commands
+
+```bash
+# Get file contents
+python -m sidekick.clients.dropbox get-file-contents /Documents/notes.txt
+python -m sidekick.clients.dropbox get-file-contents-from-link "https://www.dropbox.com/s/abc123/file.txt"
+
+# Write file contents
+echo "Hello, World!" | python -m sidekick.clients.dropbox write-file-contents /Documents/notes.txt
+python -m sidekick.clients.dropbox write-file-contents /Documents/notes.txt --content "Hello, World!"
+
+# Get metadata
+python -m sidekick.clients.dropbox get-metadata /Documents/notes.txt
+
+# Get Paper doc contents
+python -m sidekick.clients.dropbox get-paper-contents /Paper/MyDoc.paper
+python -m sidekick.clients.dropbox get-paper-contents /Paper/MyDoc.paper --format html
+python -m sidekick.clients.dropbox get-paper-contents-from-link "https://paper.dropbox.com/doc/Title-abc123"
+
+# Create/update Paper docs
+echo "# My Document" | python -m sidekick.clients.dropbox create-paper-contents /Paper/NewDoc.paper
+python -m sidekick.clients.dropbox create-paper-contents /Paper/NewDoc.paper --content "# Title"
+python -m sidekick.clients.dropbox update-paper-contents /Paper/MyDoc.paper --content "# Updated"
+```
+
 ## Saving Output with Prompts
 
 Save command output with prompt metadata for easy tracking and refreshing:
@@ -257,9 +296,13 @@ TEAMS_GROUP_JQL=project IN ("PROJ1", "PROJ2", "PROJ3")
 # Leave commented for inbox-only workflow
 # OMNIFOCUS_DEFAULT_PROJECT=Work
 # OMNIFOCUS_DEFAULT_TAG=from-cli
+
+# Dropbox Configuration
+DROPBOX_ACCESS_TOKEN=your_dropbox_access_token
 ```
 
-**Get API Token**: https://id.atlassian.com/manage-profile/security/api-tokens
+**Get Atlassian API Token**: https://id.atlassian.com/manage-profile/security/api-tokens
+**Get Dropbox Access Token**: https://www.dropbox.com/developers/apps (create app → generate token)
 
 Configuration priority:
 1. `.env` file (preferred)
@@ -277,12 +320,14 @@ chase-sidekick/
 │   │   ├── jira.py       # JIRA client with CLI
 │   │   ├── confluence.py # Confluence client with CLI
 │   │   ├── omnifocus.py  # OmniFocus client with CLI (macOS)
+│   │   ├── dropbox.py    # Dropbox client with CLI
 │   │   └── output.py     # Output manager with CLI
 │   ├── skills/           # Usage documentation
 │   │   ├── jira.md       # JIRA skill docs
 │   │   ├── jira-roadmap.md  # JIRA roadmap skill docs
 │   │   ├── confluence.md # Confluence skill docs
 │   │   ├── omnifocus.md  # OmniFocus skill docs (macOS)
+│   │   ├── dropbox.md    # Dropbox skill docs
 │   │   └── output.md     # Output management skill docs
 │   └── agents/           # Future: Multi-client scripts
 ├── output/                # Saved command outputs (not in git)
@@ -316,6 +361,13 @@ chase-sidekick/
   - Create, update, complete, and delete tasks
   - List projects and tags
   - Inbox-focused workflow with duplicate prevention
+- **Dropbox** (`sidekick/skills/dropbox.md`) - Manage Dropbox files and Paper docs
+  - Get and write file contents (any file type)
+  - Get file contents via share links
+  - Get metadata for files and folders
+  - Export Paper docs as markdown or HTML
+  - Create and update Paper docs from markdown or HTML
+  - Content-focused operations (stdin/stdout, no local file I/O)
 - **Output** (`sidekick/skills/output.md`) - Save command output with prompt metadata
   - Auto-generates filenames from prompts
   - Stores prompt text, command, and timestamps in file headers
@@ -327,6 +379,7 @@ chase-sidekick/
 - [x] JIRA client with CLI
 - [x] Confluence client with CLI
 - [x] OmniFocus client with CLI
+- [x] Dropbox client with CLI
 - [ ] Slack client with CLI
 - [ ] GitHub client with CLI
 - [ ] Google Calendar client with CLI

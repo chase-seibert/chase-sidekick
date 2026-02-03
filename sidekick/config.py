@@ -245,3 +245,27 @@ def get_user_config() -> dict:
         "name": name,
         "email": email
     }
+
+
+def get_dropbox_config() -> dict:
+    """Get Dropbox configuration from .env file or environment variables.
+
+    Returns:
+        dict with key: access_token
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    access_token = _get_env("DROPBOX_ACCESS_TOKEN", env_file_vars)
+
+    if not access_token:
+        raise ValueError(
+            "Missing required Dropbox configuration. "
+            "Set DROPBOX_ACCESS_TOKEN in .env file or environment variables. "
+            "Get token at: https://www.dropbox.com/developers/apps "
+            "(create app → generate access token)"
+        )
+
+    return {"access_token": access_token}

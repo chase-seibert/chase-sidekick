@@ -11,7 +11,9 @@
       "Bash(python -m sidekick.clients.confluence:*)",
       "Bash(head:*)",
       "Bash(osascript:*)",
-      "Bash(python -m py_compile:*)"
+      "Bash(python -m py_compile:*)",
+      "WebFetch(domain:www.dropbox.com)",
+      "Bash(python:*)"
     ],
     "additionalDirectories": [
       "/tmp"
