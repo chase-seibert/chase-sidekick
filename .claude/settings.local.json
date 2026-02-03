@@ -7,7 +7,9 @@
       "Bash(source venv/bin/activate)",
       "Bash(python -m sidekick.clients.output:*)",
       "Bash(echo:*)",
-      "Bash(python -m sidekick.clients.jira:*)"
+      "Bash(python -m sidekick.clients.jira:*)",
+      "Bash(python -m sidekick.clients.confluence:*)",
+      "Bash(head:*)"
     ]
   }
 }

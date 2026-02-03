@@ -760,7 +760,7 @@ def main():
         python3 sidekick/clients/jira.py label-roadmap PROJ-1734 PROJ --dry-run
         python3 sidekick/clients/jira.py label-roadmap PROJ-1734 PROJ --limit 10
     """
-    from sidekick.config import get_jira_config
+    from sidekick.config import get_atlassian_config
 
     if len(sys.argv) < 2:
         print("Usage: python3 sidekick/clients/jira.py <command> [args...]")
@@ -780,7 +780,7 @@ def main():
     try:
         start_time = time.time()
 
-        config = get_jira_config()
+        config = get_atlassian_config()
         client = JiraClient(
             base_url=config["url"],
             email=config["email"],

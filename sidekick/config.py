@@ -60,10 +60,14 @@ def _get_env(key: str, env_file_vars: dict) -> str:
     return env_file_vars.get(key) or os.environ.get(key)
 
 
-def get_jira_config() -> dict:
-    """Get JIRA configuration from .env file or environment variables.
+def get_atlassian_config() -> dict:
+    """Get Atlassian configuration from .env file or environment variables.
+
+    This configuration works for both JIRA and Confluence since they share
+    the same authentication system (same API token, email, and domain).
 
     Loads from .env file first, then falls back to system environment variables.
+    Supports legacy JIRA_* variables for backward compatibility.
 
     Returns:
         dict with keys: url, email, api_token
@@ -73,14 +77,25 @@ def get_jira_config() -> dict:
     """
     env_file_vars = _load_env_file()
 
-    url = _get_env("JIRA_URL", env_file_vars)
-    email = _get_env("JIRA_EMAIL", env_file_vars)
-    api_token = _get_env("JIRA_API_TOKEN", env_file_vars)
+    # Try new ATLASSIAN_* variables first
+    url = _get_env("ATLASSIAN_URL", env_file_vars)
+    email = _get_env("ATLASSIAN_EMAIL", env_file_vars)
+    api_token = _get_env("ATLASSIAN_API_TOKEN", env_file_vars)
+
+    # Fallback to legacy JIRA_* variables for backward compatibility
+    if not url:
+        url = _get_env("JIRA_URL", env_file_vars)
+    if not email:
+        email = _get_env("JIRA_EMAIL", env_file_vars)
+    if not api_token:
+        api_token = _get_env("JIRA_API_TOKEN", env_file_vars)
 
     if not all([url, email, api_token]):
         raise ValueError(
-            "Missing required JIRA configuration. "
-            "Set JIRA_URL, JIRA_EMAIL, and JIRA_API_TOKEN in .env file or environment variables."
+            "Missing required Atlassian configuration. "
+            "Set ATLASSIAN_URL, ATLASSIAN_EMAIL, and ATLASSIAN_API_TOKEN "
+            "in .env file or environment variables. "
+            "(Legacy JIRA_* variables are also supported for backward compatibility.)"
         )
 
     return {

@@ -133,16 +133,19 @@ Configuration is loaded from `.env` file (with fallback to environment variables
 Create a `.env` file in the project root (see `.env.example`):
 
 ```bash
-JIRA_URL=https://your-company.atlassian.net
-JIRA_EMAIL=your-email@company.com
-JIRA_API_TOKEN=your_api_token
+# Works for both JIRA and Confluence (same authentication)
+ATLASSIAN_URL=https://your-company.atlassian.net
+ATLASSIAN_EMAIL=your-email@company.com
+ATLASSIAN_API_TOKEN=your_api_token
 ```
 
-**Get JIRA API Token**: https://id.atlassian.com/manage-profile/security/api-tokens
+**Get API Token**: https://id.atlassian.com/manage-profile/security/api-tokens
 
 Configuration priority:
 1. `.env` file (preferred)
 2. System environment variables (fallback)
+
+**Note**: Legacy `JIRA_*` variables are still supported for backward compatibility.
 
 ## Project Structure
 
@@ -152,14 +155,17 @@ chase-sidekick/
 │   ├── config.py          # Configuration from .env
 │   ├── clients/           # Service clients (single files)
 │   │   ├── jira.py       # JIRA client with CLI
+│   │   ├── confluence.py # Confluence client with CLI
 │   │   └── output.py     # Output manager with CLI
 │   ├── skills/           # Usage documentation
 │   │   ├── jira.md       # JIRA skill docs
 │   │   ├── jira-roadmap.md  # JIRA roadmap skill docs
+│   │   ├── confluence.md # Confluence skill docs
 │   │   └── output.md     # Output management skill docs
 │   └── agents/           # Future: Multi-client scripts
 ├── output/                # Saved command outputs (not in git)
 │   ├── jira/             # JIRA outputs
+│   ├── confluence/       # Confluence outputs
 │   └── README.md         # Output guidelines
 ├── .env                   # Your credentials (not in git)
 ├── .env.example          # Example configuration
@@ -172,6 +178,10 @@ chase-sidekick/
 - **JIRA Roadmap** (`sidekick/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
   - Depth-first traversal with children appearing immediately under parents
   - Streams results as they're fetched for immediate feedback
+- **Confluence** (`sidekick/skills/confluence.md`) - Manage Confluence pages
+  - Search pages by title or CQL queries
+  - Read and write page content
+  - Create page hierarchies with automatic version handling
 - **Output** (`sidekick/skills/output.md`) - Save command output with prompt metadata
   - Auto-generates filenames from prompts
   - Stores prompt text, command, and timestamps in file headers
@@ -180,8 +190,10 @@ chase-sidekick/
 ## Roadmap
 
 - [x] JIRA client with CLI
+- [x] Confluence client with CLI
 - [ ] Slack client with CLI
 - [ ] GitHub client with CLI
 - [ ] Google Calendar client with CLI
-- [ ] Sprint planning agent
-- [ ] Team metrics agent
+- [ ] Zoom client with CLI
+- [ ] OmniFocus client with CLI
+- [ ] Apple Notes client with CLI
