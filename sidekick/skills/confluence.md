@@ -196,6 +196,82 @@ Updated page: 123456789: API Documentation [DEV] (v6)
 
 **Note**: The update command automatically fetches the current version before updating, so you don't need to worry about version conflicts.
 
+### Add Topic to 1:1 Doc
+
+Add a topic to your 1:1 meeting doc with another person. The command automatically:
+- Searches for the 1:1 doc (e.g., "Chase / Bob" or "Bob / Chase 1:1")
+- Validates it matches the expected title format
+- Checks access restrictions (should be locked to 2 people)
+- Adds the topic to the specified section (default: "Next")
+- Creates the section and/or bullet list if needed
+- Adds the topic to the top of the existing bullet list
+
+**Requirements:**
+- Configure `USER_NAME` and `USER_EMAIL` in `.env` file
+- 1:1 doc must follow naming convention:
+  - "Chase / Bob"
+  - "Chase / Bob 1:1"
+  - "Bob / Chase"
+  - "Bob / Chase 1:1"
+
+**Expected 1:1 Doc Format:**
+- Single page per person
+- Headers are dates (e.g., "Feb 1", "2026-02-02") or "Next" for upcoming topics
+- Sections ordered most recent at top
+- Under each header is a bullet list of topics
+- Never reorders existing sections
+
+**Usage:**
+
+```bash
+# Add topic to Next section (default)
+python -m sidekick.clients.confluence add-topic-to-oneonone Bob "Discuss Q1 planning"
+
+# Add topic to specific date section
+python -m sidekick.clients.confluence add-topic-to-oneonone Bob "Review feedback" --section "Feb 5"
+
+# Add topic with spaces
+python -m sidekick.clients.confluence add-topic-to-oneonone "Jane Smith" "API design review"
+```
+
+**Output:**
+```
+Found 1:1 doc: 3247802141: Chase / Bob 1:1
+Added topic to Next section
+
+Updated 1:1 doc: 3247802141: Chase / Bob 1:1 (v23)
+  URL: https://company.atlassian.net/wiki/spaces/TNC/pages/3247802141
+```
+
+**Features:**
+- **Duplicate Prevention**: Won't add a topic if it already exists in the doc
+- **Smart Search**: Uses search cache for faster repeated access
+- **Section Creation**: Creates "Next" section if it doesn't exist
+- **List Management**: Creates bullet list if section has none
+- **Access Validation**: Warns if page isn't restricted to exactly 2 people
+- **Title Validation**: Ensures page matches expected 1:1 doc naming format
+
+**Example Workflow:**
+
+```bash
+# Before your 1:1 meeting, add discussion topics
+python -m sidekick.clients.confluence add-topic-to-oneonone Bob "Review sprint goals"
+python -m sidekick.clients.confluence add-topic-to-oneonone Bob "Discuss promotion timeline"
+python -m sidekick.clients.confluence add-topic-to-oneonone Bob "Team outing ideas"
+
+# After the meeting, topics remain in "Next" until you manually move them
+# or create a dated section for meeting notes
+```
+
+**Configuration:**
+
+Add to your `.env` file:
+```bash
+# User Configuration (for 1:1 docs)
+USER_NAME=Chase
+USER_EMAIL=your-email@company.com
+```
+
 ### Content Update Best Practices
 
 When updating Confluence pages, follow these guidelines for managing sections:

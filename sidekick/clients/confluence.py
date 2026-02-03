@@ -111,6 +111,110 @@ class SearchCache:
         return "# Cache is empty"
 
 
+def _add_topic_to_html(html_content: str, topic: str, section_header: str = "Next") -> str:
+    """Add a topic to the top of a bulleted list in a section.
+
+    Creates section and/or bullet list if needed. Never reorders existing sections.
+
+    Args:
+        html_content: Current page HTML content (storage format)
+        topic: Topic text to add
+        section_header: Header to look for or create (default: "Next")
+
+    Returns:
+        Updated HTML content with topic added
+    """
+    import re
+
+    # Escape special regex characters in topic for duplicate checking
+    escaped_topic = re.escape(topic)
+
+    # Check if topic already exists as a list item
+    if re.search(rf'<li[^>]*>\s*{escaped_topic}\s*</li>', html_content, re.IGNORECASE):
+        print(f"[Topic '{topic}' already exists in doc]", file=sys.stderr)
+        return html_content
+
+    # Look for the section header
+    header_pattern = rf'(<h1[^>]*>\s*{re.escape(section_header)}\s*</h1>)'
+    header_match = re.search(header_pattern, html_content, re.IGNORECASE)
+
+    if header_match:
+        # Section exists - find the content after it
+        header_end = header_match.end()
+
+        # Find the next section header (h1) or end of document
+        next_header_match = re.search(r'<h1[^>]*>', html_content[header_end:])
+        section_end = header_end + next_header_match.start() if next_header_match else len(html_content)
+
+        section_content = html_content[header_end:section_end]
+
+        # Look for existing <ul> in this section
+        ul_match = re.search(r'<ul[^>]*>', section_content)
+
+        if ul_match:
+            # Insert at the beginning of existing list
+            ul_start = header_end + ul_match.end()
+            new_item = f'<li>{topic}</li>'
+            updated_content = html_content[:ul_start] + new_item + html_content[ul_start:]
+        else:
+            # No list exists - create one right after the header
+            new_list = f'<ul><li>{topic}</li></ul>'
+            updated_content = html_content[:header_end] + new_list + html_content[header_end:]
+
+        return updated_content
+
+    else:
+        # Section doesn't exist - create it at the top with a new list
+        new_section = f'<h1>{section_header}</h1><ul><li>{topic}</li></ul>'
+
+        # Find first h1 tag to insert before it, or insert at beginning
+        first_header_match = re.search(r'<h1[^>]*>', html_content)
+
+        if first_header_match:
+            # Insert before the first existing section
+            insert_pos = first_header_match.start()
+            updated_content = html_content[:insert_pos] + new_section + html_content[insert_pos:]
+        else:
+            # No sections exist - add at the beginning
+            updated_content = new_section + html_content
+
+        return updated_content
+
+
+def _validate_oneonone_title(title: str, user_name: str, other_name: str) -> bool:
+    """Check if a title matches the expected 1:1 doc format.
+
+    Args:
+        title: Page title to validate
+        user_name: Current user's name
+        other_name: Other person's name
+
+    Returns:
+        True if title matches expected format, False otherwise
+    """
+    import re
+
+    # Normalize names for comparison (case-insensitive)
+    user_lower = user_name.lower()
+    other_lower = other_name.lower()
+
+    # Normalize title for comparison
+    title_lower = title.lower()
+
+    # Expected patterns:
+    # "Chase / Bob", "Chase / Bob 1:1", "Bob / Chase", "Bob / Chase 1:1"
+    patterns = [
+        rf'^{re.escape(user_lower)}\s*/\s*{re.escape(other_lower)}(\s+1:1)?$',
+        rf'^{re.escape(other_lower)}\s*/\s*{re.escape(user_lower)}(\s+1:1)?$'
+    ]
+
+    for pattern in patterns:
+        if re.match(pattern, title_lower):
+            return True
+
+    return False
+
+
 class ConfluenceClient:
     """Confluence API client using native Python stdlib."""
 
@@ -277,6 +381,44 @@ class ConfluenceClient:
         except (KeyError, TypeError):
             raise ValueError(f"Could not extract content from page {page_id}")
 
+    def get_page_restrictions(self, page_id: str) -> dict:
+        """Get page restrictions (view/edit permissions).
+
+        Args:
+            page_id: Confluence page ID
+
+        Returns:
+            dict with restrictions info:
+            - read: List of user restrictions for reading
+            - update: List of user restrictions for editing
+
+        Raises:
+            ValueError: If page not found
+        """
+        endpoint = f"/wiki/rest/api/content/{page_id}/restriction"
+        params = {"expand": "read.restrictions.user,update.restrictions.user"}
+
+        result = self._request("GET", endpoint, params=params)
+
+        # Extract user emails from restrictions
+        restrictions = {
+            "read": [],
+            "update": []
+        }
+
+        for operation in ["read", "update"]:
+            if operation in result.get("restrictions", {}):
+                operation_data = result["restrictions"][operation]
+                if "restrictions" in operation_data:
+                    user_restrictions = operation_data["restrictions"].get("user", {})
+                    if "results" in user_restrictions:
+                        for user in user_restrictions["results"]:
+                            email = user.get("email", "")
+                            if email:
+                                restrictions[operation].append(email)
+
+        return restrictions
+
     # ===== Search Operations =====
 
     def search_pages(
@@ -304,8 +446,14 @@ class ConfluenceClient:
 
         Examples:
             search_pages("API Documentation")
-            search_pages("type=page AND title~'API'", space="DEV")
+            search_pages("type=page AND title ~ 'API'", space="DEV")
         """
+        # Validate query
+        if not query or not query.strip():
+            raise ValueError("Search query cannot be empty")
+
+        query = query.strip()
+
         # Check cache first
         cached = self.search_cache.get(query)
         if cached:
@@ -320,18 +468,21 @@ class ConfluenceClient:
                 pass
 
         # Build CQL query
+        import re
+        # Check if query looks like CQL (contains AND/OR as whole words, or special operators)
+        is_cql = bool(re.search(r'\b(AND|OR|NOT)\b|[~=<>]', query, re.IGNORECASE))
+
         if space:
             # If query doesn't look like CQL, make it a title search
-            if "AND" not in query.upper() and "OR" not in query.upper():
-                cql = f'type=page AND space={space} AND title~"{query}"'
+            if not is_cql:
+                cql = f'type = page AND space = {space} AND title ~ "{query}"'
             else:
-                cql = f'type=page AND space={space} AND ({query})'
+                cql = f'type = page AND space = {space} AND ({query})'
         else:
-            if "AND" not in query.upper() and "OR" not in query.upper():
-                cql = f'type=page AND title~"{query}"'
+            if not is_cql:
+                cql = f'type = page AND title ~ "{query}"'
             else:
-                cql = f'type=page AND ({query})'
-
+                cql = f'type = page AND ({query})'
         endpoint = "/wiki/rest/api/content/search"
         params = {
             "cql": cql,
@@ -367,7 +518,7 @@ class ConfluenceClient:
             Page dict or None if not found
         """
         # Use CQL for exact title match
-        cql = f'type=page AND space={space} AND title="{title}"'
+        cql = f'type = page AND space = {space} AND title = "{title}"'
         endpoint = "/wiki/rest/api/content/search"
         params = {
             "cql": cql,
@@ -489,6 +640,119 @@ class ConfluenceClient:
 
         return self.update_page(page_id, title, content, current_version)
 
+    def add_topic_to_oneonone(
+        self,
+        user_name: str,
+        user_email: str,
+        other_name: str,
+        topic: str,
+        section_header: str = "Next"
+    ) -> dict:
+        """Add a topic to a 1:1 doc with another person.
+
+        Searches for 1:1 doc, validates it's a proper 1:1 (title format + restricted access),
+        then adds the topic to the specified section.
+
+        Args:
+            user_name: Current user's name (e.g., "Chase")
+            user_email: Current user's email (for validation)
+            other_name: Other person's name (e.g., "Bob")
+            topic: Topic text to add to the doc
+            section_header: Section to add to (default: "Next")
+
+        Returns:
+            Updated page dict
+
+        Raises:
+            ValueError: If page not found, invalid format, or access issues
+        """
+        # Build search query - try variations of the name
+        query = f"{user_name} {other_name}"
+
+        # Search for the page
+        result = self.search_pages(query, limit=5)
+        pages = result.get("results", [])
+
+        if not pages:
+            raise ValueError(
+                f"No 1:1 doc found for '{user_name}' and '{other_name}'. "
+                f"Search query: '{query}'"
+            )
+
+        # Find the first page that matches our title format
+        matching_page = None
+        for page in pages:
+            title = page.get("title", "")
+            if _validate_oneonone_title(title, user_name, other_name):
+                matching_page = page
+                break
+
+        if not matching_page:
+            # Show what we found for debugging
+            titles = [p.get("title", "") for p in pages]
+            raise ValueError(
+                f"Found pages but none match 1:1 doc title format.\n"
+                f"Expected: '{user_name} / {other_name}' or '{other_name} / {user_name}' "
+                f"(optionally with ' 1:1' suffix).\n"
+                f"Found: {', '.join(repr(t) for t in titles)}"
+            )
+
+        page_id = matching_page["id"]
+        title = matching_page["title"]
+
+        print(f"Found 1:1 doc: {page_id}: {title}", file=sys.stderr)
+
+        # Validate access restrictions (should be locked to 2 people)
+        try:
+            restrictions = self.get_page_restrictions(page_id)
+
+            # Check read or update restrictions (either works)
+            restricted_users = restrictions.get("read", []) or restrictions.get("update", [])
+
+            if restricted_users:
+                # Normalize emails for comparison
+                restricted_emails_lower = [e.lower() for e in restricted_users]
+                user_email_lower = user_email.lower()
+
+                # Check that current user is in the list
+                if user_email_lower not in restricted_emails_lower:
+                    print(
+                        f"[Warning] Current user ({user_email}) not in page restrictions. "
+                        f"Restricted to: {', '.join(restricted_users)}",
+                        file=sys.stderr
+                    )
+
+                # Check that there are exactly 2 people
+                if len(restricted_users) != 2:
+                    print(
+                        f"[Warning] Expected 2 users in restrictions, found {len(restricted_users)}: "
+                        f"{', '.join(restricted_users)}",
+                        file=sys.stderr
+                    )
+            else:
+                print("[Warning] No page restrictions found (page may be public)", file=sys.stderr)
+
+        except Exception as e:
+            print(f"[Warning] Could not verify page restrictions: {e}", file=sys.stderr)
+
+        # Get current content
+        content = self.get_page_content(page_id)
+
+        # Add topic to the section
+        updated_content = _add_topic_to_html(content, topic, section_header)
+
+        # Check if content actually changed
+        if updated_content == content:
+            print("No changes needed (topic already exists or no modification)", file=sys.stderr)
+            return matching_page
+
+        # Update the page
+        updated_page = self.update_page_safely(page_id, title, updated_content)
+
+        print(f"Added topic to {section_header} section", file=sys.stderr)
+
+        return updated_page
+
 
 # ===== Output Formatting =====
 
@@ -598,10 +862,11 @@ def main():
         read-page <page-id>
         create-page <space> <title> <content-file> [--parent PAGE-ID]
         update-page <page-id> <content-file> [--title TITLE]
+        add-topic-to-oneonone <person-name> <topic> [--section SECTION]
         cache-show - Display search cache
         cache-clear - Clear search cache
     """
-    from sidekick.config import get_atlassian_config
+    from sidekick.config import get_atlassian_config, get_user_config
 
     if len(sys.argv) < 2:
         print("Usage: python3 -m sidekick.clients.confluence <command> [args...]")
@@ -612,6 +877,7 @@ def main():
         print("  read-page <page-id>")
         print("  create-page <space> <title> <content-file> [--parent PAGE-ID]")
         print("  update-page <page-id> <content-file> [--title TITLE]")
+        print("  add-topic-to-oneonone <person-name> <topic> [--section SECTION]")
         print("  cache-show - Display search cache")
         print("  cache-clear - Clear search cache")
         sys.exit(1)
@@ -754,6 +1020,48 @@ def main():
 
             print(f"Updated page: {page_id}: {title} [{space_key}] (v{version})")
             if url:
+                print(f"  URL: {url}")
+
+        elif command == "add-topic-to-oneonone":
+            if len(sys.argv) < 4:
+                print("Usage: add-topic-to-oneonone <person-name> <topic> [--section SECTION]", file=sys.stderr)
+                sys.exit(1)
+
+            person_name = sys.argv[2]
+            topic = sys.argv[3]
+            section = "Next"
+
+            # Parse optional --section argument
+            if len(sys.argv) > 4 and sys.argv[4] == "--section" and len(sys.argv) > 5:
+                section = sys.argv[5]
+
+            # Get user config
+            user_config = get_user_config()
+            user_name = user_config["name"]
+            user_email = user_config["email"]
+
+            # Add topic to 1:1 doc
+            page = client.add_topic_to_oneonone(
+                user_name=user_name,
+                user_email=user_email,
+                other_name=person_name,
+                topic=topic,
+                section_header=section
+            )
+
+            # Display result
+            page_id = page.get("id")
+            title = page.get("title", "")
+            version = page.get("version", {}).get("number", "?")
+
+            print(f"\nUpdated 1:1 doc: {page_id}: {title} (v{version})")
+
+            # Show URL if available
+            links = page.get("_links", {})
+            base = links.get("base", "")
+            webui = links.get("webui", "")
+            if base and webui:
+                url = base + webui
                 print(f"  URL: {url}")
 
         elif command == "cache-show":

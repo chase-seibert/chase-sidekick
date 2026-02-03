@@ -183,3 +183,65 @@ def get_group(group_name: str) -> dict:
         )
 
     return groups[group_name_lower]
+
+
+def get_omnifocus_config() -> dict:
+    """Get OmniFocus configuration from .env file or environment variables.
+
+    OmniFocus configuration is optional and provides defaults for task creation.
+
+    Loads from .env file first, then falls back to system environment variables.
+
+    Returns:
+        dict with optional keys:
+        - default_project: Default project name for new tasks
+        - default_tag: Default tag name for new tasks
+
+    Note:
+        All configuration is optional. Empty dict will be returned if no
+        OmniFocus configuration is present.
+    """
+    env_file_vars = _load_env_file()
+
+    default_project = _get_env("OMNIFOCUS_DEFAULT_PROJECT", env_file_vars)
+    default_tag = _get_env("OMNIFOCUS_DEFAULT_TAG", env_file_vars)
+
+    config = {}
+    if default_project:
+        config["default_project"] = default_project
+    if default_tag:
+        config["default_tag"] = default_tag
+
+    return config
+
+
+def get_user_config() -> dict:
+    """Get user configuration from .env file or environment variables.
+
+    Used for personalized features like 1:1 doc management.
+
+    Returns:
+        dict with keys: name, email
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    name = _get_env("USER_NAME", env_file_vars)
+    email = _get_env("USER_EMAIL", env_file_vars)
+
+    # Fallback to ATLASSIAN_EMAIL if USER_EMAIL not set
+    if not email:
+        email = _get_env("ATLASSIAN_EMAIL", env_file_vars)
+
+    if not all([name, email]):
+        raise ValueError(
+            "Missing required user configuration. "
+            "Set USER_NAME and USER_EMAIL in .env file or environment variables."
+        )
+
+    return {
+        "name": name,
+        "email": email
+    }

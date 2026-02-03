@@ -9,7 +9,12 @@
       "Bash(echo:*)",
       "Bash(python -m sidekick.clients.jira:*)",
       "Bash(python -m sidekick.clients.confluence:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(osascript:*)",
+      "Bash(python -m py_compile:*)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }
