@@ -127,3 +127,7 @@ When adding a new service client (e.g., Slack, GitHub):
 4. Create skill documentation in `sidekick/skills/{service}.md`
 5. Add config function to `config.py` if needed
 6. Update README.md with new service
+
+
+### Providing local context
+The `CLAUDE.local.md` contains context on 1:1 docs, meeting docs, teams, people, and projects. 

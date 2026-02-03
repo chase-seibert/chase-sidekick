@@ -7,7 +7,7 @@ Engineering manager task automation toolkit.
 Chase Sidekick automates engineering manager tasks by providing:
 - **Clients**: Single-file Python interfaces to services (JIRA, Confluence, Dropbox, OmniFocus, etc.)
 - **Skills**: Markdown documentation for command-line usage
-- **Agents**: (Future) Scripts coordinating multiple clients for complex workflows
+- **Agents**: Multi-step workflows coordinating multiple clients for complex tasks
 
 ## Quick Start
 
@@ -272,6 +272,21 @@ python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ > output/jira/${
 - These files are not checked into git
 - See `output/README.md` for naming guidelines
 
+## Running Agents
+
+Agents are multi-step workflows that coordinate multiple clients. Invoke them by asking Claude to execute the agent workflow:
+
+```bash
+# Weekly Report Agent - Generate summary from 1:1 and meeting docs
+claude code "Run the weekly report agent for the past week"
+```
+
+Agents are defined in `sidekick/agents/` as markdown files that describe the workflow steps. See `output/README.md` for examples of manual agent invocation.
+
+### Available Agents
+
+- **weekly_report** (`sidekick/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
+
 ## Configuration
 
 Configuration is loaded from `.env` file (with fallback to environment variables).
@@ -329,10 +344,12 @@ chase-sidekick/
 │   │   ├── omnifocus.md  # OmniFocus skill docs (macOS)
 │   │   ├── dropbox.md    # Dropbox skill docs
 │   │   └── output.md     # Output management skill docs
-│   └── agents/           # Future: Multi-client scripts
+│   └── agents/           # Multi-step workflows
+│       └── weekly_report.md  # Weekly report agent
 ├── output/                # Saved command outputs (not in git)
 │   ├── jira/             # JIRA outputs
 │   ├── confluence/       # Confluence outputs
+│   ├── weekly_report/    # Weekly report agent outputs
 │   └── README.md         # Output guidelines
 ├── .env                   # Your credentials (not in git)
 ├── .env.example          # Example configuration
@@ -373,6 +390,14 @@ chase-sidekick/
   - Stores prompt text, command, and timestamps in file headers
   - Searchable and refreshable outputs
   - Organized by client type
+
+## Available Agents
+
+- **Weekly Report** (`sidekick/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
+  - Fetches content from Confluence and Dropbox Paper docs
+  - Extracts notes from recent time period
+  - Categorizes by audience (leadership, direct reports, everyone, kudos)
+  - Preserves outputs in `output/weekly_report/` for review
 
 ## Roadmap
 
