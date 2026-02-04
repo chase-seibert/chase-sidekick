@@ -113,6 +113,13 @@ Here are natural language prompts you can use with each skill:
 "List all saved command outputs"
 ```
 
+**Markdown to PDF Prompts:**
+```
+"Convert README.md to PDF"
+"Convert doc.md to report.pdf"
+"Convert documentation.md with pdflatex"
+```
+
 ### Command Line Usage
 
 Configuration is automatically loaded from `.env` file.
@@ -371,6 +378,42 @@ client.replace_sheet_with_csv(
 values = client.get_values("SPREADSHEET_ID", "Sheet1!A1:D10")
 ```
 
+#### Markdown to PDF Commands
+
+```bash
+# Convert markdown to PDF (creates README.pdf)
+python -m sidekick.clients.markdown_pdf README.md
+
+# Specify output file
+python -m sidekick.clients.markdown_pdf doc.md report.pdf
+
+# Use different PDF engine
+python -m sidekick.clients.markdown_pdf doc.md --pdf-engine=pdflatex
+python -m sidekick.clients.markdown_pdf doc.md report.pdf --pdf-engine=lualatex
+```
+
+**Requirements:**
+- pandoc: `brew install pandoc`
+- LaTeX (for PDF output): `brew install basictex` or download [MacTeX](https://www.tug.org/mactex/)
+
+**Python Usage:**
+```python
+from sidekick.clients.markdown_pdf import MarkdownPdfConverter
+
+converter = MarkdownPdfConverter()
+
+# Basic conversion
+output_path = converter.convert('README.md')
+print(f"Created: {output_path}")
+
+# With custom output and engine
+output_path = converter.convert(
+    'doc.md',
+    output_path='report.pdf',
+    pdf_engine='pdflatex'
+)
+```
+
 ## Saving Output with Prompts
 
 Save command output with prompt metadata for easy tracking and refreshing:
@@ -520,6 +563,7 @@ chase-sidekick/
 │   │   ├── gcalendar.md  # Google Calendar skill docs
 │   │   ├── gsheets.md    # Google Sheets skill docs
 │   │   ├── output.md     # Output management skill docs
+│   │   ├── markdown-pdf.md  # Markdown to PDF conversion skill docs
 │   │   └── team-group-analysis.md  # Team analysis skill docs
 │   └── agents/           # Multi-step workflows
 │       └── weekly_report.md  # Weekly report agent
@@ -533,6 +577,7 @@ chase-sidekick/
 │       ├── gmail.py      # Gmail client with CLI
 │       ├── gcalendar.py  # Google Calendar client with CLI
 │       ├── gsheets.py    # Google Sheets client with CLI
+│       ├── markdown_pdf.py  # Markdown to PDF converter with CLI
 │       └── output.py     # Output manager with CLI
 ├── output/                # Saved command outputs (not in git)
 │   ├── jira/             # JIRA outputs
@@ -597,6 +642,11 @@ chase-sidekick/
   - Stores prompt text, command, and timestamps in file headers
   - Searchable and refreshable outputs
   - Organized by client type
+- **Markdown to PDF** (`.claude/skills/markdown-pdf.md`) - Convert markdown files to PDF
+  - Uses pandoc for high-quality PDF conversion
+  - Supports multiple PDF engines (xelatex, pdflatex, lualatex)
+  - Automatic output filename generation
+  - Full markdown feature support (tables, code blocks, images, etc.)
 
 ## Available Agents
 
@@ -615,6 +665,7 @@ chase-sidekick/
 - [x] Gmail client with CLI
 - [x] Google Calendar client with CLI
 - [x] Google Sheets client with CLI
+- [x] Markdown to PDF converter with CLI
 - [ ] Slack client with CLI
 - [ ] GitHub client with CLI
 - [ ] Zoom client with CLI
