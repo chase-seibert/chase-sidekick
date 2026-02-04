@@ -294,7 +294,7 @@ def get_google_config() -> dict:
             "Missing required Google configuration. "
             "Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN "
             "in .env file or environment variables. "
-            "See sidekick/skills/gmail.md, gcalendar.md, or gsheets.md for setup instructions."
+            "See .claude/skills/gmail.md, gcalendar.md, or gsheets.md for setup instructions."
         )
 
     return {

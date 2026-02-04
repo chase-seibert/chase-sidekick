@@ -406,7 +406,7 @@ python -m sidekick.clients.output find jira "PROJ-1735"
 - Searchable by prompt text
 - Refresh capability to update existing files
 
-See `sidekick/skills/output.md` for detailed documentation.
+See `.claude/skills/output.md` for detailed documentation.
 
 ### Simple Output Redirect
 
@@ -435,11 +435,11 @@ Agents are multi-step workflows that coordinate multiple clients. Invoke them by
 claude code "Run the weekly report agent for the past week"
 ```
 
-Agents are defined in `sidekick/agents/` as markdown files that describe the workflow steps. See `output/README.md` for examples of manual agent invocation.
+Agents are defined in `.claude/agents/` as markdown files that describe the workflow steps. See `output/README.md` for examples of manual agent invocation.
 
 ### Available Agents
 
-- **weekly_report** (`sidekick/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
+- **weekly_report** (`.claude/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
 
 ## Configuration
 
@@ -507,17 +507,9 @@ Configuration priority:
 
 ```
 chase-sidekick/
-├── sidekick/
-│   ├── config.py          # Configuration from .env
-│   ├── clients/           # Service clients (single files)
-│   │   ├── jira.py       # JIRA client with CLI
-│   │   ├── confluence.py # Confluence client with CLI
-│   │   ├── omnifocus.py  # OmniFocus client with CLI (macOS)
-│   │   ├── dropbox.py    # Dropbox client with CLI
-│   │   ├── gmail.py      # Gmail client with CLI
-│   │   ├── gcalendar.py  # Google Calendar client with CLI
-│   │   ├── gsheets.py    # Google Sheets client with CLI
-│   │   └── output.py     # Output manager with CLI
+├── .claude/               # Claude Code configuration
+│   ├── settings.json     # Claude Code settings
+│   ├── settings.local.json  # Local Claude Code settings
 │   ├── skills/           # Usage documentation
 │   │   ├── jira.md       # JIRA skill docs
 │   │   ├── jira-roadmap.md  # JIRA roadmap skill docs
@@ -527,9 +519,21 @@ chase-sidekick/
 │   │   ├── gmail.md      # Gmail skill docs
 │   │   ├── gcalendar.md  # Google Calendar skill docs
 │   │   ├── gsheets.md    # Google Sheets skill docs
-│   │   └── output.md     # Output management skill docs
+│   │   ├── output.md     # Output management skill docs
+│   │   └── team-group-analysis.md  # Team analysis skill docs
 │   └── agents/           # Multi-step workflows
 │       └── weekly_report.md  # Weekly report agent
+├── sidekick/
+│   ├── config.py          # Configuration from .env
+│   └── clients/           # Service clients (single files)
+│       ├── jira.py       # JIRA client with CLI
+│       ├── confluence.py # Confluence client with CLI
+│       ├── omnifocus.py  # OmniFocus client with CLI (macOS)
+│       ├── dropbox.py    # Dropbox client with CLI
+│       ├── gmail.py      # Gmail client with CLI
+│       ├── gcalendar.py  # Google Calendar client with CLI
+│       ├── gsheets.py    # Google Sheets client with CLI
+│       └── output.py     # Output manager with CLI
 ├── output/                # Saved command outputs (not in git)
 │   ├── jira/             # JIRA outputs
 │   ├── confluence/       # Confluence outputs
@@ -544,51 +548,51 @@ chase-sidekick/
 
 ## Available Skills
 
-- **JIRA** (`sidekick/skills/jira.md`) - Query and manage JIRA issues
+- **JIRA** (`.claude/skills/jira.md`) - Query and manage JIRA issues
   - Query issues with JQL, by parent, or by label
   - Get detailed issue information
   - Add and remove labels
   - Update issue fields
-- **JIRA Roadmap** (`sidekick/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
+- **JIRA Roadmap** (`.claude/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
   - Depth-first traversal with children appearing immediately under parents
   - Streams results as they're fetched for immediate feedback
   - Recursively finds all children and linked issues
-- **Confluence** (`sidekick/skills/confluence.md`) - Manage Confluence pages and 1:1 docs
+- **Confluence** (`.claude/skills/confluence.md`) - Manage Confluence pages and 1:1 docs
   - Search pages by title or CQL queries
   - Read and write page content
   - Create page hierarchies with automatic version handling
   - **1:1 Doc Management**: Add topics to 1:1 meeting docs with automatic search, validation, and section management
   - Search caching for faster repeated access
-- **OmniFocus** (`sidekick/skills/omnifocus.md`) - Manage OmniFocus tasks (macOS only)
+- **OmniFocus** (`.claude/skills/omnifocus.md`) - Manage OmniFocus tasks (macOS only)
   - Query and filter tasks by project, tag, due date, and status
   - Create, update, complete, and delete tasks
   - List projects and tags
   - Inbox-focused workflow with duplicate prevention
-- **Dropbox** (`sidekick/skills/dropbox.md`) - Manage Dropbox files and Paper docs
+- **Dropbox** (`.claude/skills/dropbox.md`) - Manage Dropbox files and Paper docs
   - Get and write file contents (any file type)
   - Get file contents via share links
   - Get metadata for files and folders
   - Export Paper docs as markdown or HTML
   - Create and update Paper docs from markdown or HTML
   - Content-focused operations (stdin/stdout, no local file I/O)
-- **Gmail** (`sidekick/skills/gmail.md`) - Search and manage Gmail messages
+- **Gmail** (`.claude/skills/gmail.md`) - Search and manage Gmail messages
   - Search inbox with Gmail query syntax
   - Read full message details and body
   - Create draft emails (does not send)
   - Extract headers and message metadata
-- **Google Calendar** (`sidekick/skills/gcalendar.md`) - Manage Google Calendar events
+- **Google Calendar** (`.claude/skills/gcalendar.md`) - Manage Google Calendar events
   - List events with date range filtering
   - Create, update, and delete calendar events
   - Support for all-day and timed events
   - Manage event attendees and locations
-- **Google Sheets** (`sidekick/skills/gsheets.md`) - Manage Google Sheets with CSV
+- **Google Sheets** (`.claude/skills/gsheets.md`) - Manage Google Sheets with CSV
   - List all accessible spreadsheets
   - Get spreadsheet info by ID or URL
   - Download sheets as CSV files (by ID or URL)
   - Upload CSV files as new spreadsheets
   - Replace sheet contents with CSV data
   - Read and write cell values programmatically
-- **Output** (`sidekick/skills/output.md`) - Save command output with prompt metadata
+- **Output** (`.claude/skills/output.md`) - Save command output with prompt metadata
   - Auto-generates filenames from prompts
   - Stores prompt text, command, and timestamps in file headers
   - Searchable and refreshable outputs
@@ -596,7 +600,7 @@ chase-sidekick/
 
 ## Available Agents
 
-- **Weekly Report** (`sidekick/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
+- **Weekly Report** (`.claude/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
   - Fetches content from Confluence and Dropbox Paper docs
   - Extracts notes from recent time period
   - Categorizes by audience (leadership, direct reports, everyone, kudos)

@@ -100,13 +100,15 @@ client.remove_label("PROJ-123", "needs-review")
 ## Architecture
 
 ```
+.claude/
+├── skills/            # Usage documentation (markdown)
+│   └── jira.md       # JIRA skill documentation
+└── agents/            # Multi-step workflows
+    └── weekly_report.md
 sidekick/
 ├── config.py          # Configuration from .env file
-├── clients/           # Service clients (single-file implementations)
-│   └── jira.py       # JIRA client with CLI
-├── skills/           # Usage documentation (markdown)
-│   └── jira.md       # JIRA skill documentation
-└── agents/           # Future: Multi-client coordination scripts
+└── clients/           # Service clients (single-file implementations)
+    └── jira.py       # JIRA client with CLI
 ```
 
 ### Key Patterns
@@ -124,7 +126,7 @@ When adding a new service client (e.g., Slack, GitHub):
 1. Create single-file client in `sidekick/clients/{service}.py`
 2. Implement client class with service API methods
 3. Add `main()` function for CLI usage
-4. Create skill documentation in `sidekick/skills/{service}.md`
+4. Create skill documentation in `.claude/skills/{service}.md`
 5. Add config function to `config.py` if needed
 6. Update README.md with new service
 
