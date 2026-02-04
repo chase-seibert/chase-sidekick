@@ -119,6 +119,7 @@ sidekick/
 - **Dictionary Returns**: Return dicts instead of custom classes for simplicity
 - **Inline Auth**: Auth logic in the client class, no separate auth module
 - **Confirmation for Writes**: Always ask for user confirmation before making calls that write data to remote clients (update, create, delete operations). Read operations do not require confirmation.
+- **Skill Configuration Prompts**: If Claude tries to use a skill that is not configured yet, it will prompt you with the steps in the README.md for the skill to provision API keys, etc.
 
 ### Adding New Clients
 
