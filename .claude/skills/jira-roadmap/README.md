@@ -6,13 +6,6 @@ Find and visualize roadmap initiatives by recursively exploring issue hierarchie
 
 This skill helps you explore JIRA roadmap initiatives by starting from a root issue and recursively finding all children, nested children, linked issues, and descendants within a project. Perfect for understanding Epic hierarchies, Initiative breakdowns, nested Story structures, and cross-issue dependencies.
 
-## Setup
-
-```bash
-# Activate virtual environment
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
 ## Configuration
 
 Uses the same `.env` configuration as the main JIRA skill. See `jira.md` for setup instructions.

@@ -2,19 +2,6 @@
 
 Command-line interface for Dropbox file and Paper doc operations.
 
-## Setup
-
-```bash
-# Create and activate virtual environment (first time only)
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-**Note**: Always activate the venv before running commands:
-```bash
-source venv/bin/activate
-```
-
 ## Configuration
 
 Configuration is automatically loaded from `.env` file in project root.

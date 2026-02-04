@@ -4,7 +4,6 @@
       "Bash(pip3 search:*)",
       "Bash(tree:*)",
       "Bash(python3:*)",
-      "Bash(source venv/bin/activate)",
       "Bash(python -m sidekick.clients.memory:*)",
       "Bash(echo:*)",
       "Bash(python -m sidekick.clients.jira:*)",
@@ -27,7 +26,9 @@
       "Bash(git stash:*)",
       "Bash(git push:*)",
       "Skill(markdown-pdf)",
-      "Skill(markdown-pdf:*)"
+      "Skill(markdown-pdf:*)",
+      "Bash(test:*)",
+      "Bash([ -d /Users/cseibert/projects/chase-sidekick/venv ])"
     ],
     "additionalDirectories": [
       "/tmp"
