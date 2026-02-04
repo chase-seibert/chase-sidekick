@@ -1,672 +1,380 @@
 # Chase Sidekick
 
-Engineering manager task automation toolkit.
+**Build your own engineering manager toolkit, one command at a time.**
 
-## Overview
+This isn't a pre-packaged automation tool. It's a playground for building command-line utilities that work with Claude Code, where you stay in the loop as skills evolve with your needs.
 
-Chase Sidekick automates engineering manager tasks by providing:
-- **Clients**: Single-file Python interfaces to services (JIRA, Confluence, Dropbox, OmniFocus, etc.)
-- **Skills**: Markdown documentation for command-line usage
-- **Agents**: Multi-step workflows coordinating multiple clients for complex tasks
+## What You Can Ask For
+
+Here are examples of complex multi-skill tasks you can ask Claude Code to handle. 
+
+```
+"Download all the files linked to my calendar events for this week, and generate a list of bullets as a summary for executive leadership"
+
+"For all teams that report to me, look up completed work across JIRA Epics for the past 30 days and generate a team accomplishments report with kudos to specific engineers"
+```
+
+Note that these exact scenarios are not hard coded anywhere; Claude can combine existing client code and Skills on the fly to do these, all from natural language prompts. 
+
+## Why This Exists
+
+Engineering management involves lots of repetitive data gathering: checking JIRA hierarchies, updating 1:1 docs, synthesizing meeting notes. Instead of building a monolithic tool with every feature baked in, this project takes a different approach:
+
+**You write simple Python scripts that read from stdin and write to stdout. Claude Code helps you build, debug, and refine them as you go.**
+
+The magic is in keeping things simple enough that you can always understand and modify your tools, while powerful enough to automate real work.
+
+## What You'll Build
+
+Here's a real example. Ask Claude Code:
+
+```
+Create an Agent to generate a project review report starting from a link to a Confluence doc. 
+
+Look through the document and any linked docs (PRD, design, tech spec). Pull out the JIRA epic/initiative, figure out who the DRIs are, and create a structured report covering:
+
+- One sentence TL;DR of what the project does
+- Product requirements summary with any complex or controversial items called out
+- Technical approach and decisions that could impact scope
+- Estimates broken down by milestone with confidence levels, highlighting risky estimates
+- Dependencies on other teams and external systems, plus what could go wrong
+- Questions to ask during tech review
+- Kudos for people who contributed
+
+Keep the whole thing under 1500 words. Save it as output/project_review/[project-name-slug]-review.md
+
+Use the original estimate units from the doc (hours, weeks, whatever they used). Get DRI names from JIRA issues if they're not in the docs. Clean up any temp files when done - only the final report should be in output.
+
+```
+
+Claude will create the Agent for you. It will figure out how to call the existing clients to talk to Confluence, JIRA, Dropbox, etc. It will know how to save output in a place where it won't be committed to git. You can go back and forth iterating on the Agent to refine. For example, you could have a subsequent prompt that says "When I ask you to refresh the report, pull all the links again, update the report, and include a changelog at the bottom".
+
+**The kicker?** It took 15 minutes for Claude Code to write this agent. I was literally able to create this agent and have it generate the report inside the silent reading period of an actual tech spec review meeting.
+
+That's the power of this approach: simple building blocks that combine into sophisticated automation, where you can build novel use cases ***quickly***. 
 
 ## Quick Start
 
-### Setup
+Get running in 60 seconds with the JIRA skill:
 
 ```bash
-# Create configuration file
+# Clone and setup
+git clone https://github.com/yourusername/chase-sidekick.git
+cd chase-sidekick
+
+# Configure credentials
 cp .env.example .env
-# Edit .env with your credentials
-# - ATLASSIAN_URL, ATLASSIAN_EMAIL, ATLASSIAN_API_TOKEN (required for JIRA/Confluence)
-# - USER_NAME, USER_EMAIL (required for Confluence 1:1 docs)
-# - DROPBOX_ACCESS_TOKEN (required for Dropbox)
-# Get Atlassian API token: https://id.atlassian.com/manage-profile/security/api-tokens
-# Get Dropbox access token: https://www.dropbox.com/developers/apps
-```
+# Edit .env with your JIRA details:
+#   ATLASSIAN_URL=https://your-company.atlassian.net
+#   ATLASSIAN_EMAIL=your-email@company.com
+#   ATLASSIAN_API_TOKEN=your_token
+# Get token: https://id.atlassian.com/manage-profile/security/api-tokens
 
-### Example Prompts
-
-Here are natural language prompts you can use with each skill:
-
-**JIRA Prompts:**
-```
-"Find roadmap items nested under PROJ-1735 in the PROJ Project"
-"Show me the hierarchy for PROJ-500"
-"What issues are linked to TEAM-100?"
-"Get all Story issues under EPIC-200 in the EPIC project"
-"Find all issues under PROJ-1735 across all projects"
-"Query issues with status Open in the PROJ project"
-"Show me all backend issues in PROJ"
-"Add label 'needs-review' to PROJ-123"
-"Remove label 'blocked' from PROJ-456"
-```
-
-**Confluence Prompts:**
-```
-"Search for pages about API documentation"
-"Add 'Discuss Q1 planning' to my 1:1 doc with Nandan"
-"Add 'Review PR-456' to my 1:1 with Bob in the Next section"
-"Read the content of page 123456789"
-"Search for 'Team Guidelines' in the TEAM space"
-"Show me all pages with 'meeting notes' in the title"
-"Create a new page called 'Sprint Planning' in the DEV space"
-```
-
-**OmniFocus Prompts (macOS only):**
-```
-"Show me all my inbox tasks"
-"Create a task 'Review documentation'"
-"Show me flagged tasks"
-"List tasks in the Work project"
-"Show tasks due this week"
-"Complete the task 'Send report'"
-"Show all my projects"
-"List tasks tagged with 'urgent'"
-```
-
-**Dropbox Prompts:**
-```
-"Get the contents of /Documents/notes.txt"
-"Download file from https://www.dropbox.com/s/abc123/file.txt"
-"Write 'Hello World' to /Documents/test.txt"
-"Show metadata for /Paper/MyDoc.paper"
-"Get Paper doc content from /Paper/Planning.paper"
-"Get Paper doc as HTML from /Paper/Specs.paper"
-"Create a new Paper doc at /Paper/NewDoc.paper with content 'Title'"
-"Update Paper doc at /Paper/MyDoc.paper"
-```
-
-**Gmail Prompts:**
-```
-"Search for emails from boss@example.com"
-"Show me unread emails from last week"
-"Read email MESSAGE_ID"
-"Create a draft email to team@example.com"
-"Search for emails with subject 'meeting'"
-```
-
-**Google Calendar Prompts:**
-```
-"List my calendar events for this week"
-"Show events between 2024-01-01 and 2024-01-31"
-"Create a meeting tomorrow at 2pm"
-"Update event EVENT_ID with new title"
-"Delete event EVENT_ID"
-```
-
-**Google Sheets Prompts:**
-```
-"List all my spreadsheets"
-"List first 20 spreadsheets"
-"Get info for spreadsheet URL https://docs.google.com/..."
-"Download spreadsheet SHEET_ID as CSV"
-"Download spreadsheet from URL https://docs.google.com/..."
-"Upload data.csv to a new spreadsheet"
-"Replace sheet in SHEET_ID with data.csv"
-```
-
-**Output Management Prompts:**
-```
-"List all saved JIRA outputs"
-"Find outputs about PROJ-1735"
-"Show me recent Confluence outputs"
-"List all saved command outputs"
-```
-
-**Markdown to PDF Prompts:**
-```
-"Convert README.md to PDF"
-"Convert doc.md to report.pdf"
-"Convert documentation.md with pdflatex"
-```
-
-### Command Line Usage
-
-Configuration is automatically loaded from `.env` file.
-
-#### JIRA Commands
-
-```bash
-# Get single issue (detailed view)
-python -m sidekick.clients.jira get-issue PROJ-123
-# Output:
-# PROJ-123: Fix login bug
-#   Status: In Progress
-#   Assignee: John Doe
-#   Labels: backend, bug
-#   Type: Bug
-
-# Query issues (one per line)
+# Try it out
 python -m sidekick.clients.jira query "project = PROJ AND status = Open"
-# Output:
-# Found 42 issues (showing 50):
-# PROJ-123: Fix login bug [In Progress] (John Doe) [backend, bug]
-# PROJ-124: Add dark mode [To Do] (Jane Smith) [frontend]
-# ...
-
-# Query by parent (subtasks)
-python -m sidekick.clients.jira query-by-parent PROJ-100
-
-# Query by label
-python -m sidekick.clients.jira query-by-label backend
-
-# Get roadmap hierarchy (recursively find all children and linked issues)
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ Story
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-100  # All projects
-
-# Add/remove labels
-python -m sidekick.clients.jira add-label PROJ-123 needs-review
-python -m sidekick.clients.jira remove-label PROJ-123 blocked
-
-# Update issue
-python -m sidekick.clients.jira update-issue PROJ-123 '{"summary": "New title"}'
 ```
 
-#### Confluence Commands
-
+Now ask Claude Code to use it:
 ```bash
-# Search for pages
-python -m sidekick.clients.confluence search "API Documentation"
-python -m sidekick.clients.confluence search "meeting notes" --space TEAM --limit 10
-
-# Get page details
-python -m sidekick.clients.confluence get-page 123456789
-python -m sidekick.clients.confluence get-page-by-title "Home" DEV
-
-# Read page content
-python -m sidekick.clients.confluence read-page 123456789 > page.html
-
-# Add topic to 1:1 doc
-python -m sidekick.clients.confluence add-topic-to-oneonone Nandan "Discuss Q1 planning"
-python -m sidekick.clients.confluence add-topic-to-oneonone Bob "Review PR-456" --section "Feb 5"
-
-# Create new page
-echo "<h1>New Page</h1><p>Content</p>" > content.html
-python -m sidekick.clients.confluence create-page DEV "Sprint Planning" content.html
-
-# Update existing page
-python -m sidekick.clients.confluence update-page 123456789 updated-content.html
-python -m sidekick.clients.confluence update-page 123456789 content.html --title "New Title"
-
-# Cache management
-python -m sidekick.clients.confluence cache-show
-python -m sidekick.clients.confluence cache-clear
+claude code "Show me all open issues in the PROJ project"
 ```
 
-#### OmniFocus Commands (macOS only)
+Claude reads the skill documentation in `.claude/skills/jira/SKILL.md` and executes the right command.
 
-```bash
-# Query tasks
-python -m sidekick.clients.omnifocus query  # All inbox tasks
-python -m sidekick.clients.omnifocus query --project Work
-python -m sidekick.clients.omnifocus query --tag urgent
-python -m sidekick.clients.omnifocus query --flagged
-python -m sidekick.clients.omnifocus query --due-before 2026-02-10
+If Claude tries to use a skill that is not configured yet, it will prompt you with the steps in the README.md for the skill to provision API keys, etc. 
 
-# Get single task
-python -m sidekick.clients.omnifocus get-task n--Q40q4juK
+## Philosophy: Simple Tools, Standard I/O
 
-# Create task
-python -m sidekick.clients.omnifocus create-task "Review documentation"
-python -m sidekick.clients.omnifocus create-task "Send report" --note "Include Q1 metrics"
-python -m sidekick.clients.omnifocus create-task "Team meeting" --due 2026-02-10 --flag
+Every client follows the same pattern:
 
-# Update task
-python -m sidekick.clients.omnifocus update-task n--Q40q4juK --name "Updated title"
-python -m sidekick.clients.omnifocus update-task n--Q40q4juK --flag
-python -m sidekick.clients.omnifocus update-task n--Q40q4juK --due 2026-02-15
+1. **Single Python file** - The entire JIRA client is `sidekick/clients/jira.py` (~400 lines)
+2. **Reads stdin, writes stdout** - Data flows through pipes like traditional Unix tools
+3. **Human-readable output** - Not JSON blobs, but formatted text you can read
+4. **Zero external dependencies** - Only Python stdlib (requests, json, urllib)
 
-# Complete task
-python -m sidekick.clients.omnifocus complete-task n--Q40q4juK
+This means you (and Claude) can:
+- Pipe outputs together: `python -m jira query "..." | grep "backend"`
+- Save outputs: `python -m jira roadmap-hierarchy PROJ-100 > hierarchy.txt`
+- Chain commands: `python -m confluence search "API" | python -m output write ...`
 
-# Delete task
-python -m sidekick.clients.omnifocus delete-task n--Q40q4juK
+You typically won't ***need** to think about how these are chained together, because Claude will figure it out. 
 
-# List projects and tags
-python -m sidekick.clients.omnifocus list-projects
-python -m sidekick.clients.omnifocus list-tags
+**Why this matters:** You can inspect, modify, and understand every tool. You can see the steps, and inspect the intermediate outputs. And so can Claude. 
+
+**Skills and agents are markdown documentation.** Look at `.claude/agents/project-review.md`:
+
+```markdown
+# Project Review Agent
+
+Generate comprehensive project status reports from JIRA data.
+
+## Steps
+
+1. Fetch roadmap hierarchy: `python -m sidekick.clients.jira roadmap-hierarchy ISSUE_KEY PROJECT`
+2. Analyze recent completions (last 30 days)
+3. Identify blocked items
+4. Generate structured report
+5. Save to output/project-review/
+
+## Example prompts:
+- "Generate a project review for PLATFORM-100"
+- "Create a status report for the Auth Migration initiative"
 ```
 
-#### Dropbox Commands
+Claude Code reads these files at the start of every session. When you ask for a project review, Claude sees the agent workflow, understands which clients to invoke, and executes the steps in order.
 
-```bash
-# Get file contents
-python -m sidekick.clients.dropbox get-file-contents /Documents/notes.txt
-python -m sidekick.clients.dropbox get-file-contents-from-link "https://www.dropbox.com/s/abc123/file.txt"
+**Important: The `output/` directory is in `.gitignore`** - This is where command outputs get saved (JIRA hierarchies, Confluence searches, agent results). These files provide context for Claude across sessions but aren't checked into version control. Think of them as a local knowledge base that grows as you work.
 
-# Write file contents
-echo "Hello, World!" | python -m sidekick.clients.dropbox write-file-contents /Documents/notes.txt
-python -m sidekick.clients.dropbox write-file-contents /Documents/notes.txt --content "Hello, World!"
+## Using CLAUDE.local.md for Context
 
-# Get metadata
-python -m sidekick.clients.dropbox get-metadata /Documents/notes.txt
+When you ask Claude to "look up JIRA Epics for my teams", or "fetch recent content from my 1:1 docs", how does it know what to do?
 
-# Get Paper doc contents
-python -m sidekick.clients.dropbox get-paper-contents /Paper/MyDoc.paper
-python -m sidekick.clients.dropbox get-paper-contents /Paper/MyDoc.paper --format html
-python -m sidekick.clients.dropbox get-paper-contents-from-link "https://paper.dropbox.com/doc/Title-abc123"
+Create `CLAUDE.local.md` in your project root (it's gitignored):
 
-# Create/update Paper docs
-echo "# My Document" | python -m sidekick.clients.dropbox create-paper-contents /Paper/NewDoc.paper
-python -m sidekick.clients.dropbox create-paper-contents /Paper/NewDoc.paper --content "# Title"
-python -m sidekick.clients.dropbox update-paper-contents /Paper/MyDoc.paper --content "# Updated"
+```markdown
+# CLAUDE.local.md
+
+## My Teams
+
+- Platform Team, manager Alice, JIRA Project PLAT
+- Infrastructure Team, manager Bob, JIRA Project INFRA
+- API Team, manager Carol, JIRA Project API
+
+## 1:1 Documents
+
+- [Alice](https://company.atlassian.net/wiki/spaces/ENG/pages/123/MyName+Alice+1+1)
+- [Bob](https://www.dropbox.com/scl/fi/xyz/MyName-Bob-11.paper)
+
+## Key Projects
+
+- Auth Migration: PLAT-1500, PLAT-1520 - Migrate to OAuth2
+- API Gateway: API-200 - Centralized API routing
 ```
 
-#### Gmail Commands
+The content here can be in ANY format. It's just additional text content for all your prompts. Now when you ask Claude "Add a topic to my 1:1 with Alice," it knows where to look. When you say "Show me all Platform issues," it knows to query `project = PLAT`.
 
-```bash
-# Search messages
-python -m sidekick.clients.gmail search "from:someone@example.com"
-python -m sidekick.clients.gmail search "is:unread" 20
-
-# Get message
-python -m sidekick.clients.gmail get MESSAGE_ID
-
-# Create draft
-python -m sidekick.clients.gmail create-draft "user@example.com" "Subject" "Body text"
-```
-
-**Python Usage:**
-```python
-from sidekick.clients.gmail import GmailClient
-from sidekick.config import get_google_config
-
-config = get_google_config()
-client = GmailClient(**config)
-
-# Search messages
-messages = client.search_messages("from:boss@example.com", max_results=5)
-for msg in messages:
-    headers = client.get_message_headers(msg)
-    print(f"{headers['from']}: {headers['subject']}")
-
-# Read message body
-message = client.get_message("MESSAGE_ID")
-body = client.get_message_body(message)
-
-# Create draft
-draft = client.create_draft(
-    to="recipient@example.com",
-    subject="Hello",
-    body="This is a draft",
-    cc="cc@example.com"
-)
-```
-
-#### Google Calendar Commands
-
-```bash
-# List events
-python -m sidekick.clients.gcalendar list "2024-01-01T00:00:00Z" "2024-01-31T23:59:59Z"
-
-# Get event
-python -m sidekick.clients.gcalendar get EVENT_ID
-
-# Create event
-python -m sidekick.clients.gcalendar create "Team Meeting" "2024-01-15T14:00:00Z" "2024-01-15T15:00:00Z"
-
-# Update event
-python -m sidekick.clients.gcalendar update EVENT_ID summary "New Title"
-
-# Delete event
-python -m sidekick.clients.gcalendar delete EVENT_ID
-```
-
-#### Google Sheets Commands
-
-```bash
-# List spreadsheets
-python -m sidekick.clients.gsheets list 20
-
-# Get spreadsheet info (by ID or URL)
-python -m sidekick.clients.gsheets get "SPREADSHEET_ID"
-python -m sidekick.clients.gsheets get-url "https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit"
-
-# Download as CSV (by ID or URL)
-python -m sidekick.clients.gsheets download "SPREADSHEET_ID" "Sheet1" output.csv
-python -m sidekick.clients.gsheets download-url "https://docs.google.com/.../edit" "Sheet1" output.csv
-
-# Upload CSV
-python -m sidekick.clients.gsheets upload data.csv "My Spreadsheet"
-
-# Replace sheet with CSV
-python -m sidekick.clients.gsheets replace "SPREADSHEET_ID" data.csv "Sheet1"
-```
-
-**Python Usage:**
-```python
-from sidekick.clients.gsheets import GSheetsClient
-from sidekick.config import get_google_config
-
-config = get_google_config()
-client = GSheetsClient(**config)
-
-# List spreadsheets
-spreadsheets = client.list_spreadsheets(max_results=20)
-for sheet in spreadsheets:
-    print(f"{sheet['name']}: {sheet['id']}")
-
-# Get by URL
-url = "https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit"
-spreadsheet = client.get_spreadsheet_by_url(url)
-
-# Extract ID from URL
-spreadsheet_id = GSheetsClient.extract_spreadsheet_id(url)
-
-# Download as CSV
-csv_content = client.download_as_csv(
-    spreadsheet_id="SPREADSHEET_ID",
-    sheet_name="Sheet1",
-    output_path="output.csv"
-)
-
-# Upload CSV
-spreadsheet = client.upload_csv(
-    csv_path="data.csv",
-    title="My Spreadsheet"
-)
-
-# Replace sheet
-client.replace_sheet_with_csv(
-    spreadsheet_id="SPREADSHEET_ID",
-    csv_path="data.csv",
-    sheet_name="Sheet1"
-)
-
-# Get values
-values = client.get_values("SPREADSHEET_ID", "Sheet1!A1:D10")
-```
-
-#### Markdown to PDF Commands
-
-```bash
-# Convert markdown to PDF (creates README.pdf)
-python -m sidekick.clients.markdown_pdf README.md
-
-# Specify output file
-python -m sidekick.clients.markdown_pdf doc.md report.pdf
+**This is your personal context layer.** It makes Claude's responses more relevant without cluttering the shared codebase.
 
-# Use different PDF engine
-python -m sidekick.clients.markdown_pdf doc.md --pdf-engine=pdflatex
-python -m sidekick.clients.markdown_pdf doc.md report.pdf --pdf-engine=lualatex
-```
+## Using "Memory" for file-based context 
 
-**Requirements:**
-- pandoc: `brew install pandoc`
-- LaTeX (for PDF output): `brew install basictex` or download [MacTeX](https://www.tug.org/mactex/)
+Sidekick includes a Skill called "memory". This can read and write the results of any prompt in a local directory structure at `./memory`. The folder structure is namespaced by skill. The entire folder is ignored by git; meaning that it's OK to have secrets or personal/work data in there. 
 
-**Python Usage:**
-```python
-from sidekick.clients.markdown_pdf import MarkdownPdfConverter
+You can ask Claude to "download the spreadsheet at link X and save as CSV in memory". It will handle naming it, etc. Now, at any point in the future you can at-mention this file in your prompts to reload that context. 
 
-converter = MarkdownPdfConverter()
+For example, you can prompt Claude "@employee.csv show me employees at L5+ in San Francisco". If that data is in the file, there is a very good change Claude will nail this. 
 
-# Basic conversion
-output_path = converter.convert('README.md')
-print(f"Created: {output_path}")
+***Note: in order to be able to at-mention .gitignored files, you need to toggle the Claude setting for "Claude Code: Respect Git Ignore".***
 
-# With custom output and engine
-output_path = converter.convert(
-    'doc.md',
-    output_path='report.pdf',
-    pdf_engine='pdflatex'
-)
-```
+## Design Decisions
 
-## Saving Output with Prompts
+### Why No External Libraries?
 
-Save command output with prompt metadata for easy tracking and refreshing:
+Every external dependency is a future maintenance burden:
+- Version conflicts
+- Installation complexity
+- Breaking API changes
+- Another thing to understand
 
-```bash
-# Save with auto-generated filename from prompt
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
-  python -m sidekick.clients.output write \
-    "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
-    jira \
-    "roadmap-hierarchy PROJ-1735 PROJ"
-# Saves to: output/jira/proj-1735-roadmap-items.txt
+By using only Python stdlib, everything just works. Clone the repo, set environment variables, run commands. No `pip install`, no virtual environments (unless you want them), no dependency hell.
 
-# Refresh existing output (preserves creation timestamp)
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
-  python -m sidekick.clients.output write \
-    "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
-    jira \
-    "roadmap-hierarchy PROJ-1735 PROJ" \
-    --refresh
+**The trade-off:** You write more code. The `jira.py` client has a `_request()` method instead of using `requests`. That's ~50 lines of HTTP handling, but it's code you can read and fix.
 
-# List saved outputs
-python -m sidekick.clients.output list jira
+**The Claude Code advantage:** When clients are short (300-500 lines) and use only stdlib, Claude can load the entire implementation into context. It doesn't need to make assumptions about external library implementation details. It knows exactly how authentication works, how errors are handled, what the API surface looks like - because it wrote that code, the docstrings, the calling conventions. This makes debugging and extending clients remarkably fast.
 
-# Find outputs by prompt text
-python -m sidekick.clients.output find jira "PROJ-1735"
-```
+### Why No Unit Tests?
 
-**Features:**
-- Auto-generated filenames from prompts (e.g., `proj-1735-roadmap-items.txt`)
-- Prompt text and command stored in file header
-- Creation and update timestamps
-- Searchable by prompt text
-- Refresh capability to update existing files
+This is a toolkit for your own use, not a library for others. The test is: **does it work when you run it?**
 
-See `.claude/skills/output.md` for detailed documentation.
+When something breaks:
+1. You notice immediately (you're the only user)
+2. Claude Code helps you fix it in real-time
+3. You learn how it works by debugging
 
-### Simple Output Redirect
+Traditional testing makes sense for software that ships to users. This is software you use yourself, and you're paired with an AI that can refactor and fix issues as they arise.
 
-You can also use simple file redirection:
+**The REST API reality:** Virtually all operations here invoke REST APIs over the network - JIRA, Confluence, Dropbox, Gmail. Testing this properly would require:
+- Verbose mocking code (often more code than the client itself)
+- Constant vigilance to prevent actual network calls during tests
+- Fixture files that assume specific API responses (which change over time)
+- Mock setup that duplicates the real API behavior (and inevitably diverges)
 
-```bash
-# Save roadmap hierarchy
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ > output/jira/2025-01-27_PROJ-1735_hierarchy.txt
+The effort-to-value ratio is poor. You'd spend more time maintaining mocks than you'd save in bug prevention. Just run the command and see if it works.
 
-# Quick command with today's date
-TODAY=$(date +%Y-%m-%d)
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-100 PROJ > output/jira/${TODAY}_PROJ-100.txt
-```
+### Keeping You in the Loop
 
-**Output Location:**
-- Files are saved in `output/<client>/` directories (e.g., `output/jira/`)
-- These files are not checked into git
-- See `output/README.md` for naming guidelines
+The goal isn't to give you a finished product. **It's to give you something good enough to use, and simple enough to modify.**
 
-## Running Agents
+When you need a new field from JIRA, you add it. When your Confluence doc structure changes, you adjust the parser. Claude Code helps with the changes, but you understand what's happening.
 
-Agents are multi-step workflows that coordinate multiple clients. Invoke them by asking Claude to execute the agent workflow:
+This is the opposite of a SaaS tool where you file a feature request and wait. Here, you just ask Claude to make the change, review the diff, and run it.
 
-```bash
-# Weekly Report Agent - Generate summary from 1:1 and meeting docs
-claude code "Run the weekly report agent for the past week"
-```
+## Warning: Live Network Calls
 
-Agents are defined in `.claude/agents/` as markdown files that describe the workflow steps. See `output/README.md` for examples of manual agent invocation.
+⚠️ **These tools make real API calls while you're writing and debugging them.**
 
-### Available Agents
+When Claude is developing a new JIRA command, it will test it against your actual JIRA instance. When debugging Confluence integration, it will read from your real wiki.
 
-- **weekly_report** (`.claude/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
+This is by design - you see results immediately - but be aware:
+- Failed experiments might create test issues (clean them up after)
+- API rate limits are real (JIRA allows ~100 requests/minute)
+- Bugs in write operations affect real data (though most skills are read-only)
 
-## Configuration
+**Safety guardrails:** The `CLAUDE.md` instructions specify that Claude should ask for confirmation before making calls that write data to remote services (creating issues, updating pages, sending emails). Read operations do not require confirmation - Claude can query JIRA, search Confluence, or read files without asking.
 
-Configuration is loaded from `.env` file (with fallback to environment variables).
-
-### Getting Google OAuth2 Credentials
-
-For Gmail, Google Calendar, and Google Sheets, use the provided helper script:
-
-```bash
-# Run the interactive token generator
-python3 tools/get_google_refresh_token.py
-```
-
-This script will:
-1. Guide you through creating OAuth2 credentials in Google Cloud Console
-2. Open your browser to authorize the app
-3. Generate a refresh token that works for all three services (Gmail, Calendar, Sheets)
-4. Show you the exact lines to add to your `.env` file
-
-### Configuration File
-
-Create a `.env` file in the project root (see `.env.example`):
-
-```bash
-# Atlassian Configuration (works for both JIRA and Confluence)
-ATLASSIAN_URL=https://your-company.atlassian.net
-ATLASSIAN_EMAIL=your-email@company.com
-ATLASSIAN_API_TOKEN=your_api_token
-
-# User Configuration (for 1:1 docs and personalized features)
-USER_NAME=Chase
-USER_EMAIL=your-email@company.com
-
-# Team Group Configuration (optional)
-TEAMS_GROUP_PROJECTS=PROJ1,PROJ2,PROJ3
-TEAMS_GROUP_JQL=project IN ("PROJ1", "PROJ2", "PROJ3")
-
-# OmniFocus Configuration (optional, macOS only)
-# Leave commented for inbox-only workflow
-# OMNIFOCUS_DEFAULT_PROJECT=Work
-# OMNIFOCUS_DEFAULT_TAG=from-cli
-
-# Dropbox Configuration
-DROPBOX_ACCESS_TOKEN=your_dropbox_access_token
-
-# Google Services Configuration (Gmail, Calendar, Sheets)
-# See .env.example for detailed setup instructions
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REFRESH_TOKEN=your_google_refresh_token
-```
-
-**Get Atlassian API Token**: https://id.atlassian.com/manage-profile/security/api-tokens
-**Get Dropbox Access Token**: https://www.dropbox.com/developers/apps (create app → generate token)
-**Get Google OAuth2 Credentials**: Run `python3 tools/get_google_refresh_token.py` (interactive setup)
-
-Configuration priority:
-1. `.env` file (preferred)
-2. System environment variables (fallback)
-
-**Note**: Legacy `JIRA_*` variables are still supported for backward compatibility.
+**Start with read operations and queries.** Once you trust a command, move to writes.
 
 ## Project Structure
 
 ```
 chase-sidekick/
-├── .claude/               # Claude Code configuration
-│   ├── settings.json     # Claude Code settings
-│   ├── settings.local.json  # Local Claude Code settings
-│   ├── skills/           # Usage documentation
-│   │   ├── jira.md       # JIRA skill docs
-│   │   ├── jira-roadmap.md  # JIRA roadmap skill docs
-│   │   ├── confluence.md # Confluence skill docs
-│   │   ├── omnifocus.md  # OmniFocus skill docs (macOS)
-│   │   ├── dropbox.md    # Dropbox skill docs
-│   │   ├── gmail.md      # Gmail skill docs
-│   │   ├── gcalendar.md  # Google Calendar skill docs
-│   │   ├── gsheets.md    # Google Sheets skill docs
-│   │   ├── output.md     # Output management skill docs
-│   │   ├── markdown-pdf.md  # Markdown to PDF conversion skill docs
-│   │   └── team-group-analysis.md  # Team analysis skill docs
-│   └── agents/           # Multi-step workflows
-│       └── weekly_report.md  # Weekly report agent
+├── .claude/
+│   ├── skills/              # Command documentation (Claude reads these)
+│   │   ├── jira/
+│   │   │   ├── SKILL.md     # JIRA skill documentation (Claude reads this)
+│   │   │   └── README.md    # Extended JIRA reference (for humans)
+│   │   ├── confluence/
+│   │   │   ├── SKILL.md     # Confluence skill documentation
+│   │   │   └── README.md    # Extended reference
+│   │   ├── omnifocus/
+│   │   │   ├── SKILL.md     # OmniFocus skill documentation
+│   │   │   └── README.md    # Extended reference
+│   │   ├── dropbox/
+│   │   │   ├── SKILL.md     # Dropbox skill documentation
+│   │   │   └── README.md    # Extended reference
+│   │   └── ...              # Other skills follow same pattern
+│   └── agents/              # Multi-step workflows
+│       ├── weekly_report.md    # Generate weekly summaries
+│       └── project_review.md   # Generate project status reports
 ├── sidekick/
-│   ├── config.py          # Configuration from .env
-│   └── clients/           # Service clients (single files)
-│       ├── jira.py       # JIRA client with CLI
-│       ├── confluence.py # Confluence client with CLI
-│       ├── omnifocus.py  # OmniFocus client with CLI (macOS)
-│       ├── dropbox.py    # Dropbox client with CLI
-│       ├── gmail.py      # Gmail client with CLI
-│       ├── gcalendar.py  # Google Calendar client with CLI
-│       ├── gsheets.py    # Google Sheets client with CLI
-│       ├── markdown_pdf.py  # Markdown to PDF converter with CLI
-│       └── output.py     # Output manager with CLI
-├── output/                # Saved command outputs (not in git)
-│   ├── jira/             # JIRA outputs
-│   ├── confluence/       # Confluence outputs
-│   ├── weekly_report/    # Weekly report agent outputs
-│   └── README.md         # Output guidelines
-├── tools/                 # Helper scripts
-│   └── get_google_refresh_token.py  # OAuth2 token generator
-├── .env                   # Your credentials (not in git)
-├── .env.example          # Example configuration
-└── README.md
+│   ├── config.py            # Load from .env
+│   └── clients/             # Single-file service clients
+│       ├── jira.py          # ~400 lines, stdlib only
+│       ├── confluence.py    # ~500 lines, stdlib only
+│       ├── dropbox.py       # ~300 lines, stdlib only
+│       ├── omnifocus.py     # ~400 lines, stdlib only
+│       ├── gmail.py         # ~300 lines, stdlib only
+│       └── gcalendar.py     # ~250 lines, stdlib only
+├── output/                  # Saved command outputs (gitignored)
+│   ├── jira/               # JIRA query results
+│   ├── confluence/         # Confluence search results
+│   ├── weekly_report/      # Weekly report outputs
+│   └── project_review/     # Project review outputs
+├── .env                     # Your credentials (gitignored)
+└── CLAUDE.local.md          # Your personal context (optional, gitignored)
 ```
 
 ## Available Skills
 
-- **JIRA** (`.claude/skills/jira.md`) - Query and manage JIRA issues
-  - Query issues with JQL, by parent, or by label
-  - Get detailed issue information
-  - Add and remove labels
-  - Update issue fields
-- **JIRA Roadmap** (`.claude/skills/jira-roadmap.md`) - Explore roadmap hierarchies and initiative breakdowns
-  - Depth-first traversal with children appearing immediately under parents
-  - Streams results as they're fetched for immediate feedback
-  - Recursively finds all children and linked issues
-- **Confluence** (`.claude/skills/confluence.md`) - Manage Confluence pages and 1:1 docs
-  - Search pages by title or CQL queries
-  - Read and write page content
-  - Create page hierarchies with automatic version handling
-  - **1:1 Doc Management**: Add topics to 1:1 meeting docs with automatic search, validation, and section management
-  - Search caching for faster repeated access
-- **OmniFocus** (`.claude/skills/omnifocus.md`) - Manage OmniFocus tasks (macOS only)
-  - Query and filter tasks by project, tag, due date, and status
-  - Create, update, complete, and delete tasks
-  - List projects and tags
-  - Inbox-focused workflow with duplicate prevention
-- **Dropbox** (`.claude/skills/dropbox.md`) - Manage Dropbox files and Paper docs
-  - Get and write file contents (any file type)
-  - Get file contents via share links
-  - Get metadata for files and folders
-  - Export Paper docs as markdown or HTML
-  - Create and update Paper docs from markdown or HTML
-  - Content-focused operations (stdin/stdout, no local file I/O)
-- **Gmail** (`.claude/skills/gmail.md`) - Search and manage Gmail messages
-  - Search inbox with Gmail query syntax
-  - Read full message details and body
-  - Create draft emails (does not send)
-  - Extract headers and message metadata
-- **Google Calendar** (`.claude/skills/gcalendar.md`) - Manage Google Calendar events
-  - List events with date range filtering
-  - Create, update, and delete calendar events
-  - Support for all-day and timed events
-  - Manage event attendees and locations
-- **Google Sheets** (`.claude/skills/gsheets.md`) - Manage Google Sheets with CSV
-  - List all accessible spreadsheets
-  - Get spreadsheet info by ID or URL
-  - Download sheets as CSV files (by ID or URL)
-  - Upload CSV files as new spreadsheets
-  - Replace sheet contents with CSV data
-  - Read and write cell values programmatically
-- **Output** (`.claude/skills/output.md`) - Save command output with prompt metadata
-  - Auto-generates filenames from prompts
-  - Stores prompt text, command, and timestamps in file headers
-  - Searchable and refreshable outputs
-  - Organized by client type
-- **Markdown to PDF** (`.claude/skills/markdown-pdf.md`) - Convert markdown files to PDF
-  - Uses pandoc for high-quality PDF conversion
-  - Supports multiple PDF engines (xelatex, pdflatex, lualatex)
-  - Automatic output filename generation
-  - Full markdown feature support (tables, code blocks, images, etc.)
+Current skills (each is a single-file client + markdown docs):
 
-## Available Agents
+- **JIRA** - Query issues, traverse hierarchies, manage labels
+- **Confluence** - Search pages, read/write content, manage 1:1 docs
+- **Dropbox** - Read/write files and Paper docs
+- **OmniFocus** - Task management (macOS only)
+- **Gmail** - Search messages, create drafts
+- **Google Calendar** - Manage events
+- **Google Sheets** - CSV import/export
+- **Markdown to PDF** - Convert docs with pandoc
 
-- **Weekly Report** (`.claude/agents/weekly_report.md`) - Generate weekly summary from 1:1 and meeting docs
-  - Fetches content from Confluence and Dropbox Paper docs
-  - Extracts notes from recent time period
-  - Categorizes by audience (leadership, direct reports, everyone, kudos)
-  - Preserves outputs in `output/weekly_report/` for review
 
-## Roadmap
+## Configuration
 
-- [x] JIRA client with CLI
-- [x] Confluence client with CLI
-- [x] OmniFocus client with CLI
-- [x] Dropbox client with CLI
-- [x] Gmail client with CLI
-- [x] Google Calendar client with CLI
-- [x] Google Sheets client with CLI
-- [x] Markdown to PDF converter with CLI
-- [ ] Slack client with CLI
-- [ ] GitHub client with CLI
-- [ ] Zoom client with CLI
-- [ ] Apple Notes client with CLI
+All credentials go in `.env` (gitignored):
+
+```bash
+# Atlassian (JIRA + Confluence)
+ATLASSIAN_URL=https://company.atlassian.net
+ATLASSIAN_EMAIL=your@email.com
+ATLASSIAN_API_TOKEN=your_token_here
+
+# User info (for 1:1 docs)
+USER_NAME=Chase
+USER_EMAIL=your@email.com
+
+# Dropbox
+DROPBOX_ACCESS_TOKEN=your_token_here
+
+# Google (Gmail, Calendar, Sheets)
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_secret
+GOOGLE_REFRESH_TOKEN=your_refresh_token
+```
+
+**Getting tokens:** Check the README for each skill for provisioning instructions, including where to generate API tokens:
+
+## Adding New Skills
+
+Want to add a Slack client? Claude is really good at writing this kind of thing; it's been done thousands of times in its training set. 
+
+1. **Ask Claude to write the client:**
+   ```
+   "Write a Slack client that can list channels, send messages, and search message history."
+   ```
+
+Claude will nail this, and give you examples of how to call the client at the command line. 
+
+2. **Test it until it works:**
+   ```bash
+   python -m sidekick.clients.slack list-channels
+   ```
+
+This is where you will need to create and copy in to `.env` any credentials that Claude identifies for this client. 
+
+3. **Ask Claude to document it:**
+   ```
+   "Now write a Skill for this client"
+   ```
+
+4. **Use it:**
+   ```
+   "Show me recent messages in #engineering"
+   ```
+
+Claude reads the skill documentation and knows how to invoke your new command. You don't need to register anything or update a central config. You can use subsequent prompts to refine the client and the Skill as you debug, find new use cases, etc. 
+
+## Why This Is Fun
+
+Building these tools is satisfying because:
+
+1. **You see results immediately** - Run a command, get real data
+2. **No yak shaving** - No build systems, dependency management, or framework configuration
+3. **You own the code** - Simple enough to understand, small enough to modify
+4. **You could write it, but you don't have to** - Claude handles HTTP parsing, error checking, argument parsing, docstrings, CLI interfaces
+5. **It compounds** - Each skill makes the next one easier to build
+
+This is coding as conversation with an AI, where you focus on what you want and Claude handles implementation details.
+
+It's also a great way to stay technical as a manager. You're writing real code that solves real problems, but without the overhead of maintaining production systems. You could absolutely write this code yourself, but having Claude do the tedious parts means you actually finish projects instead of abandoning them after the fun parts are done.
+
+---
+
+## Full Command Reference
+
+### Available Skills
+
+See individual skill documentation for detailed command usage:
+
+- [JIRA](.claude/skills/jira/README.md) - Query issues, traverse hierarchies, manage labels
+- [Confluence](.claude/skills/confluence/README.md) - Search pages, read/write content, manage 1:1 docs
+- [OmniFocus](.claude/skills/omnifocus/README.md) - Task management (macOS only)
+- [Dropbox](.claude/skills/dropbox/README.md) - Read/write files and Paper docs
+- [Gmail](.claude/skills/gmail/README.md) - Search messages, create drafts
+- [Google Calendar](.claude/skills/gcalendar/README.md) - Manage events
+- [Google Sheets](.claude/skills/gsheets/README.md) - CSV import/export
+- [Output Management](.claude/skills/output/README.md) - Save command outputs with metadata
+- [Markdown to PDF](.claude/skills/markdown-pdf/README.md) - Convert docs with pandoc
+
+### Available Agents
+
+Multi-step workflows that coordinate multiple clients:
+
+- [Weekly Report](.claude/agents/weekly_report.md) - Generate weekly summaries from 1:1 and meeting docs
+- [Project Review](.claude/agents/project_review.md) - Generate project status reports from JIRA data
+
+Or just ask Claude Code:
+```
+"How do I query JIRA issues by label?"
+"Show me how to add topics to my 1:1 docs"
+"What can I do with the Dropbox client?"
+"What agents are available?"
+```
