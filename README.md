@@ -41,9 +41,9 @@ Look through the document and any linked docs (PRD, design, tech spec). Pull out
 - Questions to ask during tech review
 - Kudos for people who contributed
 
-Keep the whole thing under 1500 words. Save it as output/project_review/[project-name-slug]-review.md
+Keep the whole thing under 1500 words. Save it as memory/project_review/[project-name-slug]-review.md
 
-Use the original estimate units from the doc (hours, weeks, whatever they used). Get DRI names from JIRA issues if they're not in the docs. Clean up any temp files when done - only the final report should be in output.
+Use the original estimate units from the doc (hours, weeks, whatever they used). Get DRI names from JIRA issues if they're not in the docs. Clean up any temp files when done - only the final report should be in memory.
 
 ```
 
@@ -114,7 +114,7 @@ Generate comprehensive project status reports from JIRA data.
 2. Analyze recent completions (last 30 days)
 3. Identify blocked items
 4. Generate structured report
-5. Save to output/project-review/
+5. Save to memory/project-review/
 
 ## Example prompts:
 - "Generate a project review for PLATFORM-100"
@@ -123,7 +123,7 @@ Generate comprehensive project status reports from JIRA data.
 
 Claude Code reads these files at the start of every session. When you ask for a project review, Claude sees the agent workflow, understands which clients to invoke, and executes the steps in order.
 
-**Important: The `output/` directory is in `.gitignore`** - This is where command outputs get saved (JIRA hierarchies, Confluence searches, agent results). These files provide context for Claude across sessions but aren't checked into version control. Think of them as a local knowledge base that grows as you work.
+**Important: The `memory/` directory is in `.gitignore`** - This is where command outputs get saved (JIRA hierarchies, Confluence searches, agent results). These files provide context for Claude across sessions but aren't checked into version control. Think of them as a local knowledge base that grows as you work.
 
 ## Using CLAUDE.local.md for Context
 
@@ -160,6 +160,8 @@ The content here can be in ANY format. It's just additional text content for all
 Sidekick includes a Skill called "memory". This can read and write the results of any prompt in a local directory structure at `./memory`. The folder structure is namespaced by skill. The entire folder is ignored by git; meaning that it's OK to have secrets or personal/work data in there. 
 
 You can ask Claude to "download the spreadsheet at link X and save as CSV in memory". It will handle naming it, etc. Now, at any point in the future you can at-mention this file in your prompts to reload that context. 
+
+You can also manually add any file you want to the memory folder. 
 
 For example, you can prompt Claude "@employee.csv show me employees at L5+ in San Francisco". If that data is in the file, there is a very good change Claude will nail this. 
 
@@ -254,7 +256,7 @@ chase-sidekick/
 │       ├── omnifocus.py     # ~400 lines, stdlib only
 │       ├── gmail.py         # ~300 lines, stdlib only
 │       └── gcalendar.py     # ~250 lines, stdlib only
-├── output/                  # Saved command outputs (gitignored)
+├── memory/                  # Saved command outputs (gitignored)
 │   ├── jira/               # JIRA query results
 │   ├── confluence/         # Confluence search results
 │   ├── weekly_report/      # Weekly report outputs
@@ -361,7 +363,7 @@ See individual skill documentation for detailed command usage:
 - [Gmail](.claude/skills/gmail/README.md) - Search messages, create drafts
 - [Google Calendar](.claude/skills/gcalendar/README.md) - Manage events
 - [Google Sheets](.claude/skills/gsheets/README.md) - CSV import/export
-- [Output Management](.claude/skills/output/README.md) - Save command outputs with metadata
+- [Memory Management](.claude/skills/memory/README.md) - Save command outputs with metadata
 - [Markdown to PDF](.claude/skills/markdown-pdf/README.md) - Convert docs with pandoc
 
 ### Available Agents

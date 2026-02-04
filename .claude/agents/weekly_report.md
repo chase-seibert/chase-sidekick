@@ -27,20 +27,20 @@ For each document, fetch the content:
 
 Create output directory first:
 ```bash
-mkdir -p output/weekly_report
+mkdir -p memory/weekly_report
 ```
 
 **For Confluence pages:**
 ```bash
-python -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > output/weekly_report/doc_name.html
+python -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > memory/weekly_report/doc_name.html
 ```
 
 **For Dropbox Paper docs:**
 ```bash
-python -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > output/weekly_report/doc_name.md
+python -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > memory/weekly_report/doc_name.md
 ```
 
-The fetched documents will be saved in `output/weekly_report/` for review and won't be deleted. Keep track of docs that error out so we can print them out at the end. 
+The fetched documents will be saved in `memory/weekly_report/` for review and won't be deleted. Keep track of docs that error out so we can print them out at the end. 
 
 ### Step 3: Review and Extract Notes
 
@@ -105,7 +105,7 @@ Print a list of documents that errored out trying to retrieve the contents.
 
 ```bash
 # Create output directory
-mkdir -p output/weekly_report
+mkdir -p memory/weekly_report
 
 # Fetch all Paper docs from your CLAUDE.local.md
 for url in \
@@ -114,8 +114,8 @@ for url in \
   "<PAPER_URL_3>"
   # ... add all your Paper doc URLs
 do
-  python -m sidekick.clients.dropbox get-paper-contents-from-link "$url" >> output/weekly_report/all_docs.md
-  echo "\n\n---\n\n" >> output/weekly_report/all_docs.md
+  python -m sidekick.clients.dropbox get-paper-contents-from-link "$url" >> memory/weekly_report/all_docs.md
+  echo "\n\n---\n\n" >> memory/weekly_report/all_docs.md
 done
 
 # Fetch Confluence pages from your CLAUDE.local.md
@@ -124,13 +124,13 @@ for url in \
   "<CONFLUENCE_URL_2>"
   # ... add all your Confluence URLs
 do
-  python -m sidekick.clients.confluence get-content-from-link "$url" >> output/weekly_report/all_docs.html
-  echo "\n\n---\n\n" >> output/weekly_report/all_docs.html
+  python -m sidekick.clients.confluence get-content-from-link "$url" >> memory/weekly_report/all_docs.html
+  echo "\n\n---\n\n" >> memory/weekly_report/all_docs.html
 done
 
-# Review output/weekly_report/all_docs.md and output/weekly_report/all_docs.html
+# Review memory/weekly_report/all_docs.md and memory/weekly_report/all_docs.html
 # Extract and categorize recent notes manually
-# Files are preserved in output/weekly_report/ for future reference
+# Files are preserved in memory/weekly_report/ for future reference
 ```
 
 ## Tips
@@ -145,5 +145,5 @@ done
 - **References**: Each note should end with `[[ref]](URL)` linking to the source doc URL from CLAUDE.local.md
 - **Deduplication**: Same topic might appear in multiple docs - consolidate but keep all references
 - **Prioritization**: Within each category, order by importance/urgency
-- **File Preservation**: Documents are saved in `output/weekly_report/` and not deleted, allowing for iterative refinement
+- **File Preservation**: Documents are saved in `memory/weekly_report/` and not deleted, allowing for iterative refinement
 

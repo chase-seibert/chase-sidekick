@@ -11,11 +11,11 @@ ENV/
 .DS_Store
 *.log
 
-# Output files (saved command results)
-output/
-!output/.gitkeep
-!output/*/.gitkeep
-!output/README.md
+# Memory files (saved command results)
+memory/
+!memory/.gitkeep
+!memory/*/.gitkeep
+!memory/README.md
 
 # Cache files (search cache)
 cache/

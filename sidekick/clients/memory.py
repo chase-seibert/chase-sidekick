@@ -1,4 +1,4 @@
-"""Output file manager - handles writing command output with metadata."""
+"""Memory manager - handles storing command output with metadata."""
 
 import os
 import sys
@@ -8,18 +8,18 @@ from pathlib import Path
 from typing import Optional
 
 
-class OutputManager:
-    """Manages output files with prompt metadata and auto-generated filenames."""
+class MemoryManager:
+    """Manages memory files with prompt metadata and auto-generated filenames."""
 
     def __init__(self, base_dir: str = None):
-        """Initialize output manager.
+        """Initialize memory manager.
 
         Args:
-            base_dir: Base directory for output files (defaults to project_root/output)
+            base_dir: Base directory for memory files (defaults to project_root/memory)
         """
         if base_dir is None:
-            # Default to output/ in project root (2 levels up from this file)
-            base_dir = Path(__file__).parent.parent.parent / "output"
+            # Default to memory/ in project root (2 levels up from this file)
+            base_dir = Path(__file__).parent.parent.parent / "memory"
         self.base_dir = Path(base_dir)
 
     def generate_slug(self, prompt: str, max_length: int = 50) -> str:
@@ -80,9 +80,9 @@ class OutputManager:
         # Clean up any trailing hyphens
         slug = slug.strip('-')
 
-        return slug if slug else 'output'
+        return slug if slug else 'memory'
 
-    def format_output(
+    def format_memory(
         self,
         prompt: str,
         client: str,
@@ -90,7 +90,7 @@ class OutputManager:
         content: str,
         existing_created: Optional[str] = None
     ) -> str:
-        """Format output with metadata header.
+        """Format memory with metadata header.
 
         Args:
             prompt: The original prompt text
@@ -115,10 +115,10 @@ class OutputManager:
         return header + content
 
     def parse_metadata(self, file_path: Path) -> dict:
-        """Parse metadata from an existing output file.
+        """Parse metadata from an existing memory file.
 
         Args:
-            file_path: Path to the output file
+            file_path: Path to the memory file
 
         Returns:
             Dict with metadata fields (prompt, client, command, created, updated)
@@ -145,7 +145,7 @@ class OutputManager:
 
         return metadata
 
-    def write_output(
+    def write_memory(
         self,
         prompt: str,
         client: str,
@@ -154,7 +154,7 @@ class OutputManager:
         filename: Optional[str] = None,
         refresh: bool = False
     ) -> Path:
-        """Write output to file with metadata.
+        """Write memory to file with metadata.
 
         Args:
             prompt: The original prompt text
@@ -186,8 +186,8 @@ class OutputManager:
             metadata = self.parse_metadata(file_path)
             existing_created = metadata.get('created')
 
-        # Format and write output
-        formatted_output = self.format_output(
+        # Format and write memory
+        formatted_memory = self.format_memory(
             prompt=prompt,
             client=client,
             command=command,
@@ -196,12 +196,12 @@ class OutputManager:
         )
 
         with open(file_path, 'w') as f:
-            f.write(formatted_output)
+            f.write(formatted_memory)
 
         return file_path
 
     def find_by_prompt(self, client: str, search_text: str) -> list:
-        """Find output files by searching prompt text.
+        """Find memory files by searching prompt text.
 
         Args:
             client: Client name to search within
@@ -225,8 +225,8 @@ class OutputManager:
 
         return matches
 
-    def list_outputs(self, client: str) -> list:
-        """List all output files for a client.
+    def list_memories(self, client: str) -> list:
+        """List all memory files for a client.
 
         Args:
             client: Client name
@@ -238,38 +238,38 @@ class OutputManager:
         if not client_dir.exists():
             return []
 
-        outputs = []
+        memories = []
         for file_path in sorted(client_dir.glob('*.txt'), key=lambda p: p.stat().st_mtime, reverse=True):
             metadata = self.parse_metadata(file_path)
-            outputs.append((file_path, metadata))
+            memories.append((file_path, metadata))
 
-        return outputs
+        return memories
 
 
 def main():
-    """CLI entry point for output manager.
+    """CLI entry point for memory manager.
 
     Usage:
-        # Write output with auto-generated filename
-        echo "content" | python -m sidekick.clients.output write "prompt text" jira "command"
+        # Write memory with auto-generated filename
+        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command"
 
         # Write with custom filename
-        echo "content" | python -m sidekick.clients.output write "prompt text" jira "command" custom-name
+        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" custom-name
 
         # Refresh existing file (preserve creation timestamp)
-        echo "content" | python -m sidekick.clients.output write "prompt text" jira "command" --refresh
+        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" --refresh
 
-        # List outputs for a client
-        python -m sidekick.clients.output list jira
+        # List memories for a client
+        python -m sidekick.clients.memory list jira
 
-        # Find outputs by prompt text
-        python -m sidekick.clients.output find jira "PROJ-1735"
+        # Find memories by prompt text
+        python -m sidekick.clients.memory find jira "PROJ-1735"
 
         # Generate slug from prompt (for testing)
-        python -m sidekick.clients.output slug "Find roadmap items nested under PROJ-1735"
+        python -m sidekick.clients.memory slug "Find roadmap items nested under PROJ-1735"
     """
     if len(sys.argv) < 2:
-        print("Usage: python -m sidekick.clients.output <command> [args...]")
+        print("Usage: python -m sidekick.clients.memory <command> [args...]")
         print("\nCommands:")
         print("  write <prompt> <client> <command> [filename] [--refresh]")
         print("  list <client>")
@@ -277,7 +277,7 @@ def main():
         print("  slug <prompt>")
         sys.exit(1)
 
-    manager = OutputManager()
+    manager = MemoryManager()
     command = sys.argv[1]
 
     try:
@@ -298,7 +298,7 @@ def main():
             # Read content from stdin
             content = sys.stdin.read()
 
-            file_path = manager.write_output(
+            file_path = manager.write_memory(
                 prompt=prompt,
                 client=client,
                 command=cmd,
@@ -306,17 +306,17 @@ def main():
                 filename=filename,
                 refresh=refresh
             )
-            print(f"Output written to: {file_path}")
+            print(f"Memory written to: {file_path}")
 
         elif command == "list":
             client = sys.argv[2]
-            outputs = manager.list_outputs(client)
+            memories = manager.list_memories(client)
 
-            if not outputs:
-                print(f"No outputs found for {client}")
+            if not memories:
+                print(f"No memories found for {client}")
             else:
-                print(f"Outputs for {client} ({len(outputs)} files):\n")
-                for file_path, metadata in outputs:
+                print(f"Memories for {client} ({len(memories)} files):\n")
+                for file_path, metadata in memories:
                     prompt = metadata.get('prompt', 'Unknown')
                     updated = metadata.get('updated', 'Unknown')
                     print(f"{file_path.name}")

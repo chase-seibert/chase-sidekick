@@ -5,7 +5,7 @@
       "Bash(tree:*)",
       "Bash(python3:*)",
       "Bash(source venv/bin/activate)",
-      "Bash(python -m sidekick.clients.output:*)",
+      "Bash(python -m sidekick.clients.memory:*)",
       "Bash(echo:*)",
       "Bash(python -m sidekick.clients.jira:*)",
       "Bash(python -m sidekick.clients.confluence:*)",

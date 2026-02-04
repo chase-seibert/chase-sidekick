@@ -46,7 +46,7 @@ python -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > 
 **For Figma files:**
 Currently not supported - note this in the report as "Link provided but content not accessible"
 
-**Important**: All intermediate artifacts (fetched documents, JIRA outputs) should be saved to `/tmp/project_review_$$/` and cleaned up after the report is generated. Only the final report should remain in `output/project_review/`.
+**Important**: All intermediate artifacts (fetched documents, JIRA outputs) should be saved to `/tmp/project_review_$$/` and cleaned up after the report is generated. Only the final report should remain in `memory/project_review/`.
 
 ### Step 3: Fetch JIRA Issues
 
@@ -229,8 +229,8 @@ The filename should be a slug version of the project title:
 ```bash
 # Example: "Basic Gating" -> basic-gating-review.md
 # Example: "Team Formation: Converting Basic Free" -> team-formation-converting-basic-free-review.md
-mkdir -p output/project_review
-output/project_review/[project-name-slug]-review.md
+mkdir -p memory/project_review
+memory/project_review/[project-name-slug]-review.md
 ```
 
 **After generating the report, clean up temporary files:**
@@ -239,7 +239,7 @@ output/project_review/[project-name-slug]-review.md
 rm -rf /tmp/project_review_$$
 ```
 
-This ensures only the final report remains in `output/project_review/`, with no intermediate artifacts.
+This ensures only the final report remains in `memory/project_review/`, with no intermediate artifacts.
 
 ### Step 6: Refreshing Reports
 
@@ -351,7 +351,7 @@ Be specific about what each person did well.
 
 ## Tips
 
-- **Intermediate Files**: Always save fetched documents, JIRA outputs, and other artifacts to `/tmp/project_review_$$/` (not `output/project_review/`). Clean up the temp directory with `rm -rf /tmp/project_review_$$` after generating the report. Only the final report should exist in `output/project_review/`.
+- **Intermediate Files**: Always save fetched documents, JIRA outputs, and other artifacts to `/tmp/project_review_$$/` (not `memory/project_review/`). Clean up the temp directory with `rm -rf /tmp/project_review_$$` after generating the report. Only the final report should exist in `memory/project_review/`.
 - **JIRA Issue IDs**: Look for JIRA issue keys (e.g., DBX-1234, TEXP-567) in:
   - Document titles or headers
   - Links to JIRA (e.g., "https://company.atlassian.net/browse/DBX-1234")
@@ -391,7 +391,7 @@ TMP_DIR=/tmp/project_review_$$
 mkdir -p $TMP_DIR
 
 # Create output directory for final report
-mkdir -p output/project_review
+mkdir -p memory/project_review
 
 # User provides links
 # Link 1: https://dropbox.atlassian.net/wiki/spaces/ERP/pages/3002434012/
@@ -406,7 +406,7 @@ python -m sidekick.clients.dropbox get-paper-contents-from-link "https://www.dro
 # Fetch JIRA epic
 python -m sidekick.clients.jira get-issue DBX-1234 > $TMP_DIR/jira-epic.txt
 
-# Analyze documents and generate report at output/project_review/project-name-review.md
+# Analyze documents and generate report at memory/project_review/project-name-review.md
 
 # Clean up temporary files
 rm -rf $TMP_DIR
@@ -422,7 +422,7 @@ TMP_DIR=/tmp/project_review_$$
 mkdir -p $TMP_DIR
 
 # Read existing report to get links
-cat output/project_review/basic-gating-review.md
+cat memory/project_review/basic-gating-review.md
 
 # Extract links from front matter:
 # prd_link: "https://..."
@@ -450,7 +450,7 @@ rm -rf $TMP_DIR
 
 ## Output Structure
 
-Final output is saved to `output/project_review/`:
+Final output is saved to `memory/project_review/`:
 - `[project-slug]-review.md` - The main report (only file in output directory)
 
 Intermediate artifacts are stored in `/tmp/project_review_$$/` during generation:
