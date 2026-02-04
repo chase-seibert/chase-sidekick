@@ -14,7 +14,8 @@
       "Bash(python -m py_compile:*)",
       "WebFetch(domain:www.dropbox.com)",
       "Bash(python:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(chmod:*)"
     ],
     "additionalDirectories": [
       "/tmp"

@@ -76,6 +76,35 @@ Here are natural language prompts you can use with each skill:
 "Update Paper doc at /Paper/MyDoc.paper"
 ```
 
+**Gmail Prompts:**
+```
+"Search for emails from boss@example.com"
+"Show me unread emails from last week"
+"Read email MESSAGE_ID"
+"Create a draft email to team@example.com"
+"Search for emails with subject 'meeting'"
+```
+
+**Google Calendar Prompts:**
+```
+"List my calendar events for this week"
+"Show events between 2024-01-01 and 2024-01-31"
+"Create a meeting tomorrow at 2pm"
+"Update event EVENT_ID with new title"
+"Delete event EVENT_ID"
+```
+
+**Google Sheets Prompts:**
+```
+"List all my spreadsheets"
+"List first 20 spreadsheets"
+"Get info for spreadsheet URL https://docs.google.com/..."
+"Download spreadsheet SHEET_ID as CSV"
+"Download spreadsheet from URL https://docs.google.com/..."
+"Upload data.csv to a new spreadsheet"
+"Replace sheet in SHEET_ID with data.csv"
+```
+
 **Output Management Prompts:**
 ```
 "List all saved JIRA outputs"
@@ -217,6 +246,131 @@ python -m sidekick.clients.dropbox create-paper-contents /Paper/NewDoc.paper --c
 python -m sidekick.clients.dropbox update-paper-contents /Paper/MyDoc.paper --content "# Updated"
 ```
 
+#### Gmail Commands
+
+```bash
+# Search messages
+python -m sidekick.clients.gmail search "from:someone@example.com"
+python -m sidekick.clients.gmail search "is:unread" 20
+
+# Get message
+python -m sidekick.clients.gmail get MESSAGE_ID
+
+# Create draft
+python -m sidekick.clients.gmail create-draft "user@example.com" "Subject" "Body text"
+```
+
+**Python Usage:**
+```python
+from sidekick.clients.gmail import GmailClient
+from sidekick.config import get_google_config
+
+config = get_google_config()
+client = GmailClient(**config)
+
+# Search messages
+messages = client.search_messages("from:boss@example.com", max_results=5)
+for msg in messages:
+    headers = client.get_message_headers(msg)
+    print(f"{headers['from']}: {headers['subject']}")
+
+# Read message body
+message = client.get_message("MESSAGE_ID")
+body = client.get_message_body(message)
+
+# Create draft
+draft = client.create_draft(
+    to="recipient@example.com",
+    subject="Hello",
+    body="This is a draft",
+    cc="cc@example.com"
+)
+```
+
+#### Google Calendar Commands
+
+```bash
+# List events
+python -m sidekick.clients.gcalendar list "2024-01-01T00:00:00Z" "2024-01-31T23:59:59Z"
+
+# Get event
+python -m sidekick.clients.gcalendar get EVENT_ID
+
+# Create event
+python -m sidekick.clients.gcalendar create "Team Meeting" "2024-01-15T14:00:00Z" "2024-01-15T15:00:00Z"
+
+# Update event
+python -m sidekick.clients.gcalendar update EVENT_ID summary "New Title"
+
+# Delete event
+python -m sidekick.clients.gcalendar delete EVENT_ID
+```
+
+#### Google Sheets Commands
+
+```bash
+# List spreadsheets
+python -m sidekick.clients.gsheets list 20
+
+# Get spreadsheet info (by ID or URL)
+python -m sidekick.clients.gsheets get "SPREADSHEET_ID"
+python -m sidekick.clients.gsheets get-url "https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit"
+
+# Download as CSV (by ID or URL)
+python -m sidekick.clients.gsheets download "SPREADSHEET_ID" "Sheet1" output.csv
+python -m sidekick.clients.gsheets download-url "https://docs.google.com/.../edit" "Sheet1" output.csv
+
+# Upload CSV
+python -m sidekick.clients.gsheets upload data.csv "My Spreadsheet"
+
+# Replace sheet with CSV
+python -m sidekick.clients.gsheets replace "SPREADSHEET_ID" data.csv "Sheet1"
+```
+
+**Python Usage:**
+```python
+from sidekick.clients.gsheets import GSheetsClient
+from sidekick.config import get_google_config
+
+config = get_google_config()
+client = GSheetsClient(**config)
+
+# List spreadsheets
+spreadsheets = client.list_spreadsheets(max_results=20)
+for sheet in spreadsheets:
+    print(f"{sheet['name']}: {sheet['id']}")
+
+# Get by URL
+url = "https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit"
+spreadsheet = client.get_spreadsheet_by_url(url)
+
+# Extract ID from URL
+spreadsheet_id = GSheetsClient.extract_spreadsheet_id(url)
+
+# Download as CSV
+csv_content = client.download_as_csv(
+    spreadsheet_id="SPREADSHEET_ID",
+    sheet_name="Sheet1",
+    output_path="output.csv"
+)
+
+# Upload CSV
+spreadsheet = client.upload_csv(
+    csv_path="data.csv",
+    title="My Spreadsheet"
+)
+
+# Replace sheet
+client.replace_sheet_with_csv(
+    spreadsheet_id="SPREADSHEET_ID",
+    csv_path="data.csv",
+    sheet_name="Sheet1"
+)
+
+# Get values
+values = client.get_values("SPREADSHEET_ID", "Sheet1!A1:D10")
+```
+
 ## Saving Output with Prompts
 
 Save command output with prompt metadata for easy tracking and refreshing:
@@ -291,6 +445,23 @@ Agents are defined in `sidekick/agents/` as markdown files that describe the wor
 
 Configuration is loaded from `.env` file (with fallback to environment variables).
 
+### Getting Google OAuth2 Credentials
+
+For Gmail, Google Calendar, and Google Sheets, use the provided helper script:
+
+```bash
+# Run the interactive token generator
+python3 tools/get_google_refresh_token.py
+```
+
+This script will:
+1. Guide you through creating OAuth2 credentials in Google Cloud Console
+2. Open your browser to authorize the app
+3. Generate a refresh token that works for all three services (Gmail, Calendar, Sheets)
+4. Show you the exact lines to add to your `.env` file
+
+### Configuration File
+
 Create a `.env` file in the project root (see `.env.example`):
 
 ```bash
@@ -314,10 +485,17 @@ TEAMS_GROUP_JQL=project IN ("PROJ1", "PROJ2", "PROJ3")
 
 # Dropbox Configuration
 DROPBOX_ACCESS_TOKEN=your_dropbox_access_token
+
+# Google Services Configuration (Gmail, Calendar, Sheets)
+# See .env.example for detailed setup instructions
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REFRESH_TOKEN=your_google_refresh_token
 ```
 
 **Get Atlassian API Token**: https://id.atlassian.com/manage-profile/security/api-tokens
 **Get Dropbox Access Token**: https://www.dropbox.com/developers/apps (create app → generate token)
+**Get Google OAuth2 Credentials**: Run `python3 tools/get_google_refresh_token.py` (interactive setup)
 
 Configuration priority:
 1. `.env` file (preferred)
@@ -336,6 +514,9 @@ chase-sidekick/
 │   │   ├── confluence.py # Confluence client with CLI
 │   │   ├── omnifocus.py  # OmniFocus client with CLI (macOS)
 │   │   ├── dropbox.py    # Dropbox client with CLI
+│   │   ├── gmail.py      # Gmail client with CLI
+│   │   ├── gcalendar.py  # Google Calendar client with CLI
+│   │   ├── gsheets.py    # Google Sheets client with CLI
 │   │   └── output.py     # Output manager with CLI
 │   ├── skills/           # Usage documentation
 │   │   ├── jira.md       # JIRA skill docs
@@ -343,6 +524,9 @@ chase-sidekick/
 │   │   ├── confluence.md # Confluence skill docs
 │   │   ├── omnifocus.md  # OmniFocus skill docs (macOS)
 │   │   ├── dropbox.md    # Dropbox skill docs
+│   │   ├── gmail.md      # Gmail skill docs
+│   │   ├── gcalendar.md  # Google Calendar skill docs
+│   │   ├── gsheets.md    # Google Sheets skill docs
 │   │   └── output.md     # Output management skill docs
 │   └── agents/           # Multi-step workflows
 │       └── weekly_report.md  # Weekly report agent
@@ -351,6 +535,8 @@ chase-sidekick/
 │   ├── confluence/       # Confluence outputs
 │   ├── weekly_report/    # Weekly report agent outputs
 │   └── README.md         # Output guidelines
+├── tools/                 # Helper scripts
+│   └── get_google_refresh_token.py  # OAuth2 token generator
 ├── .env                   # Your credentials (not in git)
 ├── .env.example          # Example configuration
 └── README.md
@@ -385,6 +571,23 @@ chase-sidekick/
   - Export Paper docs as markdown or HTML
   - Create and update Paper docs from markdown or HTML
   - Content-focused operations (stdin/stdout, no local file I/O)
+- **Gmail** (`sidekick/skills/gmail.md`) - Search and manage Gmail messages
+  - Search inbox with Gmail query syntax
+  - Read full message details and body
+  - Create draft emails (does not send)
+  - Extract headers and message metadata
+- **Google Calendar** (`sidekick/skills/gcalendar.md`) - Manage Google Calendar events
+  - List events with date range filtering
+  - Create, update, and delete calendar events
+  - Support for all-day and timed events
+  - Manage event attendees and locations
+- **Google Sheets** (`sidekick/skills/gsheets.md`) - Manage Google Sheets with CSV
+  - List all accessible spreadsheets
+  - Get spreadsheet info by ID or URL
+  - Download sheets as CSV files (by ID or URL)
+  - Upload CSV files as new spreadsheets
+  - Replace sheet contents with CSV data
+  - Read and write cell values programmatically
 - **Output** (`sidekick/skills/output.md`) - Save command output with prompt metadata
   - Auto-generates filenames from prompts
   - Stores prompt text, command, and timestamps in file headers
@@ -405,8 +608,10 @@ chase-sidekick/
 - [x] Confluence client with CLI
 - [x] OmniFocus client with CLI
 - [x] Dropbox client with CLI
+- [x] Gmail client with CLI
+- [x] Google Calendar client with CLI
+- [x] Google Sheets client with CLI
 - [ ] Slack client with CLI
 - [ ] GitHub client with CLI
-- [ ] Google Calendar client with CLI
 - [ ] Zoom client with CLI
 - [ ] Apple Notes client with CLI

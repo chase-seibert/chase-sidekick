@@ -269,3 +269,36 @@ def get_dropbox_config() -> dict:
         )
 
     return {"access_token": access_token}
+
+
+def get_google_config() -> dict:
+    """Get Google configuration from .env file or environment variables.
+
+    This configuration works for Gmail, Google Calendar, and Google Sheets
+    since they all use the same OAuth2 credentials (just need different API scopes).
+
+    Returns:
+        dict with keys: client_id, client_secret, refresh_token
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    client_id = _get_env("GOOGLE_CLIENT_ID", env_file_vars)
+    client_secret = _get_env("GOOGLE_CLIENT_SECRET", env_file_vars)
+    refresh_token = _get_env("GOOGLE_REFRESH_TOKEN", env_file_vars)
+
+    if not all([client_id, client_secret, refresh_token]):
+        raise ValueError(
+            "Missing required Google configuration. "
+            "Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN "
+            "in .env file or environment variables. "
+            "See sidekick/skills/gmail.md, gcalendar.md, or gsheets.md for setup instructions."
+        )
+
+    return {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "refresh_token": refresh_token
+    }
