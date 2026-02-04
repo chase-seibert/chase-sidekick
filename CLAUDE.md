@@ -118,6 +118,7 @@ sidekick/
 - **Standard Exceptions**: Use built-in Python exceptions (ValueError, RuntimeError, ConnectionError)
 - **Dictionary Returns**: Return dicts instead of custom classes for simplicity
 - **Inline Auth**: Auth logic in the client class, no separate auth module
+- **Confirmation for Writes**: Always ask for user confirmation before making calls that write data to remote clients (update, create, delete operations). Read operations do not require confirmation.
 
 ### Adding New Clients
 
