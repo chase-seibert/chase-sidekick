@@ -458,8 +458,28 @@ class DropboxClient:
             dict with file metadata
 
         Raises:
-            ValueError: If path not found or update fails
+            ValueError: If path not found, is in team space, or update fails
         """
+        # Check if this is a team space Paper doc (no proper path)
+        # Team space docs don't have a regular file path and cannot be updated
+        try:
+            metadata = self.get_metadata(path)
+            # Check if this is a Paper doc without a proper path (team space)
+            if self._is_paper_file(metadata):
+                # Team space docs won't have path_lower or path_display
+                if not metadata.get('path_lower') and not metadata.get('path_display'):
+                    raise ValueError(
+                        f"Cannot update Paper doc in team space. "
+                        f"Paper docs in the team space (shared docs you don't own) cannot be updated via API. "
+                        f"Only Paper docs in your own Dropbox can be updated."
+                    )
+        except ValueError as e:
+            # Re-raise if it's our team space error or a legitimate API error
+            if "team space" in str(e):
+                raise
+            # For other errors, let them propagate during the actual update call
+            pass
+
         # Convert bytes to str if needed for processing
         if isinstance(content, bytes):
             content_str = content.decode('utf-8')
