@@ -332,60 +332,6 @@ class DropboxClient:
             metadata, content = self._request_content("/2/files/download", api_arg)
             return content
 
-    def get_file_contents_from_link(self, share_link: str) -> bytes:
-        """Get file content via share link.
-
-        Args:
-            share_link: Dropbox share link URL
-
-        Returns:
-            bytes with file content
-
-        Raises:
-            ValueError: If link is invalid or points to Paper doc
-        """
-        # Resolve link to get path
-        link_metadata = self.resolve_share_link(share_link)
-
-        # Check if it's a Paper doc
-        if self._is_paper_file(link_metadata):
-            raise ValueError(
-                "This is a Paper doc share link. Use get_paper_contents_from_link() instead."
-            )
-
-        # Get path from link metadata
-        path = link_metadata.get('path_lower') or link_metadata.get('path')
-        if not path:
-            raise ValueError("Could not extract path from share link metadata")
-
-        return self.get_file_contents(path)
-
-    def write_file_contents(self, path: str, content: Union[bytes, str], mode: str = 'overwrite') -> dict:
-        """Write file content to Dropbox path.
-
-        Args:
-            path: Dropbox path (e.g., "/Documents/notes.txt")
-            content: File content (bytes or str)
-            mode: Write mode - 'overwrite' (default), 'add', or 'update'
-
-        Returns:
-            dict with file metadata
-
-        Raises:
-            ValueError: If path is invalid or operation fails
-        """
-        # Convert str to bytes if needed
-        if isinstance(content, str):
-            content = content.encode('utf-8')
-
-        api_arg = {
-            "path": path,
-            "mode": mode
-        }
-
-        metadata, _ = self._request_content("/2/files/upload", api_arg, upload_content=content)
-        return metadata
-
     def get_paper_contents(self, path: str, export_format: str = 'markdown') -> str:
         """Get Paper doc content.
 
@@ -432,6 +378,53 @@ class DropboxClient:
                 raise ValueError("Could not extract path or ID from share link metadata")
 
         return self.get_paper_contents(path, export_format)
+
+    def export_shared_link(
+        self,
+        url: str,
+        path: Optional[str] = None,
+        link_password: Optional[str] = None,
+        override_download_setting: bool = False
+    ) -> bytes:
+        """Export content from file accessed via shared link.
+
+        Downloads file content directly from a shared link without resolving to path first.
+        Primary use case: Accessing files in team space that you don't own.
+        This is the ONLY way to get content of a Paper doc you don't own.
+
+        IMPORTANT for Paper docs:
+        - The returned HTML includes extensive CSS and formatting not present in get-paper-contents
+        - Use get-paper-contents for Paper docs you own when doing read-write workflows
+        - Use export-shared-link for Paper docs you don't own (read-only team space access)
+
+        Args:
+            url: Dropbox share link URL
+            path: Optional path within shared folder to specific file
+            link_password: Optional password for password-protected links
+            override_download_setting: Internal flag to override download restrictions
+
+        Returns:
+            bytes with file content
+
+        Raises:
+            ValueError: If link not found, access denied, or file not exportable
+        """
+        # Build API arguments - only include optional params if provided
+        api_arg = {"url": url}
+
+        if path is not None:
+            api_arg["path"] = path
+
+        if link_password is not None:
+            api_arg["link_password"] = link_password
+
+        if override_download_setting:
+            api_arg["override_download_setting"] = True
+
+        # Use _request_content for consistent error handling
+        metadata, content = self._request_content("/2/sharing/export_shared_link", api_arg)
+
+        return content
 
     def create_paper_contents(self, path: str, content: Union[bytes, str], import_format: str = 'markdown') -> dict:
         """Create new Paper doc.
@@ -614,8 +607,7 @@ def main():
         print("", file=sys.stderr)
         print("Commands:", file=sys.stderr)
         print("  get-file-contents <path>", file=sys.stderr)
-        print("  get-file-contents-from-link <share_link>", file=sys.stderr)
-        print("  write-file-contents <path> [--content <text>]", file=sys.stderr)
+        print("  export-shared-link <url> [--path <path>] [--password <password>] [--override-download]", file=sys.stderr)
         print("  get-metadata <path>", file=sys.stderr)
         print("  get-paper-contents <path> [--format markdown|html]", file=sys.stderr)
         print("  get-paper-contents-from-link <share_link> [--format markdown|html]", file=sys.stderr)
@@ -647,41 +639,6 @@ def main():
 
             # Write binary content to stdout
             sys.stdout.buffer.write(content)
-
-        elif command == "get-file-contents-from-link":
-            if len(sys.argv) < 3:
-                print("Error: Missing share_link argument", file=sys.stderr)
-                sys.exit(1)
-
-            share_link = sys.argv[2]
-            content = client.get_file_contents_from_link(share_link)
-
-            # Write binary content to stdout
-            sys.stdout.buffer.write(content)
-
-        elif command == "write-file-contents":
-            if len(sys.argv) < 3:
-                print("Error: Missing path argument", file=sys.stderr)
-                sys.exit(1)
-
-            path = sys.argv[2]
-
-            # Check for --content flag
-            content_text = None
-            i = 3
-            while i < len(sys.argv):
-                if sys.argv[i] == "--content" and i + 1 < len(sys.argv):
-                    content_text = sys.argv[i + 1]
-                    i += 2
-                else:
-                    i += 1
-
-            # Read from stdin if --content not provided
-            if content_text is None:
-                content_text = _read_stdin_content()
-
-            metadata = client.write_file_contents(path, content_text)
-            print(f"Written to {path}", file=sys.stderr)
 
         elif command == "get-metadata":
             if len(sys.argv) < 3:
@@ -787,6 +744,36 @@ def main():
 
             metadata = client.update_paper_contents(path, content_text, import_format)
             print(f"Updated Paper doc at {path}", file=sys.stderr)
+
+        elif command == "export-shared-link":
+            if len(sys.argv) < 3:
+                print("Error: Missing url argument", file=sys.stderr)
+                sys.exit(1)
+
+            url = sys.argv[2]
+            path = None
+            link_password = None
+            override_download_setting = False
+
+            # Parse optional flags
+            i = 3
+            while i < len(sys.argv):
+                if sys.argv[i] == "--path" and i + 1 < len(sys.argv):
+                    path = sys.argv[i + 1]
+                    i += 2
+                elif sys.argv[i] == "--password" and i + 1 < len(sys.argv):
+                    link_password = sys.argv[i + 1]
+                    i += 2
+                elif sys.argv[i] == "--override-download":
+                    override_download_setting = True
+                    i += 1
+                else:
+                    i += 1
+
+            content = client.export_shared_link(url, path, link_password, override_download_setting)
+
+            # Write binary content to stdout
+            sys.stdout.buffer.write(content)
 
         else:
             print(f"Error: Unknown command '{command}'", file=sys.stderr)

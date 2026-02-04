@@ -18,14 +18,27 @@ When invoked, use the Dropbox client to handle the request: $ARGUMENTS
 python -m sidekick.clients.dropbox get-file-contents /path/to/file.txt
 ```
 
-### Get File from Share Link
+### Export from Shared Link
+
+Download file content directly from a shared link. **Primary use: accessing team space files you don't own.**
+
+This is the ONLY way to get Paper doc content you don't own. However, for Paper docs, the returned HTML includes extensive CSS/formatting. Use `get-paper-contents` for Paper docs you own when doing read-write workflows.
+
 ```bash
-python -m sidekick.clients.dropbox get-file-contents-from-link "https://www.dropbox.com/s/..."
+# Team space Paper doc (read-only)
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/file.txt?dl=0"
 ```
 
-### Write File Contents
+For a specific file in a shared folder:
+
 ```bash
-python -m sidekick.clients.dropbox write-file-contents /path/to/file.txt [--content "text"]
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/sh/xyz789/folder" --path "/subfolder/file.txt"
+```
+
+For password-protected links:
+
+```bash
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/file.txt?dl=0" --password "secret"
 ```
 
 ### Get Metadata
@@ -57,7 +70,7 @@ python -m sidekick.clients.dropbox update-paper-contents /Paper/Doc.paper [--con
 
 When the user asks to:
 - "Read my meeting notes from Dropbox Paper" - Use get-paper-contents with the doc path
-- "Download a file from this Dropbox link" - Use get-file-contents-from-link
+- "Download a file from this Dropbox link" - Use export-shared-link
 - "Update my 1:1 doc with Bob" - Use update-paper-contents
 - "Create a new Paper doc" - Use create-paper-contents
 

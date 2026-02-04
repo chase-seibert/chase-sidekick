@@ -35,29 +35,6 @@ Outputs file content to stdout (binary safe). You can redirect to a file:
 python -m sidekick.clients.dropbox get-file-contents /Documents/notes.txt > local-copy.txt
 ```
 
-### Get File Contents from Share Link
-
-```bash
-python -m sidekick.clients.dropbox get-file-contents-from-link "https://www.dropbox.com/s/abc123/file.txt"
-```
-
-Get file content using a Dropbox share link. Works with both regular share links and short links.
-
-### Write File Contents
-
-```bash
-# From stdin
-echo "Hello, World!" | python -m sidekick.clients.dropbox write-file-contents /Documents/notes.txt
-
-# From file via pipe
-cat localfile.txt | python -m sidekick.clients.dropbox write-file-contents /Documents/notes.txt
-
-# Using --content flag
-python -m sidekick.clients.dropbox write-file-contents /Documents/notes.txt --content "Hello, World!"
-```
-
-Writes content to a Dropbox file. Creates the file if it doesn't exist, or overwrites if it does.
-
 ### Get Metadata
 
 ```bash
@@ -104,6 +81,44 @@ python -m sidekick.clients.dropbox get-paper-contents-from-link "https://paper.d
 ```
 
 Get Paper doc content using a Paper share link. Optional `--format` flag works the same as `get-paper-contents`.
+
+### Export from Shared Link
+
+Export content directly from a shared link. **Primary use case: accessing files in team space that you don't own.**
+
+This is the **ONLY way** to get content of a Paper doc you don't own (e.g., team space documents).
+
+```bash
+# Team space Paper doc or file you don't own
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/document.pdf?dl=0"
+
+# Export specific file from shared folder
+python -m sidekick.clients.dropbox export-shared-link \
+  "https://www.dropbox.com/sh/xyz789/Photos" \
+  --path "/vacation/IMG_001.jpg"
+
+# Password-protected link
+python -m sidekick.clients.dropbox export-shared-link \
+  "https://www.dropbox.com/s/protected123/secrets.txt?dl=0" \
+  --password "mypassword"
+
+# Internal use: override download restriction
+python -m sidekick.clients.dropbox export-shared-link \
+  "https://www.dropbox.com/s/abc123/file.txt?dl=0" \
+  --override-download
+```
+
+**IMPORTANT for Paper docs:**
+- The returned HTML includes **extensive CSS, styling, and formatting** not present in `get-paper-contents`
+- This makes the HTML unsuitable for read-write workflows (too complex to parse and write back)
+- **Use `get-paper-contents` for Paper docs you own** when you need to read and write back
+- **Use `export-shared-link` for Paper docs you don't own** (read-only team space access)
+
+**Key features:**
+- Works with password-protected links
+- Can access specific files in shared folders
+- Supports download-restricted links (with override flag)
+- Accesses team space files you don't own
 
 ### Create Paper Doc
 
@@ -289,9 +304,6 @@ client = DropboxClient(config["access_token"])
 content = client.get_file_contents("/Documents/notes.txt")
 print(f"Downloaded {len(content)} bytes")
 
-# Write file contents
-client.write_file_contents("/Documents/notes.txt", b"New content")
-
 # Get metadata
 metadata = client.get_metadata("/Documents/notes.txt")
 print(f"File: {metadata['name']}, Size: {metadata['size']}")
@@ -309,6 +321,28 @@ client.update_paper_contents("/Paper/MyDoc.paper", "# Updated", import_format="m
 # Resolve share link
 link_metadata = client.resolve_share_link("https://www.dropbox.com/s/abc123/file.txt")
 print(f"Path: {link_metadata['path_lower']}")
+
+# Export from shared link (for team space files you don't own)
+# NOTE: For Paper docs, returns complex HTML with CSS - use for read-only access
+content = client.export_shared_link(
+    "https://www.dropbox.com/s/abc123/file.txt?dl=0"
+)
+
+# Export specific file from shared folder
+content = client.export_shared_link(
+    url="https://www.dropbox.com/sh/xyz789/Photos",
+    path="/vacation/IMG_001.jpg"
+)
+
+# Password-protected link
+content = client.export_shared_link(
+    url="https://www.dropbox.com/s/protected/doc.pdf?dl=0",
+    link_password="secret"
+)
+
+# IMPORTANT: Paper doc distinction
+# - For Paper docs YOU OWN (read-write): use get_paper_contents()
+# - For Paper docs you DON'T OWN (team space, read-only): use export_shared_link()
 ```
 
 ## Common Use Cases
@@ -323,26 +357,58 @@ python -m sidekick.clients.dropbox get-paper-contents /Paper/Important.paper > b
 python -m sidekick.clients.dropbox get-paper-contents /Paper/Important.paper --format html > backup.html
 ```
 
-### Download File from Share Link
+### Accessing Team Space Files
+
+Use `export-shared-link` to access files in team space that you don't own:
 
 ```bash
-# Someone shared a link, download it
-python -m sidekick.clients.dropbox get-file-contents-from-link "https://www.dropbox.com/s/abc123/report.pdf" > report.pdf
+# Download a file from a shared link
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/report.pdf?dl=0" > report.pdf
 ```
+
+**Python example:**
+
+```python
+# Get content from team space Paper doc (read-only)
+try:
+    content = client.export_shared_link(
+        url="https://www.dropbox.com/s/abc123/TeamDoc.paper?dl=0"
+    )
+
+    # For Paper docs: HTML includes extensive CSS/formatting
+    # Suitable for reading, not for read-write workflows
+    html = content.decode('utf-8')
+
+    # Save to local file
+    with open("team-doc.html", "w") as f:
+        f.write(html)
+
+except ValueError as e:
+    if "shared_link_access_denied" in str(e):
+        print("Access denied or incorrect password")
+    elif "shared_link_not_found" in str(e):
+        print("Link expired or invalid")
+    else:
+        print(f"Error: {e}")
+```
+
+**For password-protected links:**
+
+```python
+content = client.export_shared_link(
+    url="https://www.dropbox.com/s/protected/file.pdf?dl=0",
+    link_password="shared_secret"
+)
+```
+
+**Important distinction:**
+- Team space Paper docs you don't own: Use `export-shared-link` (read-only, complex HTML)
+- Paper docs you own: Use `get-paper-contents` (cleaner HTML/markdown, supports write-back)
 
 ### Create Paper Doc from Markdown File
 
 ```bash
 cat document.md | python -m sidekick.clients.dropbox create-paper-contents /Paper/FromMarkdown.paper
-```
-
-### Batch Upload Files
-
-```bash
-# Upload multiple files
-for file in *.txt; do
-  cat "$file" | python -m sidekick.clients.dropbox write-file-contents "/Backup/$file"
-done
 ```
 
 ### Edit Paper Doc Locally
@@ -381,7 +447,7 @@ Paper docs should have the `.paper` extension in their path, though Dropbox may 
 
 - `get-file-contents` returns binary data (suitable for any file type)
 - `get-paper-contents` returns text (markdown or HTML)
-- `write-file-contents` accepts both bytes and strings
+- `export-shared-link` returns binary data
 - `create-paper-contents` and `update-paper-contents` accept both bytes and strings
 
 ### Share Links
