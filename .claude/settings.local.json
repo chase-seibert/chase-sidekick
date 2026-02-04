@@ -15,7 +15,14 @@
       "WebFetch(domain:www.dropbox.com)",
       "Bash(python:*)",
       "Bash(ls:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(git -C /Users/cseibert/projects/chase-sidekick log --oneline --all -20)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nRefactor: Move skills and agents to canonical .claude/ structure\n\n- Move all skills from sidekick/skills/ to .claude/skills/\n- Move all agents from sidekick/agents/ to .claude/agents/\n- Update documentation references in README.md and CLAUDE.md\n- Update error message path in sidekick/config.py\n- Remove old sidekick/skills/ and sidekick/agents/ directories\n\nThis aligns with Claude Code''s canonical directory structure where\nskills and agents are documentation in .claude/ rather than Python\nmodules in the package directory.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ],
     "additionalDirectories": [
       "/tmp"
