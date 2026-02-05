@@ -1,3 +1,10 @@
+---
+name: weekly_report
+description: Generate summary of 1:1 and meeting notes organized by audience
+argument-hint: [weeks]
+allowed-tools: Bash, Read
+---
+
 # Weekly Report Agent
 
 Generate a summary of notes from your 1:1 and meeting docs for the past week(s), organized by audience.

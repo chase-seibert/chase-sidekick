@@ -1,3 +1,10 @@
+---
+name: recent_docs
+description: Generate categorized summary of recent Paper and Confluence docs from Chrome history
+argument-hint: [days]
+allowed-tools: Bash, Read
+---
+
 # Recent Docs Agent
 
 Generate a categorized summary of Paper and Confluence documents visited in the last 7 days.

@@ -1,3 +1,10 @@
+---
+name: project_review
+description: Generate comprehensive project review reports from PRD and tech spec documents
+argument-hint: <document-urls>
+allowed-tools: Bash, Read
+---
+
 # Project Review Agent
 
 Generate comprehensive project review reports from product and technical specification documents.
