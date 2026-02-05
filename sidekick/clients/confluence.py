@@ -833,7 +833,8 @@ class ConfluenceClient:
         space: str,
         title: str,
         content: str,
-        parent_id: Optional[str] = None
+        parent_id: Optional[str] = None,
+        metadata: Optional[dict] = None
     ) -> dict:
         """Create a new Confluence page.
 
@@ -842,6 +843,7 @@ class ConfluenceClient:
             title: Page title
             content: Page content (HTML in storage format)
             parent_id: Optional parent page ID
+            metadata: Optional metadata dict for page properties
 
         Returns:
             Created page dict
@@ -867,6 +869,10 @@ class ConfluenceClient:
         # Add parent if provided
         if parent_id:
             json_data["ancestors"] = [{"id": parent_id}]
+
+        # Add metadata if provided
+        if metadata:
+            json_data["metadata"] = metadata
 
         return self._request("POST", endpoint, json_data=json_data)
 
@@ -1080,8 +1086,8 @@ class ConfluenceClient:
         Raises:
             ValueError: If page creation or restriction setting fails
         """
-        # Generate title
-        title = f"{user_name} / {person_name} 1:1"
+        # Generate title with handshake emoji
+        title = f":handshake: {user_name} / {person_name} 1:1"
 
         # Generate content
         if template_link:
@@ -1097,13 +1103,28 @@ class ConfluenceClient:
             # Create blank page
             content = "<p>Please add agenda items as you think of them.</p>"
 
+        # Prepare metadata for narrow width and standard density
+        # Note: Narrow width (fixed width) is the default in Confluence.
+        # We explicitly set it here to ensure consistency.
+        metadata = {
+            "properties": {
+                "content-appearance-published": {
+                    "value": "fixed"
+                },
+                "content-appearance-draft": {
+                    "value": "fixed"
+                }
+            }
+        }
+
         # Create page
         print(f"Creating 1:1 doc: {title}", file=sys.stderr)
         page = self.create_page(
             space="TNC",
             title=title,
             content=content,
-            parent_id=parent_id
+            parent_id=parent_id,
+            metadata=metadata
         )
 
         page_id = page.get("id")

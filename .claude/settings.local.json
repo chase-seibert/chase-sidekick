@@ -41,7 +41,9 @@
       "WebFetch(domain:stackoverflow.com)",
       "WebFetch(domain:gist.githubusercontent.com)",
       "Skill(gcalendar)",
-      "Skill(gcalendar:*)"
+      "Skill(gcalendar:*)",
+      "Skill(confluence)",
+      "Skill(confluence:*)"
     ],
     "additionalDirectories": [
       "/tmp"
