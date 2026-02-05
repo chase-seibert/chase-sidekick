@@ -30,7 +30,8 @@
       "Bash(test:*)",
       "Bash([ -d /Users/cseibert/projects/chase-sidekick/venv ])",
       "Skill(dropbox)",
-      "Skill(dropbox:*)"
+      "Skill(dropbox:*)",
+      "Bash(date:*)"
     ],
     "additionalDirectories": [
       "/tmp"
