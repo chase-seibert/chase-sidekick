@@ -17,7 +17,7 @@ class SearchCache:
     def __init__(self, cache_file: Optional[Path] = None):
         """Initialize cache with path to YAML file.
 
-        Default: output/confluence/confluence_search_cache.yaml
+        Default: memory/confluence/confluence_search_cache.yaml
         """
         if cache_file is None:
             cache_dir = Path(__file__).parent.parent.parent / "output" / "confluence"
@@ -213,6 +213,35 @@ def _validate_oneonone_title(title: str, user_name: str, other_name: str) -> boo
             return True
 
     return False
+
+
+def _validate_emails(emails: list) -> list:
+    """Validate and normalize email addresses.
+
+    Args:
+        emails: List of email addresses to validate
+
+    Returns:
+        List of normalized (lowercase) email addresses
+
+    Raises:
+        ValueError: If any email is invalid format
+    """
+    import re
+
+    if not emails:
+        return []
+
+    normalized = []
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+    for email in emails:
+        email = email.strip()
+        if not re.match(email_pattern, email):
+            raise ValueError(f"Invalid email format: {email}")
+        normalized.append(email.lower())
+
+    return normalized
 
 
 class ConfluenceClient:
@@ -519,7 +548,7 @@ class ConfluenceClient:
             ValueError: If page not found
         """
         endpoint = f"/wiki/rest/api/content/{page_id}/restriction"
-        params = {"expand": "read.restrictions.user,update.restrictions.user"}
+        params = {"expand": "restrictions.user"}
 
         result = self._request("GET", endpoint, params=params)
 
@@ -529,16 +558,159 @@ class ConfluenceClient:
             "update": []
         }
 
-        for operation in ["read", "update"]:
-            if operation in result.get("restrictions", {}):
-                operation_data = result["restrictions"][operation]
-                if "restrictions" in operation_data:
-                    user_restrictions = operation_data["restrictions"].get("user", {})
+        # Parse results array
+        for operation_obj in result.get("results", []):
+            operation = operation_obj.get("operation")
+            if operation in ["read", "update"]:
+                user_restrictions = operation_obj.get("restrictions", {}).get("user", {})
+                if "results" in user_restrictions:
+                    for user in user_restrictions["results"]:
+                        email = user.get("email", "")
+                        if email:
+                            restrictions[operation].append(email)
+
+        return restrictions
+
+    def get_user_account_id(self, email: str) -> str:
+        """Look up Confluence user accountId by email.
+
+        Args:
+            email: User email address
+
+        Returns:
+            Account ID string
+
+        Raises:
+            ValueError: If user not found
+        """
+        # Search for users - we'll need to filter by email since CQL doesn't support email directly
+        endpoint = '/wiki/rest/api/search/user'
+        params = {
+            'cql': f'user.fullname ~ "{email.split("@")[0]}"',  # Search by name part before @
+            'limit': 50
+        }
+
+        result = self._request('GET', endpoint, params=params)
+
+        # Find user with matching email
+        for item in result.get('results', []):
+            user = item.get('user', {})
+            if user.get('email', '').lower() == email.lower():
+                account_id = user.get('accountId')
+                if account_id:
+                    print(f"[Found accountId for {email}: {account_id}]", file=sys.stderr)
+                    return account_id
+
+        raise ValueError(f"User not found with email: {email}")
+
+    def set_page_restrictions(
+        self,
+        page_id: str,
+        read_users: Optional[list] = None,
+        update_users: Optional[list] = None
+    ) -> dict:
+        """Set page restrictions to specific users (replaces all existing restrictions).
+
+        This method completely replaces read and/or update restrictions on a page.
+        If a restriction type is not provided, it will not be modified.
+
+        Args:
+            page_id: Confluence page ID
+            read_users: List of user emails to restrict READ access to (e.g., ["alice@company.com"])
+                       If None, read restrictions are not modified
+                       If empty list [], all read restrictions are removed
+            update_users: List of user emails to restrict UPDATE (edit) access to
+                         If None, update restrictions are not modified
+                         If empty list [], all update restrictions are removed
+
+        Returns:
+            dict with:
+            - read: List of emails now restricted for reading (or empty list if none)
+            - update: List of emails now restricted for updating (or empty list if none)
+
+        Raises:
+            ValueError: If page not found, invalid email format, or user doesn't exist in instance
+            ConnectionError: For network errors
+
+        Examples:
+            # Restrict read to 2 people, keep update as-is
+            client.set_page_restrictions("123456", read_users=["alice@company.com", "bob@company.com"])
+
+            # Set both read and update restrictions
+            client.set_page_restrictions("123456",
+                read_users=["alice@company.com"],
+                update_users=["alice@company.com", "bob@company.com"]
+            )
+
+            # Remove all read restrictions (keep update as-is)
+            client.set_page_restrictions("123456", read_users=[])
+        """
+        # Validate at least one restriction type is provided
+        if read_users is None and update_users is None:
+            raise ValueError("Must specify at least one of read_users or update_users")
+
+        # Build request body as an array of operations
+        json_data = []
+
+        if read_users is not None:
+            # Validate and normalize emails
+            validated_read = _validate_emails(read_users)
+            # Convert emails to accountIds
+            account_ids = []
+            for email in validated_read:
+                account_id = self.get_user_account_id(email)
+                account_ids.append({"accountId": account_id})
+
+            json_data.append({
+                "operation": "read",
+                "restrictions": {
+                    "user": account_ids
+                }
+            })
+
+        if update_users is not None:
+            # Validate and normalize emails
+            validated_update = _validate_emails(update_users)
+            # Convert emails to accountIds
+            account_ids = []
+            for email in validated_update:
+                account_id = self.get_user_account_id(email)
+                account_ids.append({"accountId": account_id})
+
+            json_data.append({
+                "operation": "update",
+                "restrictions": {
+                    "user": account_ids
+                }
+            })
+
+        # Make POST request to set restrictions
+        endpoint = f"/wiki/rest/api/content/{page_id}/restriction"
+        result = self._request("POST", endpoint, json_data=json_data)
+
+        # Parse and return simplified response
+        restrictions = {
+            "read": [],
+            "update": []
+        }
+
+        if result:
+            # POST returns results array with operation objects
+            for operation_obj in result.get("results", []):
+                operation = operation_obj.get("operation")
+                if operation in ["read", "update"]:
+                    user_restrictions = operation_obj.get("restrictions", {}).get("user", {})
                     if "results" in user_restrictions:
                         for user in user_restrictions["results"]:
                             email = user.get("email", "")
                             if email:
                                 restrictions[operation].append(email)
+
+        print(f"[Set restrictions on page {page_id}]", file=sys.stderr)
+        if read_users is not None:
+            print(f"  Read: {', '.join(restrictions['read']) if restrictions['read'] else 'none'}", file=sys.stderr)
+        if update_users is not None:
+            print(f"  Update: {', '.join(restrictions['update']) if restrictions['update'] else 'none'}", file=sys.stderr)
 
         return restrictions
 
@@ -876,6 +1048,83 @@ class ConfluenceClient:
 
         return updated_page
 
+    def create_oneonone_doc(
+        self,
+        user_name: str,
+        user_email: str,
+        person_name: str,
+        person_email: str,
+        parent_id: str,
+        paper_doc_url: Optional[str] = None,
+        template_link: Optional[str] = None
+    ) -> dict:
+        """Create a new 1:1 doc with restricted access.
+
+        Creates a Confluence page with:
+        - Title: "user_name / person_name 1:1"
+        - Content from template (if provided) or blank page
+        - Restricted access to user_email and person_email only
+
+        Args:
+            user_name: Current user's name (e.g., "Alice")
+            user_email: Current user's email for restrictions
+            person_name: Other person's name (e.g., "Bob")
+            person_email: Other person's email for restrictions
+            parent_id: Parent folder ID in Confluence
+            paper_doc_url: Optional URL to old Paper 1:1 doc (used as variable in template)
+            template_link: Optional Confluence link to copy content from
+
+        Returns:
+            Created page dict with URL
+
+        Raises:
+            ValueError: If page creation or restriction setting fails
+        """
+        # Generate title
+        title = f"{user_name} / {person_name} 1:1"
+
+        # Generate content
+        if template_link:
+            # Fetch content from template page
+            print(f"Fetching template from: {template_link}", file=sys.stderr)
+            content = self.get_content_from_link(template_link)
+
+            # Replace template variables if paper_doc_url is provided
+            if paper_doc_url:
+                content = content.replace("{PAPER_DOC_URL}", paper_doc_url)
+                content = content.replace("{PERSON_NAME}", person_name)
+        else:
+            # Create blank page
+            content = "<p>Please add agenda items as you think of them.</p>"
+
+        # Create page
+        print(f"Creating 1:1 doc: {title}", file=sys.stderr)
+        page = self.create_page(
+            space="TNC",
+            title=title,
+            content=content,
+            parent_id=parent_id
+        )
+
+        page_id = page.get("id")
+        if not page_id:
+            raise ValueError("Failed to create page: No page ID returned")
+
+        print(f"Created page {page_id}", file=sys.stderr)
+
+        # Set restrictions
+        print(f"Setting restrictions to {user_email} and {person_email}", file=sys.stderr)
+        self.set_page_restrictions(
+            page_id,
+            read_users=[user_email, person_email],
+            update_users=[user_email, person_email]
+        )
+
+        print("Restrictions set successfully", file=sys.stderr)
+
+        # Return page with URL
+        return page
+
 
 # ===== Output Formatting =====
 
@@ -988,6 +1237,8 @@ def main():
         create-page <space> <title> <content-file> [--parent PAGE-ID]
         update-page <page-id> <content-file> [--title TITLE]
         add-topic-to-oneonone <person-name> <topic> [--section SECTION]
+        create-oneonone <name> <email> <parent-id> [--paper-url URL] [--template URL]
+        set-page-restrictions <page-id> [--read EMAIL1,EMAIL2] [--update EMAIL1,EMAIL2]
         cache-show - Display search cache
         cache-clear - Clear search cache
     """
@@ -1005,6 +1256,8 @@ def main():
         print("  create-page <space> <title> <content-file> [--parent PAGE-ID]")
         print("  update-page <page-id> <content-file> [--title TITLE]")
         print("  add-topic-to-oneonone <person-name> <topic> [--section SECTION]")
+        print("  create-oneonone <name> <email> <parent-id> [--paper-url URL] [--template URL]")
+        print("  set-page-restrictions <page-id> [--read EMAIL1,EMAIL2] [--update EMAIL1,EMAIL2]")
         print("  cache-show - Display search cache")
         print("  cache-clear - Clear search cache")
         sys.exit(1)
@@ -1208,6 +1461,91 @@ def main():
             if base and webui:
                 url = base + webui
                 print(f"  URL: {url}")
+
+        elif command == "create-oneonone":
+            if len(sys.argv) < 5:
+                print("Usage: create-oneonone <name> <email> <parent-id> [--paper-url URL] [--template URL]", file=sys.stderr)
+                sys.exit(1)
+
+            person_name = sys.argv[2]
+            person_email = sys.argv[3]
+            parent_id = sys.argv[4]
+            paper_doc_url = None
+            template_link = None
+
+            # Parse optional arguments
+            i = 5
+            while i < len(sys.argv):
+                if sys.argv[i] == "--paper-url" and i + 1 < len(sys.argv):
+                    paper_doc_url = sys.argv[i + 1]
+                    i += 2
+                elif sys.argv[i] == "--template" and i + 1 < len(sys.argv):
+                    template_link = sys.argv[i + 1]
+                    i += 2
+                else:
+                    i += 1
+
+            # Get user config
+            user_config = get_user_config()
+            user_name = user_config["name"]
+            user_email = user_config["email"]
+
+            # Create 1:1 doc
+            page = client.create_oneonone_doc(
+                user_name=user_name,
+                user_email=user_email,
+                person_name=person_name,
+                person_email=person_email,
+                parent_id=parent_id,
+                paper_doc_url=paper_doc_url,
+                template_link=template_link
+            )
+
+            # Display result
+            page_id = page.get("id")
+            title = page.get("title", "")
+            version = page.get("version", {}).get("number", 1)
+            links = page.get("_links", {})
+            base = links.get("base", "")
+            webui = links.get("webui", "")
+            url = base + webui if base and webui else ""
+
+            print(f"\nCreated 1:1 doc: {page_id}: {title} (v{version})")
+            if url:
+                print(f"  URL: {url}")
+
+        elif command == "set-page-restrictions":
+            if len(sys.argv) < 3:
+                print("Usage: set-page-restrictions <page-id> [--read EMAIL1,EMAIL2] [--update EMAIL1,EMAIL2]", file=sys.stderr)
+                sys.exit(1)
+
+            page_id = sys.argv[2]
+            read_users = None
+            update_users = None
+
+            # Parse optional arguments
+            i = 3
+            while i < len(sys.argv):
+                if sys.argv[i] == "--read" and i + 1 < len(sys.argv):
+                    # Parse comma-separated emails
+                    read_arg = sys.argv[i + 1]
+                    read_users = [e.strip() for e in read_arg.split(",")] if read_arg else []
+                    i += 2
+                elif sys.argv[i] == "--update" and i + 1 < len(sys.argv):
+                    # Parse comma-separated emails
+                    update_arg = sys.argv[i + 1]
+                    update_users = [e.strip() for e in update_arg.split(",")] if update_arg else []
+                    i += 2
+                else:
+                    i += 1
+
+            # Set restrictions
+            restrictions = client.set_page_restrictions(page_id, read_users, update_users)
+
+            # Display result
+            print(f"\nRestrictions set for page {page_id}:")
+            print(f"  Read: {', '.join(restrictions['read']) if restrictions['read'] else 'none'}")
+            print(f"  Update: {', '.join(restrictions['update']) if restrictions['update'] else 'none'}")
 
         elif command == "cache-show":
             # Display entire cache file

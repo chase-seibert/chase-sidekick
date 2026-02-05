@@ -14,6 +14,9 @@ a list of bullets as a summary for executive leadership"
 
 "For all teams that report to me, look up completed work across JIRA Epics for 
 the past 30 days and generate a team accomplishments report with kudos to specific engineers"
+
+"Migrate Paper 1:1 docs to Confluence for direct reports with restricted access and update 
+calendar event links."
 ```
 
 Note that these exact scenarios are not hard coded anywhere; Claude can combine existing client code and Skills on the fly to do these, all from natural language prompts. 

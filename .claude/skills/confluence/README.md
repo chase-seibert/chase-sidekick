@@ -47,7 +47,7 @@ python -m sidekick.clients.confluence search "Documentation" --space TEAM --limi
 python -m sidekick.clients.confluence search "title~'API' AND lastModified > '2024-01-01'" --space DEV
 ```
 
-**Output format** (one per line):
+**Memory format** (one per line):
 ```
 123456789: API Documentation [DEV] (v5)
 987654321: Team Guidelines [TEAM] (v12)
@@ -61,7 +61,7 @@ The Confluence client automatically caches search query to page mappings for fas
 1. When you search for a term (e.g., "Bob 1:1"), the first result is automatically cached
 2. Next time you search for the same term, the cached page is returned immediately (no API call)
 
-**Cache file:** `output/confluence/confluence_search_cache.yaml`
+**Cache file:** `memory/confluence/confluence_search_cache.yaml`
 
 **Example workflow:**
 ```bash
@@ -91,7 +91,7 @@ The cache is a simple YAML file that you can manually edit:
 
 ```bash
 # Edit cache file directly
-vi output/confluence/confluence_search_cache.yaml
+vi memory/confluence/confluence_search_cache.yaml
 ```
 
 Example cache file:
@@ -117,7 +117,7 @@ api documentation:
 - First search result is automatically cached for each query
 - Cache has no expiry - entries persist until manually removed
 - Queries are normalized (lowercase, trimmed) for consistent matching
-- Cache is stored in `output/` directory (excluded from git)
+- Cache is stored in `memory/` directory (excluded from git)
 - If a cached page no longer exists, search falls back to normal API call
 
 ### Get Page Details

@@ -31,7 +31,17 @@
       "Bash([ -d /Users/cseibert/projects/chase-sidekick/venv ])",
       "Skill(dropbox)",
       "Skill(dropbox:*)",
-      "Bash(date:*)"
+      "Bash(date:*)",
+      "Skill(chrome)",
+      "Skill(chrome:*)",
+      "WebFetch(domain:developer.atlassian.com)",
+      "WebFetch(domain:community.atlassian.com)",
+      "WebFetch(domain:confluence.atlassian.com)",
+      "WebFetch(domain:docs.atlassian.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:gist.githubusercontent.com)",
+      "Skill(gcalendar)",
+      "Skill(gcalendar:*)"
     ],
     "additionalDirectories": [
       "/tmp"
