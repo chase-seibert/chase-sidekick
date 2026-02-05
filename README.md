@@ -254,6 +254,7 @@ chase-sidekick/
 │   └── clients/             # Single-file service clients
 │       ├── jira.py          # ~400 lines, stdlib only
 │       ├── confluence.py    # ~500 lines, stdlib only
+│       ├── chrome.py        # ~600 lines, stdlib only
 │       ├── dropbox.py       # ~300 lines, stdlib only
 │       ├── omnifocus.py     # ~400 lines, stdlib only
 │       ├── gmail.py         # ~300 lines, stdlib only
@@ -273,6 +274,7 @@ Current skills (each is a single-file client + markdown docs):
 
 - **JIRA** - Query issues, traverse hierarchies, manage labels
 - **Confluence** - Search pages, read/write content, manage 1:1 docs
+- **Chrome** - Query browsing history, search visited pages, filter by service (Confluence, JIRA, Paper, etc.)
 - **Dropbox** - Read/write files and Paper docs
 - **OmniFocus** - Task management (macOS only)
 - **Gmail** - Search messages, create drafts
@@ -360,6 +362,7 @@ See individual skill documentation for detailed command usage:
 
 - [JIRA](.claude/skills/jira/README.md) - Query issues, traverse hierarchies, manage labels
 - [Confluence](.claude/skills/confluence/README.md) - Search pages, read/write content, manage 1:1 docs
+- [Chrome](.claude/skills/chrome/README.md) - Query browsing history, search visited pages, filter by service
 - [OmniFocus](.claude/skills/omnifocus/README.md) - Task management (macOS only)
 - [Dropbox](.claude/skills/dropbox/README.md) - Read/write files and Paper docs
 - [Gmail](.claude/skills/gmail/README.md) - Search messages, create drafts
