@@ -28,7 +28,9 @@
       "Skill(markdown-pdf)",
       "Skill(markdown-pdf:*)",
       "Bash(test:*)",
-      "Bash([ -d /Users/cseibert/projects/chase-sidekick/venv ])"
+      "Bash([ -d /Users/cseibert/projects/chase-sidekick/venv ])",
+      "Skill(dropbox)",
+      "Skill(dropbox:*)"
     ],
     "additionalDirectories": [
       "/tmp"

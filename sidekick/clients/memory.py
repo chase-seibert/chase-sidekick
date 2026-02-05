@@ -152,7 +152,8 @@ class MemoryManager:
         command: str,
         content: str,
         filename: Optional[str] = None,
-        refresh: bool = False
+        refresh: bool = False,
+        extension: str = '.txt'
     ) -> Path:
         """Write memory to file with metadata.
 
@@ -161,8 +162,9 @@ class MemoryManager:
             client: Client name (e.g., 'jira', 'slack')
             command: Command that was executed
             content: The actual output content
-            filename: Optional custom filename (without .txt extension)
+            filename: Optional custom filename (with or without extension)
             refresh: If True, preserve creation timestamp from existing file
+            extension: File extension to use (default: '.txt', can be '.md' for Markdown)
 
         Returns:
             Path to the written file
@@ -170,9 +172,9 @@ class MemoryManager:
         # Generate filename if not provided
         if filename is None:
             slug = self.generate_slug(prompt)
-            filename = f"{slug}.txt"
-        elif not filename.endswith('.txt'):
-            filename = f"{filename}.txt"
+            filename = f"{slug}{extension}"
+        elif not (filename.endswith('.txt') or filename.endswith('.md')):
+            filename = f"{filename}{extension}"
 
         # Create client directory
         client_dir = self.base_dir / client
@@ -217,11 +219,13 @@ class MemoryManager:
         matches = []
         search_lower = search_text.lower()
 
-        for file_path in client_dir.glob('*.txt'):
-            metadata = self.parse_metadata(file_path)
-            prompt = metadata.get('prompt', '').lower()
-            if search_lower in prompt:
-                matches.append(file_path)
+        # Search both .txt and .md files
+        for pattern in ['*.txt', '*.md']:
+            for file_path in client_dir.glob(pattern):
+                metadata = self.parse_metadata(file_path)
+                prompt = metadata.get('prompt', '').lower()
+                if search_lower in prompt:
+                    matches.append(file_path)
 
         return matches
 
@@ -239,7 +243,9 @@ class MemoryManager:
             return []
 
         memories = []
-        for file_path in sorted(client_dir.glob('*.txt'), key=lambda p: p.stat().st_mtime, reverse=True):
+        # Collect both .txt and .md files
+        all_files = list(client_dir.glob('*.txt')) + list(client_dir.glob('*.md'))
+        for file_path in sorted(all_files, key=lambda p: p.stat().st_mtime, reverse=True):
             metadata = self.parse_metadata(file_path)
             memories.append((file_path, metadata))
 
@@ -256,6 +262,9 @@ def main():
         # Write with custom filename
         echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" custom-name
 
+        # Write as Markdown file
+        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" --md
+
         # Refresh existing file (preserve creation timestamp)
         echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" --refresh
 
@@ -271,7 +280,7 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python -m sidekick.clients.memory <command> [args...]")
         print("\nCommands:")
-        print("  write <prompt> <client> <command> [filename] [--refresh]")
+        print("  write <prompt> <client> <command> [filename] [--refresh] [--md]")
         print("  list <client>")
         print("  find <client> <search-text>")
         print("  slug <prompt>")
@@ -287,11 +296,14 @@ def main():
             cmd = sys.argv[4]
             filename = None
             refresh = False
+            extension = '.txt'
 
             # Parse optional arguments
             for arg in sys.argv[5:]:
                 if arg == "--refresh":
                     refresh = True
+                elif arg == "--md":
+                    extension = '.md'
                 elif filename is None:
                     filename = arg
 
@@ -304,7 +316,8 @@ def main():
                 command=cmd,
                 content=content,
                 filename=filename,
-                refresh=refresh
+                refresh=refresh,
+                extension=extension
             )
             print(f"Memory written to: {file_path}")
 
