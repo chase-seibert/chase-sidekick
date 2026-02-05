@@ -2,16 +2,18 @@
 
 **Build your own engineering manager toolkit, one command at a time.**
 
-This isn't a pre-packaged automation tool. It's a playground for building command-line utilities that work with Claude Code, where you stay in the loop as skills evolve with your needs.
+Sidekick is playground for using Claude Code not for coding per-se, but to automate real work tasks using your favorite products. You write code, but the skills and agents are about personal productivity in Confluence, JIRA, etc. You're  building and running a set of super powers to enable Claude Code to get go into your everyday tools to get context, and then take action. 
 
 ## What You Can Ask For
 
 Here are examples of complex multi-skill tasks you can ask Claude Code to handle. 
 
 ```
-"Download all the files linked to my calendar events for this week, and generate a list of bullets as a summary for executive leadership"
+"Download all the files linked to my calendar events for this week, and generate
+a list of bullets as a summary for executive leadership"
 
-"For all teams that report to me, look up completed work across JIRA Epics for the past 30 days and generate a team accomplishments report with kudos to specific engineers"
+"For all teams that report to me, look up completed work across JIRA Epics for 
+the past 30 days and generate a team accomplishments report with kudos to specific engineers"
 ```
 
 Note that these exact scenarios are not hard coded anywhere; Claude can combine existing client code and Skills on the fly to do these, all from natural language prompts. 
