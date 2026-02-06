@@ -43,7 +43,9 @@
       "Skill(gcalendar)",
       "Skill(gcalendar:*)",
       "Skill(confluence)",
-      "Skill(confluence:*)"
+      "Skill(confluence:*)",
+      "Skill(jira)",
+      "Skill(jira:*)"
     ],
     "additionalDirectories": [
       "/tmp"
