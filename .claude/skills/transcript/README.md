@@ -1,6 +1,6 @@
 # Transcript Skill
 
-Save conversation transcripts as structured markdown files in the `memory/prompts/` folder.
+Save conversation transcripts as structured markdown files in the `memory/transcripts/` folder.
 
 ## Purpose
 
@@ -21,7 +21,7 @@ To save the current conversation:
 /transcript
 ```
 
-Claude will analyze the conversation, generate an appropriate filename based on the topic, and save the transcript to `memory/prompts/`.
+Claude will analyze the conversation, generate an appropriate filename based on the topic, and save the transcript to `memory/transcripts/`.
 
 ### Custom Filename
 
@@ -31,7 +31,7 @@ To specify your own filename:
 /transcript my-custom-filename
 ```
 
-This saves the transcript as `memory/prompts/my-custom-filename.md`.
+This saves the transcript as `memory/transcripts/my-custom-filename.md`.
 
 ## Output Format
 
@@ -128,13 +128,13 @@ Documents the process of creating a new agent, including requirements clarificat
 
 3. **Review before sharing:** Transcripts may contain your specific project names, URLs, or team member names. Review before sharing externally.
 
-4. **Build a library:** Over time, `memory/prompts/` becomes a valuable reference of patterns and workflows you've developed.
+4. **Build a library:** Over time, `memory/transcripts/` becomes a valuable reference of patterns and workflows you've developed.
 
 ## Storage Location
 
 All transcripts are saved to:
 ```
-memory/prompts/[filename].md
+memory/transcripts/[filename].md
 ```
 
 This directory is gitignored, so transcripts remain local to your machine and won't be committed to version control.

@@ -284,7 +284,7 @@ Current skills (each is a single-file client + markdown docs):
 - **Google Calendar** - Manage events
 - **Google Sheets** - CSV import/export
 - **Markdown to PDF** - Convert docs with pandoc
-- **Transcript** - Save conversation transcripts as markdown to memory/prompts
+- **Transcript** - Save conversation transcripts as markdown to memory/transcripts
 - **Welcome Doc** - Create personalized employee onboarding documents in Confluence
 
 
@@ -375,7 +375,7 @@ See individual skill documentation for detailed command usage:
 - [Google Sheets](.claude/skills/gsheets/README.md) - CSV import/export
 - [Memory Management](.claude/skills/memory/README.md) - Save command outputs with metadata
 - [Markdown to PDF](.claude/skills/markdown-pdf/README.md) - Convert docs with pandoc
-- [Transcript](.claude/skills/transcript/README.md) - Save conversation transcripts to memory/prompts
+- [Transcript](.claude/skills/transcript/README.md) - Save conversation transcripts to memory/transcripts
 - [Welcome Doc](.claude/skills/welcome-doc/README.md) - Create personalized employee onboarding documents
 
 ### Available Agents
