@@ -45,7 +45,8 @@
       "Skill(confluence)",
       "Skill(confluence:*)",
       "Skill(jira)",
-      "Skill(jira:*)"
+      "Skill(jira:*)",
+      "Bash(ln:*)"
     ],
     "additionalDirectories": [
       "/tmp"

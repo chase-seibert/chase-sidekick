@@ -140,6 +140,7 @@ Rules for clients
 - Do not include PII like the names or email addresses of real people, use Bob/Alice/etc and example.com 
 - Do not include real corporate URLs unless they are related to the client REST API being called 
 - Do no include any IDs that might be real data, use placeholders
+- MAKE SURE EXAMPLES DO NOT INCLUDE REAL DATA OR NAMES
 
 #### New Skills
 - Invokable with /skill 
