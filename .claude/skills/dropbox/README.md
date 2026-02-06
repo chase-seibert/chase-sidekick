@@ -165,7 +165,7 @@ When managing 1:1 meeting documents in Dropbox Paper, follow these guidelines fo
 ### Document Structure
 
 **Expected Format:**
-- Single Paper doc per person (e.g., "/Paper/Chase-Bob 1:1.paper")
+- Single Paper doc per person (e.g., "/Paper/Alice-Bob 1:1.paper")
 - Headers are dates (e.g., "Feb 1", "2026-02-02") or "Next" for upcoming topics
 - Sections ordered most recent at top
 - Under each header is a bullet list of topics
@@ -174,7 +174,7 @@ When managing 1:1 meeting documents in Dropbox Paper, follow these guidelines fo
 ### HTML Structure Example
 
 ```html
-<div dir="auto" style="font-weight: 400; font-size: 40px; line-height: 48px; padding-bottom: 25px;color: #1b2733; text-decoration: none;" class="ace-line "><span>Chase / Bob 1:1</span></div>
+<div dir="auto" style="font-weight: 400; font-size: 40px; line-height: 48px; padding-bottom: 25px;color: #1b2733; text-decoration: none;" class="ace-line "><span>Alice / Bob 1:1</span></div>
 
 <div dir="auto" style="font-weight: 400; font-size: 24px; line-height: 32px; padding-bottom: 15px;color: #1b2733; text-decoration: none;" class="ace-line "><span>Next</span></div>
 <div dir="auto" style="line-height: 26px;" class="ace-line ">
@@ -266,7 +266,7 @@ When creating a new dated section, place it at the top (after any "Next" section
 
 ```bash
 # 1. Get current Paper doc content as HTML
-python -m sidekick.clients.dropbox get-paper-contents "/Paper/Chase-Bob 1:1.paper" --format html > current.html
+python -m sidekick.clients.dropbox get-paper-contents "/Paper/Alice-Bob 1:1.paper" --format html > current.html
 
 # 2. Edit the HTML to add a new topic to the Next section
 # - Find the existing "Next" section
@@ -275,7 +275,7 @@ python -m sidekick.clients.dropbox get-paper-contents "/Paper/Chase-Bob 1:1.pape
 # - Don't add duplicate topics
 
 # 3. Update the Paper doc
-cat current.html | python -m sidekick.clients.dropbox update-paper-contents "/Paper/Chase-Bob 1:1.paper" --format html
+cat current.html | python -m sidekick.clients.dropbox update-paper-contents "/Paper/Alice-Bob 1:1.paper" --format html
 
 # 4. Clean up
 rm current.html

@@ -47,7 +47,7 @@ Automates the creation or migration of 1:1 meeting documents from Dropbox Paper 
    - Template page: use another 1:1 doc 
    - Use the built-in create-oneonone command
    - This automatically:
-     - Creates page with title format: "🤝 Chase / [Person] 1:1"
+     - Creates page with title format: "🤝 Alice / [Person] 1:1"
      - Copies template content from an existing 1:1 doc
      - Replaces {PAPER_DOC_URL} with actual Paper link (if --paper-url provided)
      - Replaces {PERSON_NAME} with person's name
@@ -153,7 +153,7 @@ If no calendar event found:
 **Agent will:**
 2. Ask for bob's email if you can't find it
 2. Search Chrome history for existing "Bob 1:1" Paper doc
-3. Find Paper URL: https://www.dropbox.com/scl/fi/...
+3. Find Paper URL: https://example.com/docs/...
 4. Create Confluence page with template
 5. Capture output: Page ID
 6. Find calendar events with "Bob" in title
@@ -161,4 +161,4 @@ If no calendar event found:
 8. Report:
    - Page URL
    - Permissions set for
-   - Calendar events updated: "Chase / Bob" (2026-02-06 12:00)
+   - Calendar events updated: "Alice / Bob" (2026-02-06 12:00)

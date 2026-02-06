@@ -22,11 +22,11 @@ The Kudos skill helps engineering managers recognize team accomplishments by aut
 1. **CLAUDE.local.md** - Must contain links to your 1:1 and meeting docs:
    ```markdown
    ## 1:1 Docs
-   - [Alice](https://dropbox.atlassian.net/wiki/spaces/...)
-   - [Bob](https://www.dropbox.com/scl/fi/...)
+   - [Alice](https://company.atlassian.net/wiki/spaces/...)
+   - [Bob](https://example.com/docs/...)
 
    ## Recurring Meetings
-   - [Team Sync](https://www.dropbox.com/scl/fi/...)
+   - [Team Sync](https://example.com/docs/...)
    ```
 
 2. **memory/people.json** - Employee data for email to Slack mapping:
@@ -34,7 +34,7 @@ The Kudos skill helps engineering managers recognize team accomplishments by aut
    {
      "dropboxers": [
        {
-         "email": "alice@dropbox.com",
+         "email": "alice@example.com",
          "ldap": "alice",
          "full_name": "Alice Smith"
        }
@@ -47,9 +47,9 @@ The Kudos skill helps engineering managers recognize team accomplishments by aut
 Configure `.env` with:
 ```bash
 # Confluence
-ATLASSIAN_EMAIL=you@dropbox.com
+ATLASSIAN_EMAIL=you@example.com
 ATLASSIAN_API_TOKEN=your-token
-ATLASSIAN_BASE_URL=https://dropbox.atlassian.net
+ATLASSIAN_BASE_URL=https://company.atlassian.net
 
 # Dropbox
 DROPBOX_ACCESS_TOKEN=your-token
@@ -104,8 +104,8 @@ For each kudos:
 1. Identifies people mentioned
 2. Looks up their email from context
 3. Converts email to Slack username:
-   - `alice@dropbox.com` → `@alice`
-   - `bob.smith@dropbox.com` → `@bob.smith`
+   - `alice@example.com` → `@alice`
+   - `bob.smith@example.com` → `@bob.smith`
 
 ### 5. Output Generation
 
@@ -159,7 +159,7 @@ Look for phrases like:
 
 ### Slack Username Tips
 
-- Username is always the email prefix before @dropbox.com
+- Username is always the email prefix before @example.com
 - Keep dots, hyphens, underscores from email
 - Case doesn't matter in Slack (@Alice = @alice)
 
@@ -179,8 +179,8 @@ Look for phrases like:
 
 ### "Wrong Slack username"
 
-- Verify the person's email in Dropbox's directory
-- Username = email prefix before @dropbox.com
+- Verify the person's email in your company's directory
+- Username = email prefix before @example.com
 - Check `memory/people.json` has current data
 
 ## File Structure

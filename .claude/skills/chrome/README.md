@@ -46,8 +46,8 @@ Output format:
 ```
 Found 42 history entries:
 
-2026-02-04 14:30:00 PST | DBX-1234: Fix login bug | https://dropbox.atlassian.net/browse/DBX-1234 (visited 5 times)
-2026-02-04 13:15:00 PST | Project Review Doc | https://dropbox.com/scl/fi/xyz/project-review.paper (visited 2 times)
+2026-02-04 14:30:00 PST | DBX-1234: Fix login bug | https://company.atlassian.net/browse/DBX-1234 (visited 5 times)
+2026-02-04 13:15:00 PST | Project Review Doc | https://example.com/docs/xyz/project-review (visited 2 times)
 2026-02-04 12:00:00 PST | Google Search: python sqlite3 | https://google.com/search?q=python+sqlite3 (visited 1 time)
 ```
 
@@ -64,8 +64,8 @@ Output format:
 ```
 Found 15 matching entries:
 
-2026-02-04 14:30:00 PST | DBX-1234: Fix login bug | https://dropbox.atlassian.net/browse/DBX-1234 (visited 5 times)
-2026-02-04 10:15:00 PST | JIRA Dashboard | https://dropbox.atlassian.net/jira/dashboards (visited 12 times)
+2026-02-04 14:30:00 PST | DBX-1234: Fix login bug | https://company.atlassian.net/browse/DBX-1234 (visited 5 times)
+2026-02-04 10:15:00 PST | JIRA Dashboard | https://company.atlassian.net/jira/dashboards (visited 12 times)
 ...
 ```
 
@@ -87,8 +87,8 @@ Output format:
 ```
 Found 8 Confluence pages:
 
-2026-02-04 14:00:00 PST | Technical Design Doc | https://dropbox.atlassian.net/wiki/spaces/ENG/pages/123456 (visited 3 times)
-2026-02-03 16:30:00 PST | Team Roadmap | https://dropbox.atlassian.net/wiki/spaces/TEAM/pages/789012 (visited 2 times)
+2026-02-04 14:00:00 PST | Technical Design Doc | https://company.atlassian.net/wiki/spaces/ENG/pages/123456 (visited 3 times)
+2026-02-03 16:30:00 PST | Team Roadmap | https://company.atlassian.net/wiki/spaces/TEAM/pages/789012 (visited 2 times)
 ...
 ```
 
@@ -108,8 +108,8 @@ Output format:
 ```
 Found 5 Paper docs:
 
-2026-02-04 11:00:00 PST | Chase & Dan 1:1 | https://www.dropbox.com/scl/fi/xyz/Chase-Dan-11.paper (visited 4 times)
-2026-02-03 14:00:00 PST | Project Brief | https://www.dropbox.com/scl/fi/abc/project-brief.paper (visited 2 times)
+2026-02-04 11:00:00 PST | Alice & Dan 1:1 | https://example.com/docs/xyz/alice-dan-11 (visited 4 times)
+2026-02-03 14:00:00 PST | Project Brief | https://example.com/docs/abc/project-brief (visited 2 times)
 ...
 ```
 
@@ -129,8 +129,8 @@ Output format:
 ```
 Found 12 JIRA issues:
 
-2026-02-04 14:30:00 PST | DBX-1234: Fix login bug | https://dropbox.atlassian.net/browse/DBX-1234 (visited 5 times)
-2026-02-04 10:00:00 PST | DBX-5678: Add feature | https://dropbox.atlassian.net/browse/DBX-5678 (visited 2 times)
+2026-02-04 14:30:00 PST | DBX-1234: Fix login bug | https://company.atlassian.net/browse/DBX-1234 (visited 5 times)
+2026-02-04 10:00:00 PST | DBX-5678: Add feature | https://company.atlassian.net/browse/DBX-5678 (visited 2 times)
 ...
 ```
 

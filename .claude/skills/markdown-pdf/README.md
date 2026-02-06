@@ -158,7 +158,7 @@ See the [pandoc manual](https://pandoc.org/MANUAL.html) for all available option
 
 ## Design Philosophy
 
-This skill follows the Chase Sidekick design principles:
+This skill follows the project design principles:
 
 - **Zero Dependencies** - Uses only Python stdlib, shells out to pandoc
 - **Single-File Client** - All logic in one file: `sidekick/clients/markdown_pdf.py`

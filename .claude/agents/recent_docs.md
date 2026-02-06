@@ -84,7 +84,7 @@ Read the full output (with titles) and categorize each document based on pattern
 
 **1:1 Meeting Docs**
 - URLs or titles containing: "1:1", "1-1", "11", "one-on-one"
-- Common patterns: "Chase-[Name]-11", "[Manager]-[Direct Report]"
+- Common patterns: "Alice-[Name]-11", "[Manager]-[Direct Report]"
 
 **Other Meetings**
 - URLs or titles containing: "Meeting", "Notes", "Vibe Check", "Stand-Up", "Standup", "Review", "Demo", "LT", "XLT", "Sync"
@@ -126,40 +126,40 @@ Date range: YYYY-MM-DD to YYYY-MM-DD
 
 ## 1:1 Meeting Notes
 
-- [Chase & Nandan 1:1](https://www.dropbox.com/scl/fi/.../Chase-Nandan-11.paper)
-- [Chase & Dan 1:1](https://www.dropbox.com/scl/fi/.../Chase-Dan-11.paper)
-- [Chase & Nitin 1:1 - Confluence](https://dropbox.atlassian.net/wiki/spaces/TNC/pages/.../Chase+Nitin+1+1)
+- [Alice & Nandan 1:1](https://example.com/scl/fi/.../Alice-Nandan-11.paper)
+- [Alice & Dan 1:1](https://example.com/scl/fi/.../Alice-Dan-11.paper)
+- [Alice & Nitin 1:1 - Confluence](https://company.atlassian.net/wiki/spaces/TNC/pages/.../Alice+Nitin+1+1)
 
 ## Other Meetings
 
-- [Teams & Sharing LT Vibe Check](https://www.dropbox.com/scl/fi/.../Teams-Sharing-Vibe-Check.paper)
-- [Core Eng LT Meeting](https://www.dropbox.com/scl/fi/.../Core-Eng-LT.paper)
-- [C1 Teams DRI Stand-Up](https://www.dropbox.com/scl/fi/.../C1-Meeting-Notes.paper)
-- [Teams Demos - Confluence](https://dropbox.atlassian.net/wiki/spaces/TeamsGroup/pages/.../Teams+Sharing+Demos)
+- [Teams & Sharing LT Vibe Check](https://example.com/scl/fi/.../Teams-Sharing-Vibe-Check.paper)
+- [Core Eng LT Meeting](https://example.com/scl/fi/.../Core-Eng-LT.paper)
+- [C1 Teams DRI Stand-Up](https://example.com/scl/fi/.../C1-Meeting-Notes.paper)
+- [Teams Demos - Confluence](https://company.atlassian.net/wiki/spaces/TeamsGroup/pages/.../Teams+Sharing+Demos)
 
 ## Projects
 
-- [C1: Unblock Team Growth](https://www.dropbox.com/scl/fi/.../C1-Unblock-Team-Growth.paper)
-- [Basic Gating Project Brief](https://www.dropbox.com/scl/fi/.../Team-Formation-Converting-Basic.paper)
-- [DBX-1734 - Confluence](https://dropbox.atlassian.net/wiki/spaces/.../DBX-1734)
+- [C1: Unblock Team Growth](https://example.com/scl/fi/.../C1-Unblock-Team-Growth.paper)
+- [Basic Gating Project Brief](https://example.com/scl/fi/.../Team-Formation-Converting-Basic.paper)
+- [DBX-1734 - Confluence](https://company.atlassian.net/wiki/spaces/.../DBX-1734)
 
 ## Planning & Strategy
 
-- [Teams Path to Flat 1H 2026](https://www.dropbox.com/scl/fi/.../Teams-Path-to-Flat-1H-20.paper)
-- [Q4'25 QBR](https://www.dropbox.com/scl/fi/.../Q425-QBR-Core-FSS.paper)
-- [RtB Monthly Pillar Update](https://www.dropbox.com/scl/fi/.../RtB-Monthly-Pillar-Update.paper)
+- [Teams Path to Flat 1H 2026](https://example.com/scl/fi/.../Teams-Path-to-Flat-1H-20.paper)
+- [Q4'25 QBR](https://example.com/scl/fi/.../Q425-QBR-Core-FSS.paper)
+- [RtB Monthly Pillar Update](https://example.com/scl/fi/.../RtB-Monthly-Pillar-Update.paper)
 
 ## Technical Documentation
 
-- [CoWork Tech Stack Notes - Confluence](https://dropbox.atlassian.net/wiki/spaces/Core/pages/.../CoWork+Tech+Stack+Notes)
-- [API v2 List Links Support](https://www.dropbox.com/scl/fi/.../APIv2-List-Links-Support.paper)
-- [Technical Design - Confluence](https://dropbox.atlassian.net/wiki/spaces/ERP/pages/.../Technical+Design)
+- [CoWork Tech Stack Notes - Confluence](https://company.atlassian.net/wiki/spaces/Core/pages/.../CoWork+Tech+Stack+Notes)
+- [API v2 List Links Support](https://example.com/scl/fi/.../APIv2-List-Links-Support.paper)
+- [Technical Design - Confluence](https://company.atlassian.net/wiki/spaces/ERP/pages/.../Technical+Design)
 
 ## Other Documents
 
-- [DX Survey Analysis](https://www.dropbox.com/scl/fi/.../DX-Survey-Analysis-Jan-2.paper)
-- [Experiment Guide - Confluence](https://dropbox.atlassian.net/wiki/spaces/TEXP/pages/.../Experiment+Guide)
-- [Misc Document](https://www.dropbox.com/scl/fi/.../document.paper)
+- [DX Survey Analysis](https://example.com/scl/fi/.../DX-Survey-Analysis-Jan-2.paper)
+- [Experiment Guide - Confluence](https://company.atlassian.net/wiki/spaces/TEXP/pages/.../Experiment+Guide)
+- [Misc Document](https://example.com/scl/fi/.../document.paper)
 
 ---
 

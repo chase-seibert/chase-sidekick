@@ -148,7 +148,7 @@ Create `CLAUDE.local.md` in your project root (it's gitignored):
 ## 1:1 Documents
 
 - [Alice](https://company.atlassian.net/wiki/spaces/ENG/pages/123/MyName+Alice+1+1)
-- [Bob](https://www.dropbox.com/scl/fi/xyz/MyName-Bob-11.paper)
+- [Bob](https://example.com/docs/xyz/MyName-Bob-11)
 
 ## Key Projects
 
@@ -299,8 +299,8 @@ ATLASSIAN_EMAIL=your@email.com
 ATLASSIAN_API_TOKEN=your_token_here
 
 # User info (for 1:1 docs)
-USER_NAME=Chase
-USER_EMAIL=your@email.com
+USER_NAME=Alice
+USER_EMAIL=alice@example.com
 
 # Dropbox
 DROPBOX_ACCESS_TOKEN=your_token_here

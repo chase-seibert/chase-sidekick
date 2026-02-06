@@ -66,7 +66,7 @@ For each kudos item:
 1. Identify the person(s) involved
 2. Look up their Slack username:
    - Extract email from context or CLAUDE.local.md
-   - Slack username = first part of email before @dropbox.com
+   - Slack username = first part of email before @example.com
    - Format as: `@username`
 3. Format kudos with:
    - Clear description of accomplishment
@@ -75,8 +75,8 @@ For each kudos item:
    - Reference link to source doc
 
 **Slack Mention Format:**
-- Email: `alice@dropbox.com` → Slack: `@alice`
-- Email: `bob.smith@dropbox.com` → Slack: `@bob.smith`
+- Email: `alice@example.com` → Slack: `@alice`
+- Email: `bob.smith@example.com` → Slack: `@bob.smith`
 
 ### Step 5: Generate Output
 

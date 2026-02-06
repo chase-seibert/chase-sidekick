@@ -28,7 +28,7 @@ This interactive script will guide you through the entire setup process and gene
    - Go to "APIs & Services" > "Credentials"
    - Click "Create Credentials" > "OAuth client ID"
    - Application type: "Desktop app"
-   - Name it (e.g., "Chase Sidekick")
+   - Name it (e.g., "My Sidekick App")
    - Download the credentials JSON
 
 #### 2. Get Refresh Token

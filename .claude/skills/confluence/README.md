@@ -68,12 +68,12 @@ The Confluence client automatically caches search query to page mappings for fas
 # First search - performs API call and caches first result
 python -m sidekick.clients.confluence search "Bob 1:1"
 # Output: Found 5 pages (showing 5):...
-# [Cached 'Bob 1:1' -> 3247802141]
+# [Cached 'Bob 1:1' -> 123456789]
 
 # Search again - uses cache
 python -m sidekick.clients.confluence search "Bob 1:1"
 # Output: [Using cached result for 'Bob 1:1']
-# Returns page 3247802141 immediately
+# Returns page 123456789 immediately
 ```
 
 **Cache management:**
@@ -101,8 +101,8 @@ Example cache file:
 # Edit this file to add or correct search term mappings
 
 bob 1:1:
-  page_id: "3247802141"
-  title: "Chase / Bob 1:1"
+  page_id: "123456789"
+  title: "Alice / Bob 1:1"
   space: "TNC"
   last_used: "2026-02-02 10:30:15"
 
@@ -199,7 +199,7 @@ Updated page: 123456789: API Documentation [DEV] (v6)
 ### Add Topic to 1:1 Doc
 
 Add a topic to your 1:1 meeting doc with another person. The command automatically:
-- Searches for the 1:1 doc (e.g., "Chase / Bob" or "Bob / Chase 1:1")
+- Searches for the 1:1 doc (e.g., "Alice / Bob" or "Bob / Alice 1:1")
 - Validates it matches the expected title format
 - Checks access restrictions (should be locked to 2 people)
 - Adds the topic to the specified section (default: "Next")
@@ -209,10 +209,10 @@ Add a topic to your 1:1 meeting doc with another person. The command automatical
 **Requirements:**
 - Configure `USER_NAME` and `USER_EMAIL` in `.env` file
 - 1:1 doc must follow naming convention:
-  - "Chase / Bob"
-  - "Chase / Bob 1:1"
-  - "Bob / Chase"
-  - "Bob / Chase 1:1"
+  - "Alice / Bob"
+  - "Alice / Bob 1:1"
+  - "Bob / Alice"
+  - "Bob / Alice 1:1"
 
 **Expected 1:1 Doc Format:**
 - Single page per person
@@ -236,11 +236,11 @@ python -m sidekick.clients.confluence add-topic-to-oneonone "Jane Smith" "API de
 
 **Output:**
 ```
-Found 1:1 doc: 3247802141: Chase / Bob 1:1
+Found 1:1 doc: 123456789: Alice / Bob 1:1
 Added topic to Next section
 
-Updated 1:1 doc: 3247802141: Chase / Bob 1:1 (v23)
-  URL: https://company.atlassian.net/wiki/spaces/TNC/pages/3247802141
+Updated 1:1 doc: 123456789: Alice / Bob 1:1 (v23)
+  URL: https://company.atlassian.net/wiki/spaces/TNC/pages/123456789
 ```
 
 **Features:**
@@ -268,8 +268,8 @@ python -m sidekick.clients.confluence add-topic-to-oneonone Bob "Team outing ide
 Add to your `.env` file:
 ```bash
 # User Configuration (for 1:1 docs)
-USER_NAME=Chase
-USER_EMAIL=your-email@company.com
+USER_NAME=Alice
+USER_EMAIL=alice@example.com
 ```
 
 ### Content Update Best Practices
@@ -352,14 +352,14 @@ When creating a new dated section, place it at the top (after any "Next" section
 
 ```bash
 # 1. Read current page content
-python -m sidekick.clients.confluence read-page 3247802141 > current.html
+python -m sidekick.clients.confluence read-page 123456789 > current.html
 
 # 2. Edit the file to update the "Next" section (don't create a new one)
 # Or add a new dated section at the top
 vi current.html
 
 # 3. Update the page
-python -m sidekick.clients.confluence update-page 3247802141 current.html
+python -m sidekick.clients.confluence update-page 123456789 current.html
 ```
 
 **Why This Matters**

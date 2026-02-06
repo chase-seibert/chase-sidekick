@@ -115,8 +115,8 @@ last_updated: "YYYY-MM-DD HH:MM:SS"
 # [Project Name] - Project Review
 
 ## Artifacts
-- **JIRA Epic**: [DBX-1234](https://dropbox.atlassian.net/browse/DBX-1234)
-- **JIRA Initiative**: [DBX-5678](https://dropbox.atlassian.net/browse/DBX-5678) or N/A
+- **JIRA Epic**: [DBX-1234](https://company.atlassian.net/browse/DBX-1234)
+- **JIRA Initiative**: [DBX-5678](https://company.atlassian.net/browse/DBX-5678) or N/A
 - **Product Spec**: [Link](<prd_link>)
 - **Design Spec**: [Link](<design_link>)
 - **Tech Spec**: [Link](<tech_spec_link>)
@@ -401,14 +401,14 @@ mkdir -p $TMP_DIR
 mkdir -p memory/project_review
 
 # User provides links
-# Link 1: https://dropbox.atlassian.net/wiki/spaces/ERP/pages/3002434012/
-# Link 2: https://www.dropbox.com/scl/fi/f2pgs5lf8zc9jt6h2x6wa/Project-Brief.paper
+# Link 1: https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/
+# Link 2: https://example.com/docs/project-brief
 
 # Fetch Confluence page
-python -m sidekick.clients.confluence get-content-from-link "https://dropbox.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > $TMP_DIR/tech_spec.html
+python -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > $TMP_DIR/tech_spec.html
 
 # Fetch Paper doc
-python -m sidekick.clients.dropbox get-paper-contents-from-link "https://www.dropbox.com/scl/fi/f2pgs5lf8zc9jt6h2x6wa/Project-Brief.paper" > $TMP_DIR/prd.md
+python -m sidekick.clients.dropbox get-paper-contents-from-link "https://example.com/docs/project-brief" > $TMP_DIR/prd.md
 
 # Fetch JIRA epic
 python -m sidekick.clients.jira get-issue DBX-1234 > $TMP_DIR/jira-epic.txt
