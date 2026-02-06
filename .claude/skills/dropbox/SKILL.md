@@ -11,6 +11,11 @@ Command-line interface for Dropbox file and Paper doc operations.
 
 When invoked, use the Dropbox client to handle the request: $ARGUMENTS
 
+**Special handling for Paper docs via export-shared-link:**
+- The command returns HTML with extensive CSS
+- Always convert the HTML output to Markdown before presenting to the user
+- This ensures readable output for Paper documents accessed from team space
+
 ## Available Commands
 
 ### Get File Contents
@@ -22,12 +27,25 @@ python -m sidekick.clients.dropbox get-file-contents /path/to/file.txt
 
 Download file content directly from a shared link. **Primary use: accessing team space files you don't own.**
 
-This is the ONLY way to get Paper doc content you don't own. However, for Paper docs, the returned HTML includes extensive CSS/formatting. Use `get-paper-contents` for Paper docs you own when doing read-write workflows.
+This is the ONLY way to get Paper doc content you don't own. The returned content is HTML with extensive CSS/formatting.
 
+**For Paper docs: Convert HTML to Markdown**
+
+When using export-shared-link for Paper docs, always convert the HTML output to Markdown:
+
+1. Run the export-shared-link command
+2. Convert the HTML output to Markdown format
+3. Present the Markdown to the user
+
+Example workflow:
 ```bash
-# Team space Paper doc (read-only)
-python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/file.txt?dl=0"
+# Export Paper doc (returns HTML)
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/Doc.paper?dl=0" > doc.html
+
+# Claude: Convert doc.html to Markdown automatically and present to user
 ```
+
+Use `get-paper-contents` for Paper docs you own when doing read-write workflows (returns cleaner Markdown directly).
 
 For a specific file in a shared folder:
 

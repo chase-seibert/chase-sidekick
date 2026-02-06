@@ -113,6 +113,7 @@ python -m sidekick.clients.dropbox export-shared-link \
 - This makes the HTML unsuitable for read-write workflows (too complex to parse and write back)
 - **Use `get-paper-contents` for Paper docs you own** when you need to read and write back
 - **Use `export-shared-link` for Paper docs you don't own** (read-only team space access)
+- **Claude automatically converts HTML to Markdown**: When using this command with Paper docs, Claude will convert the HTML output to Markdown format for better readability
 
 **Key features:**
 - Works with password-protected links
@@ -343,6 +344,24 @@ content = client.export_shared_link(
 # IMPORTANT: Paper doc distinction
 # - For Paper docs YOU OWN (read-write): use get_paper_contents()
 # - For Paper docs you DON'T OWN (team space, read-only): use export_shared_link()
+# - export_shared_link() returns HTML for Paper docs - convert to Markdown for readability
+```
+
+**Converting HTML to Markdown (for Paper docs):**
+
+When using `export_shared_link` with Paper docs, Claude automatically converts the HTML output to Markdown:
+
+```python
+# Get team space Paper doc (returns HTML)
+html_content = client.export_shared_link(
+    url="https://www.dropbox.com/s/abc123/TeamDoc.paper?dl=0"
+)
+
+# Decode to string
+html_str = html_content.decode('utf-8')
+
+# Claude converts this HTML to Markdown automatically when presenting to users
+# For programmatic use, you can save the HTML and convert it as needed
 ```
 
 ## Common Use Cases
@@ -376,12 +395,15 @@ try:
     )
 
     # For Paper docs: HTML includes extensive CSS/formatting
-    # Suitable for reading, not for read-write workflows
+    # Claude will automatically convert to Markdown when presenting to users
     html = content.decode('utf-8')
 
     # Save to local file
     with open("team-doc.html", "w") as f:
         f.write(html)
+
+    # Note: When Claude uses this command, it converts HTML to Markdown automatically
+    # For programmatic use, you work with the raw HTML
 
 except ValueError as e:
     if "shared_link_access_denied" in str(e):
