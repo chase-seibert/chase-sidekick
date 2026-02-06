@@ -285,6 +285,7 @@ Current skills (each is a single-file client + markdown docs):
 - **Google Sheets** - CSV import/export
 - **Markdown to PDF** - Convert docs with pandoc
 - **Transcript** - Save conversation transcripts as markdown to memory/prompts
+- **Welcome Doc** - Create personalized employee onboarding documents in Confluence
 
 
 ## Configuration
@@ -375,6 +376,7 @@ See individual skill documentation for detailed command usage:
 - [Memory Management](.claude/skills/memory/README.md) - Save command outputs with metadata
 - [Markdown to PDF](.claude/skills/markdown-pdf/README.md) - Convert docs with pandoc
 - [Transcript](.claude/skills/transcript/README.md) - Save conversation transcripts to memory/prompts
+- [Welcome Doc](.claude/skills/welcome-doc/README.md) - Create personalized employee onboarding documents
 
 ### Available Agents
 
@@ -382,6 +384,7 @@ Multi-step workflows that coordinate multiple clients:
 
 - [Weekly Report](.claude/agents/weekly_report.md) - Generate weekly summaries from 1:1 and meeting docs
 - [Project Review](.claude/agents/project_review.md) - Generate project status reports from JIRA data
+- [Welcome Doc](.claude/agents/welcome-doc.md) - Create personalized employee onboarding documents with interactive prompts
 
 Or just ask Claude Code:
 ```
