@@ -26,6 +26,7 @@ If no filename is provided, a filename will be auto-generated based on the conve
 1. Extracts the conversation history from the current session
 2. Formats it as a structured markdown document with:
    - Date and context header
+   - Session metrics (duration, thinking time, cost)
    - User prompts (verbatim)
    - Assistant responses (truncated to show key actions without verbose output)
    - Clear separation between exchanges
@@ -51,6 +52,12 @@ The transcript follows this structure:
 # Conversation Transcript: [Topic]
 
 **Date:** YYYY-MM-DD
+
+**Session Duration:** [Total real-world clock time from first user prompt timestamp to last assistant response timestamp, in format: X hours Y minutes Z seconds or Xm Ys for shorter durations]
+
+**Claude Thinking Time:** [Total time spent in thinking blocks across all responses, in format: X hours Y minutes Z seconds or Xm Ys for shorter durations]
+
+**Cost:** $X.XX
 
 ---
 
@@ -86,3 +93,17 @@ The transcript follows this structure:
   - Decisions and approach taken
 - Verbose content (large data outputs, full file contents) is truncated
 - The transcript is saved in `memory/prompts/` for future reference
+
+### Calculating Session Metrics
+
+Before generating the transcript, calculate and include these metrics:
+
+1. **Session Duration**: Calculate the real-world clock time from the timestamp of the first user prompt to the timestamp of the last assistant response. Look at the conversation history metadata to find these timestamps. Format as:
+   - For durations under 1 hour: "Xm Ys" (e.g., "5m 23s")
+   - For durations over 1 hour: "Xh Ym Zs" (e.g., "1h 15m 42s")
+
+2. **Claude Thinking Time**: Sum the total time spent in all thinking blocks across all assistant responses in the conversation. This can be found in the conversation history metadata for each response. Format using the same time format as Session Duration.
+
+3. **Cost**: Before generating the transcript, run the `/cost` slash command to get the total cost of the conversation session in dollars. Include this value formatted as "$X.XX" (e.g., "$0.45" or "$2.30").
+
+These metrics should appear at the top of the transcript, immediately after the Date line and before the first separator.

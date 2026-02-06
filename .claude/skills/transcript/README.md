@@ -42,6 +42,12 @@ Transcripts are saved in a structured format:
 
 **Date:** YYYY-MM-DD
 
+**Session Duration:** [Real-world time from first prompt to last response]
+
+**Claude Thinking Time:** [Total time spent in thinking blocks]
+
+**Cost:** $X.XX
+
 ---
 
 ## User Prompt 1
@@ -67,6 +73,11 @@ Transcripts are saved in a structured format:
 ```
 
 ### What Gets Saved
+
+**Session Metrics:** Each transcript now includes:
+- **Session Duration:** Total real-world clock time from when you submitted the first prompt until the last response was generated. This helps you understand how long the entire interaction took.
+- **Claude Thinking Time:** Total time Claude spent in thinking blocks across all responses. This shows how much of the session was spent in deliberation vs. execution.
+- **Cost:** Total cost in dollars for the conversation session, calculated using the `/cost` command. This helps track API usage costs.
 
 **User Prompts:** Captured verbatim, exactly as you typed them.
 
