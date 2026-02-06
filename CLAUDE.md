@@ -132,6 +132,14 @@ When adding a new service client (e.g., Slack, GitHub):
 5. Add config function to `config.py` if needed
 6. Update README.md with new service
 
+Rules for clients
+- Do not include any larger snippets of HTML
+- Follow the same rules for what not to include in Documentation
+
+### Adding new Documentation (Skills, Agents, and READMEs)
+- Do not include PII like the names or email addresses of real people, use Bob/Alice/etc and example.com 
+- Do not include real corporate URLs unless they are related to the client REST API being called 
+- Do no include any IDs that might be real data, use placeholders
 
 ### Providing local context
 The `CLAUDE.local.md` contains context on 1:1 docs, meeting docs, teams, people, and projects. 
