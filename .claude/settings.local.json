@@ -48,7 +48,10 @@
       "Skill(jira:*)",
       "Bash(ln:*)",
       "Skill(transcript)",
-      "Skill(transcript:*)"
+      "Skill(transcript:*)",
+      "Bash(pandoc:*)",
+      "Bash(open -a \"Google Chrome\" /tmp/estimate_review_report.html)",
+      "Bash(open:*)"
     ],
     "additionalDirectories": [
       "/tmp"
