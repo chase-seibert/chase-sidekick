@@ -64,7 +64,7 @@ Get running in 60 seconds with the JIRA skill:
 
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/chase-sidekick.git
+git clone https://github.com/chase-seibert/chase-sidekick.git
 cd chase-sidekick
 
 # Configure credentials
