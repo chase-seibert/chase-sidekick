@@ -51,7 +51,13 @@
       "Skill(transcript:*)",
       "Bash(pandoc:*)",
       "Bash(open -a \"Google Chrome\" /tmp/estimate_review_report.html)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Skill(markdown)",
+      "Skill(markdown:*)",
+      "Bash(while read f)",
+      "Bash(do basename \"$f\" .json)",
+      "Bash(done)",
+      "Bash(xargs -P 5 -I {} sh -c 'grep -o \"\"TEXP-[0-9]\\\\{1,6\\\\}\"\" /tmp/mmr_exec_summary_70404/mmr.md')"
     ],
     "additionalDirectories": [
       "/tmp"

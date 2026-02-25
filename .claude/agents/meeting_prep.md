@@ -3,6 +3,7 @@ name: meeting_prep
 description: Analyze meeting documents and generate prep report with wins, risks, and questions
 argument-hint: <document-url>
 allowed-tools: Bash, Read
+auto-approve: true
 ---
 
 # Meeting Prep Agent

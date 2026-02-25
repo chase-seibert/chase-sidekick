@@ -147,5 +147,8 @@ Rules for clients
 - Include front matter 
 - Don't ALSO create an agent automatically
 
+### Running
+- Highlight in output any files that did not exist, or URLs that 404ed
+
 ### Providing local context
 The `CLAUDE.local.md` contains context on 1:1 docs, meeting docs, teams, people, and projects. 
