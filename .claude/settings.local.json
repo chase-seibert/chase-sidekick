@@ -56,6 +56,15 @@
       "Bash(done)",
       "Bash(for ticket in WEBXP-6453 WEBXP-6338 WEBXP-6341 WEBXP-6340 WEBXP-6339 WEBXP-6344)",
       "Bash(git remote add fork https://github.com/gennadiycivil/chase-sidekick.git)"
+      "Bash(pandoc:*)",
+      "Bash(open -a \"Google Chrome\" /tmp/estimate_review_report.html)",
+      "Bash(open:*)",
+      "Skill(markdown)",
+      "Skill(markdown:*)",
+      "Bash(while read f)",
+      "Bash(do basename \"$f\" .json)",
+      "Bash(done)",
+      "Bash(xargs -P 5 -I {} sh -c 'grep -o \"\"TEXP-[0-9]\\\\{1,6\\\\}\"\" /tmp/mmr_exec_summary_70404/mmr.md')"
     ],
     "additionalDirectories": [
       "/tmp"

@@ -3,6 +3,7 @@ name: oneonone_setup
 description: Create or migrate 1:1 docs from Paper or create new Confluence docs with permissions and calendar updates
 argument-hint: <person-name> [--migrate-from-paper]
 allowed-tools: Bash, Read, Write
+auto-approve: true
 ---
 
 # 1:1 Doc Setup Agent
