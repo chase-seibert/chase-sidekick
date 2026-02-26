@@ -379,6 +379,21 @@ class JiraClient:
 
         return stats
 
+    def get_issue_comments(self, issue_key: str, max_results: int = 50) -> list:
+        """Get comments for an issue.
+
+        Args:
+            issue_key: Issue key like "PROJ-123"
+            max_results: Maximum comments to return
+
+        Returns:
+            List of comment dicts from JIRA API
+        """
+        endpoint = f"/rest/api/{self.api_version}/issue/{issue_key}/comment"
+        params = {"maxResults": max_results, "orderBy": "-created"}
+        result = self._request("GET", endpoint, params=params)
+        return result.get("comments", []) if result else []
+
     def query_issues_by_parent(
         self,
         parent_key: str,
@@ -679,6 +694,41 @@ def _print_hierarchy_item(item: dict, parent_depths: dict) -> None:
         print(prefix + issue_line)
 
 
+def _adf_to_text(node) -> str:
+    """Convert Atlassian Document Format (ADF) node to plain text."""
+    if isinstance(node, str):
+        return node
+    if not isinstance(node, dict):
+        return ""
+    if node.get("type") == "text":
+        return node.get("text", "")
+    parts = []
+    for child in node.get("content", []):
+        parts.append(_adf_to_text(child))
+    text = "".join(parts)
+    if node.get("type") in ("paragraph", "heading", "bulletList", "orderedList"):
+        text += "\n"
+    if node.get("type") == "listItem":
+        text = "  - " + text
+    return text
+
+
+def _print_comments(comments: list) -> None:
+    """Print comments in readable format."""
+    for comment in comments:
+        author = comment.get("author", {}).get("displayName", "Unknown")
+        created = comment.get("created", "")
+        if created:
+            created = created[:10]  # Just the date portion
+        body = comment.get("body", "")
+        if isinstance(body, dict):
+            body = _adf_to_text(body).strip()
+        print(f"  {author} ({created}):")
+        for line in body.split("\n"):
+            print(f"    {line}")
+        print()
+
+
 def _extract_prefix(summary: str) -> Optional[str]:
     """Extract roadmap prefix from issue summary (e.g., 'C1', 'C1.5', 'C1.5.1').
 
@@ -774,6 +824,7 @@ def main():
         print("  update-issue <issue-key> <fields-json>")
         print("  add-label <issue-key> <label>")
         print("  remove-label <issue-key> <label>")
+        print("  get-comments <issue-key> [max-results]")
         print("  label-roadmap <root-issue> [project] [--dry-run] [--limit N]")
         sys.exit(1)
 
@@ -864,6 +915,16 @@ def main():
             label = sys.argv[3]
             client.remove_label(issue_key, label)
             print(f"Removed label '{label}' from {issue_key}")
+
+        elif command == "get-comments":
+            issue_key = sys.argv[2]
+            max_results = int(sys.argv[3]) if len(sys.argv) > 3 else 50
+            comments = client.get_issue_comments(issue_key, max_results)
+            print(f"Comments for {issue_key} ({len(comments)}):")
+            if comments:
+                _print_comments(comments)
+            else:
+                print("  No comments.")
 
         elif command == "label-roadmap":
             root_issue = sys.argv[2]
