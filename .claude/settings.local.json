@@ -48,7 +48,14 @@
       "Skill(jira:*)",
       "Bash(ln:*)",
       "Skill(transcript)",
-      "Skill(transcript:*)"
+      "Skill(transcript:*)",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-0s-as-docstext.googleusercontent.com)",
+      "Bash(for ticket in WEBXP-7087 WEBXP-7068 WEBXP-7071 WEBXP-7067 WEBXP-7066 WEBXP-7064 WEBXP-7083)",
+      "Bash(do echo \"=== $ticket ===\")",
+      "Bash(done)",
+      "Bash(for ticket in WEBXP-6453 WEBXP-6338 WEBXP-6341 WEBXP-6340 WEBXP-6339 WEBXP-6344)",
+      "Bash(git remote add fork https://github.com/gennadiycivil/chase-sidekick.git)"
     ],
     "additionalDirectories": [
       "/tmp"

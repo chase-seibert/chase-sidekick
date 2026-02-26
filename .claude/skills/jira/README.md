@@ -112,6 +112,25 @@ PROJ-125: Update API [To Do] (Jane Smith) [backend, api]
 ...
 ```
 
+### Get Comments
+
+```bash
+python -m sidekick.clients.jira get-comments PROJ-123
+python -m sidekick.clients.jira get-comments PROJ-123 10
+```
+
+Get comments on an issue. Optional max results (default: 50). Comments are returned newest first.
+
+Output format:
+```
+Comments for PROJ-123 (3):
+  Bob Smith (2026-02-20):
+    This is blocked on the design review.
+
+  Alice Johnson (2026-02-18):
+    Moving to on hold until we get clarity.
+```
+
 ### Update Issue
 
 ```bash
