@@ -120,6 +120,11 @@ sidekick/
 - **Inline Auth**: Auth logic in the client class, no separate auth module
 - **Confirmation for Writes**: Always ask for user confirmation before making calls that write data to remote clients (update, create, delete operations). Read operations do not require confirmation.
 - **Skill Configuration Prompts**: If Claude tries to use a skill that is not configured yet, it will prompt you with the steps in the README.md for the skill to provision API keys, etc.
+- **Verify Before Assuming**: ALWAYS query JIRA (or other clients) to verify current status before stating facts about issues, progress, or assignments. Do not assume status from meeting notes, retro boards, or other secondary sources — check the source of truth first. Cross-reference comments and recent activity on issues before drawing conclusions.
+- **Separate Process Feedback from Outcomes**: Retro items, meeting notes, and "what could have gone better" observations describe how work felt or how the process went — not whether a goal was achieved. To assess goal achievement, compare the stated goal against JIRA data (ticket status, what shipped). A goal can be achieved even if the process had problems. If JIRA data conflicts with meeting notes, retro boards, or other secondary sources, ask the user to clarify rather than picking one.
+- **Stick to Facts**: When writing reports, summaries, or status updates, use factual language only. Do not editorialize or use hyperbole (e.g., "above and beyond," "quietly," "eroding," "exposed systemic issues"). State what happened, not how impressive or concerning it was.
+- **Write the Best Version First**: When the same content appears in multiple places (document tables, outcome sections, Slack summaries), write the most complete and accurate version first. Use that as the source for all other locations. Do not write separate, weaker versions independently.
+- **Cross-Check Consistency**: When a document references the same item in multiple sections (e.g., Sprint Goals table, Sprint Outcome table, "What did we ship"), all references must be consistent in facts and level of detail. Before finishing a document, verify that all mentions of the same topic say the same thing.
 
 ### Adding New Clients
 

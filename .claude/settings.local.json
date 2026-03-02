@@ -55,7 +55,21 @@
       "Bash(do echo \"=== $ticket ===\")",
       "Bash(done)",
       "Bash(for ticket in WEBXP-6453 WEBXP-6338 WEBXP-6341 WEBXP-6340 WEBXP-6339 WEBXP-6344)",
-      "Bash(git remote add fork https://github.com/gennadiycivil/chase-sidekick.git)"
+      "Bash(git remote add fork https://github.com/gennadiycivil/chase-sidekick.git)",
+      "Bash(git commit:*)",
+      "Bash(git remote set-url fork git@github.com:gennadiycivil/chase-sidekick.git)",
+      "Bash(gh auth status)",
+      "Bash(git remote set-url fork https://github.com/gennadiycivil/chase-sidekick.git)",
+      "Bash(gh auth setup-git)",
+      "Bash(gh api user --jq '.login')",
+      "Bash(gh api user --jq '{login, name, html_url}')",
+      "Bash(gh repo view misterg_dbx/chase-sidekick)",
+      "Bash(gh pr:*)",
+      "Bash(for epic in WEBXP-6841 WEBXP-6830 WEBXP-5599 WEBXP-7057 WEBXP-6495 WEBXP-6497 WEBXP-6752 WEBXP-6479 WEBXP-6446 WEBXP-6858)",
+      "Bash(do echo \"=== $epic ===\")",
+      "Skill(kudos)",
+      "Skill(kudos:*)",
+      "Bash(git rebase --continue)"
     ],
     "additionalDirectories": [
       "/tmp"
