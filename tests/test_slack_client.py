@@ -292,7 +292,7 @@ class TestSlackClientReadMethods(unittest.TestCase):
             "conversations.list",
             "channels",
             params={"types": "public_channel,private_channel"},
-            limit=200
+            limit=None
         )
         self.assertEqual(len(result), 1)
 
@@ -535,7 +535,7 @@ class TestSlackCLI(unittest.TestCase):
     def test_unknown_command_exits(self, mock_config, mock_sys):
         """CLI with unknown command exits with code 1."""
         from sidekick.clients.slack import main
-        mock_config.return_value = {"bot_token": "xoxb-test"}
+        mock_config.return_value = {"bot_token": "xoxb-test", "user_token": None}
         mock_sys.argv = ["slack.py", "invalid-command"]
         mock_sys.exit = MagicMock(side_effect=SystemExit(1))
         mock_sys.stderr = MagicMock()
@@ -548,7 +548,7 @@ class TestSlackCLI(unittest.TestCase):
     @patch.object(SlackClient, "list_channels")
     def test_list_channels_command(self, mock_list, mock_config, mock_sys):
         """CLI list-channels calls client and prints output."""
-        mock_config.return_value = {"bot_token": "xoxb-test"}
+        mock_config.return_value = {"bot_token": "xoxb-test", "user_token": None}
         mock_sys.argv = ["slack.py", "list-channels"]
         mock_sys.exit = MagicMock()
         mock_sys.stderr = MagicMock()
@@ -564,7 +564,7 @@ class TestSlackCLI(unittest.TestCase):
     @patch.object(SlackClient, "get_channel_info")
     def test_channel_info_command(self, mock_info, mock_config, mock_sys):
         """CLI channel-info calls client with channel ID."""
-        mock_config.return_value = {"bot_token": "xoxb-test"}
+        mock_config.return_value = {"bot_token": "xoxb-test", "user_token": None}
         mock_sys.argv = ["slack.py", "channel-info", "C123"]
         mock_sys.exit = MagicMock()
         mock_sys.stderr = MagicMock()
@@ -581,7 +581,7 @@ class TestSlackCLI(unittest.TestCase):
     @patch.object(SlackClient, "send_message")
     def test_send_message_command(self, mock_send, mock_config, mock_sys):
         """CLI send-message calls client with channel and text."""
-        mock_config.return_value = {"bot_token": "xoxb-test"}
+        mock_config.return_value = {"bot_token": "xoxb-test", "user_token": None}
         mock_sys.argv = ["slack.py", "send-message", "C123", "Hello world"]
         mock_sys.exit = MagicMock()
         mock_sys.stderr = MagicMock()

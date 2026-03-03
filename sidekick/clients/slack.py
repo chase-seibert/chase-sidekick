@@ -123,7 +123,7 @@ class SlackClient:
         endpoint: str,
         response_key: str,
         params: Optional[dict] = None,
-        limit: int = 200
+        limit: Optional[int] = None
     ) -> list:
         """Fetch all pages of a cursor-paginated Slack API endpoint.
 
@@ -131,22 +131,37 @@ class SlackClient:
             endpoint: API method name (e.g., conversations.list)
             response_key: Key in response containing the items (e.g., "channels")
             params: Additional query parameters
-            limit: Maximum total items to return
+            limit: Maximum total items to return (None for all)
 
         Returns:
             List of items collected across all pages
         """
         all_items = []
         request_params = dict(params or {})
-        page_size = min(limit, 200)
+        page_size = min(limit, 200) if limit else 200
         request_params["limit"] = str(page_size)
 
         while True:
-            result = self._request("GET", endpoint, params=request_params)
+            try:
+                result = self._request("GET", endpoint, params=request_params)
+            except RuntimeError as e:
+                if "rate limited" in str(e).lower():
+                    # Extract retry delay, default to 30s
+                    retry_after = 30
+                    for word in str(e).split():
+                        try:
+                            retry_after = int(word)
+                            break
+                        except ValueError:
+                            continue
+                    time.sleep(retry_after + 1)
+                    continue
+                raise
+
             items = result.get(response_key, [])
             all_items.extend(items)
 
-            if len(all_items) >= limit:
+            if limit and len(all_items) >= limit:
                 return all_items[:limit]
 
             # Check for next page
@@ -159,13 +174,13 @@ class SlackClient:
 
     def list_channels(
         self,
-        limit: int = 200,
+        limit: Optional[int] = None,
         types: str = "public_channel,private_channel"
     ) -> list:
-        """List channels the bot has access to.
+        """List all channels the token has access to.
 
         Args:
-            limit: Maximum number of channels to return
+            limit: Maximum number of channels to return (None for all)
             types: Comma-separated channel types
                    (public_channel, private_channel, mpim, im)
 
@@ -174,6 +189,31 @@ class SlackClient:
         """
         return self._paginate(
             "conversations.list",
+            "channels",
+            params={"types": types},
+            limit=limit
+        )
+
+    def list_my_channels(
+        self,
+        limit: Optional[int] = None,
+        types: str = "public_channel,private_channel"
+    ) -> list:
+        """List only channels the authenticated user is a member of.
+
+        Uses users.conversations which returns only joined channels,
+        avoiding the need to paginate through all workspace channels.
+
+        Args:
+            limit: Maximum number of channels to return (None for all)
+            types: Comma-separated channel types
+                   (public_channel, private_channel, mpim, im)
+
+        Returns:
+            List of channel dicts with keys like id, name, topic, num_members
+        """
+        return self._paginate(
+            "users.conversations",
             "channels",
             params={"types": types},
             limit=limit
@@ -309,6 +349,67 @@ class SlackClient:
             payload["thread_ts"] = thread_ts
         return self._request("POST", "chat.postMessage", json_data=payload)
 
+    def search_messages(
+        self,
+        query: str,
+        sort: str = "timestamp",
+        sort_dir: str = "desc",
+        count: int = 100
+    ) -> list:
+        """Search messages in Slack.
+
+        Requires a user token (xoxp-) with search:read scope.
+        Does not work with bot tokens.
+
+        Args:
+            query: Slack search query (supports operators like
+                   is:saved, in:#channel, from:@user, before:, after:)
+            sort: Sort field - "score" or "timestamp"
+            sort_dir: Sort direction - "asc" or "desc"
+            count: Maximum number of results to return
+
+        Returns:
+            List of message match dicts with keys like text, channel,
+            username, ts, permalink
+        """
+        if not query:
+            raise ValueError("query is required")
+        all_matches = []
+        page = 1
+        while True:
+            result = self._request("GET", "search.messages", params={
+                "query": query,
+                "sort": sort,
+                "sort_dir": sort_dir,
+                "count": str(min(count - len(all_matches), 100)),
+                "page": str(page)
+            })
+            messages = result.get("messages", {})
+            matches = messages.get("matches", [])
+            all_matches.extend(matches)
+            if len(all_matches) >= count:
+                return all_matches[:count]
+            total = messages.get("total", 0)
+            if len(all_matches) >= total:
+                break
+            page += 1
+        return all_matches
+
+    def search_saved(self, count: int = 100) -> list:
+        """Get messages saved for later.
+
+        Convenience method that searches for is:saved messages.
+        Requires a user token (xoxp-) with search:read scope.
+
+        Args:
+            count: Maximum number of saved messages to return
+
+        Returns:
+            List of message match dicts with keys like text, channel,
+            username, ts, permalink
+        """
+        return self.search_messages("is:saved", count=count)
+
 
 def _format_channel(channel: dict) -> str:
     """Format channel as one-line microformat.
@@ -376,14 +477,47 @@ def _format_message(msg: dict, users: Optional[dict] = None) -> str:
     return f"[{time_str}] {user_display}: {text_oneline}"
 
 
+def _format_search_result(match: dict) -> str:
+    """Format a search result match for display.
+
+    Args:
+        match: Search match dict from Slack search API
+
+    Example: [2024-01-15 10:30] #general @alice: Hello everyone
+    """
+    ts = match.get("ts", "")
+    channel_name = match.get("channel", {}).get("name", "DM")
+    username = match.get("username", "unknown")
+    text = match.get("text", "")
+
+    # Format timestamp
+    time_str = ""
+    if ts:
+        try:
+            t = time.gmtime(float(ts))
+            time_str = time.strftime("%Y-%m-%d %H:%M", t)
+        except (ValueError, OverflowError):
+            time_str = ts
+
+    # Truncate long messages for one-line display
+    text_oneline = text.replace("\n", " ")
+    if len(text_oneline) > 200:
+        text_oneline = text_oneline[:197] + "..."
+
+    return f"[{time_str}] #{channel_name} @{username}: {text_oneline}"
+
+
 def main():
     """CLI entry point for Slack client.
 
     Usage:
         python3 -m sidekick.clients.slack list-channels
+        python3 -m sidekick.clients.slack my-channels
         python3 -m sidekick.clients.slack channel-info C09NU0MEGH1
         python3 -m sidekick.clients.slack history C09NU0MEGH1 [--limit 50]
         python3 -m sidekick.clients.slack thread C09NU0MEGH1 1234567890.123456
+        python3 -m sidekick.clients.slack search "query string" [--count 50]
+        python3 -m sidekick.clients.slack saved-items [--count 50]
         python3 -m sidekick.clients.slack users
         python3 -m sidekick.clients.slack user-info U12345678
         python3 -m sidekick.clients.slack send-message C09NU0MEGH1 "Hello world"
@@ -394,9 +528,12 @@ def main():
         print("Usage: python3 -m sidekick.clients.slack <command> [args...]")
         print("\nCommands:")
         print("  list-channels")
+        print("  my-channels")
         print("  channel-info <channel-id>")
         print("  history <channel-id> [--limit N]")
         print("  thread <channel-id> <thread-ts>")
+        print("  search <query> [--count N]")
+        print("  saved-items [--count N]")
         print("  users")
         print("  user-info <user-id>")
         print("  send-message <channel-id> <text>")
@@ -406,7 +543,8 @@ def main():
         start_time = time.time()
 
         config = get_slack_config()
-        client = SlackClient(bot_token=config["bot_token"])
+        token = config.get("user_token") or config["bot_token"]
+        client = SlackClient(bot_token=token)
 
         command = sys.argv[1]
 
@@ -414,6 +552,12 @@ def main():
             channels = client.list_channels()
             print(f"Found {len(channels)} channels:")
             for ch in channels:
+                print(_format_channel(ch))
+
+        elif command == "my-channels":
+            channels = client.list_my_channels()
+            print(f"Member of {len(channels)} channels:")
+            for ch in sorted(channels, key=lambda c: c.get('num_members', 0), reverse=True):
                 print(_format_channel(ch))
 
         elif command == "channel-info":
@@ -488,6 +632,27 @@ def main():
             if email:
                 print(f"  Email: {email}")
             print(f"  ID: {user.get('id', '')}")
+
+        elif command == "search":
+            query = sys.argv[2]
+            count = 100
+            for i, arg in enumerate(sys.argv[3:], 3):
+                if arg == "--count" and i + 1 < len(sys.argv):
+                    count = int(sys.argv[i + 1])
+            matches = client.search_messages(query, count=count)
+            print(f"Found {len(matches)} messages:")
+            for m in matches:
+                print(_format_search_result(m))
+
+        elif command == "saved-items":
+            count = 100
+            for i, arg in enumerate(sys.argv[2:], 2):
+                if arg == "--count" and i + 1 < len(sys.argv):
+                    count = int(sys.argv[i + 1])
+            matches = client.search_saved(count=count)
+            print(f"Found {len(matches)} saved items:")
+            for m in matches:
+                print(_format_search_result(m))
 
         elif command == "send-message":
             channel_id = sys.argv[2]

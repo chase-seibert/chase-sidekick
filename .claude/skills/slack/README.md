@@ -27,6 +27,26 @@ Command-line interface for Slack operations.
 | `users:read.email` | Display email alongside names for identification |
 | `chat:write` | Send messages (optional, only for send-message command) |
 
+### Step 2b: Add User Token Scopes (Optional)
+
+User tokens allow access to your personal channel memberships, saved items,
+and message search. Add these under **User Token Scopes**:
+
+| Scope | Purpose |
+|-------|---------|
+| `channels:read` | List public channels you are a member of |
+| `channels:history` | Read messages in public channels |
+| `groups:read` | List private channels you are a member of |
+| `groups:history` | Read messages in private channels |
+| `im:read` | Access direct messages |
+| `im:history` | Read DM content |
+| `mpim:read` | Access group DMs |
+| `mpim:history` | Read group DM content |
+| `users:read` | Resolve user IDs to display names |
+| `users:read.email` | Display email alongside names for identification |
+| `search:read` | Search messages and access saved items |
+| `stars:read` | List starred items |
+
 ### Step 3: Enterprise Workspace Approval
 
 For enterprise workspaces, the app must be approved before installation.
@@ -57,16 +77,22 @@ Once approved:
 1. Go to **OAuth & Permissions** in the left sidebar
 2. Click **Install to Workspace** and authorize
 3. Copy the **Bot User OAuth Token** (starts with `xoxb-`)
+4. If you added user token scopes, also copy the **User OAuth Token** (starts with `xoxp-`)
 
 ### Step 5: Configure
 
-Add the token to your `.env` file in the project root:
+Add the token(s) to your `.env` file in the project root:
 
 ```bash
 SLACK_BOT_TOKEN=xoxb-your-bot-token-here
+SLACK_USER_TOKEN=xoxp-your-user-token-here
 ```
 
-### Step 6: Invite Bot to Channels
+The CLI prefers the user token when available, falling back to the bot token.
+The user token reflects your personal channel memberships and enables search
+and saved items. The bot token only has access to channels the bot is invited to.
+
+### Step 6: Invite Bot to Channels (Bot Token Only)
 
 The bot can only read channels it has been explicitly invited to.
 
@@ -76,10 +102,13 @@ In Slack, go to each channel you want to read and type:
 /invite @Sidekick
 ```
 
+This is not needed when using a user token — it automatically has access
+to all channels you are a member of.
+
 ### Step 7: Verify
 
 ```bash
-python -m sidekick.clients.slack list-channels
+python -m sidekick.clients.slack my-channels
 python -m sidekick.clients.slack history C0EXAMPLE1 --limit 5
 ```
 
@@ -93,12 +122,25 @@ All commands use the module form (`python -m sidekick.clients.slack`).
 python -m sidekick.clients.slack list-channels
 ```
 
-Lists all channels the bot has access to:
+Lists all visible channels in the workspace:
 ```
-Found 15 channels:
+Found 200 channels:
 #general (42 members) [Team announcements]
 #engineering (28 members) [Engineering discussion]
 #random (35 members)
+```
+
+### List My Channels
+
+```bash
+python -m sidekick.clients.slack my-channels
+```
+
+Lists only channels the authenticated user is a member of (requires user token):
+```
+Member of 75 channels:
+#general (42 members) [Team announcements]
+#engineering (28 members) [Engineering discussion]
 ```
 
 ### Get Channel Info
@@ -173,6 +215,41 @@ Shows detailed user information:
   ID: U0EXAMPLE1
 ```
 
+### Search Messages
+
+```bash
+python -m sidekick.clients.slack search "query string"
+python -m sidekick.clients.slack search "in:#engineering from:@alice" --count 50
+```
+
+Searches messages across all channels (requires user token with `search:read`):
+```
+Found 12 messages:
+[2026-03-01 10:30] #engineering @alice: We should update the API docs
+[2026-03-01 09:15] #general @alice: Good morning team!
+```
+
+Supported search operators:
+- `is:saved` - Messages saved for later
+- `in:#channel` - Messages in a specific channel
+- `from:@user` - Messages from a specific user
+- `before:2026-03-01` / `after:2026-02-01` - Date filters
+- `has:link` / `has:reaction` - Messages with links or reactions
+
+### Saved Items
+
+```bash
+python -m sidekick.clients.slack saved-items
+python -m sidekick.clients.slack saved-items --count 50
+```
+
+Lists messages you saved for later (shortcut for `search "is:saved"`):
+```
+Found 45 saved items:
+[2026-02-27 16:47] #team-channel @bob: Please update the ticket with details
+[2026-02-26 18:09] #managers @alice: Let's connect early next week
+```
+
 ### Send Message
 
 ```bash
@@ -196,12 +273,18 @@ Sends a message to a channel. **Note**: Always confirm with the user before send
 ```python
 from sidekick.clients.slack import SlackClient
 
+# Use bot token or user token
 client = SlackClient(bot_token="xoxb-your-token")
+# Or with user token for personal access:
+# client = SlackClient(bot_token="xoxp-your-user-token")
 
-# List channels
+# List all visible channels
 channels = client.list_channels()
-for ch in channels:
-    print(f"#{ch['name']} ({ch['num_members']} members)")
+
+# List only channels you are a member of (user token)
+my_channels = client.list_my_channels()
+for ch in my_channels:
+    print(f"#{ch['name']}")
 
 # Get channel history
 messages = client.get_channel_history("C0EXAMPLE1", limit=50)
@@ -210,6 +293,16 @@ for msg in messages:
 
 # Get thread replies
 replies = client.get_thread_replies("C0EXAMPLE1", "1709312200.123456")
+
+# Search messages (user token with search:read scope)
+results = client.search_messages("in:#engineering has:link")
+for m in results:
+    print(f"#{m['channel']['name']}: {m['text']}")
+
+# Get saved-for-later items (user token with search:read scope)
+saved = client.search_saved()
+for m in saved:
+    print(f"#{m['channel']['name']}: {m['text']}")
 
 # Get user info
 user = client.get_user_info("U0EXAMPLE1")
