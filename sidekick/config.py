@@ -302,3 +302,27 @@ def get_google_config() -> dict:
         "client_secret": client_secret,
         "refresh_token": refresh_token
     }
+
+
+def get_slack_config() -> dict:
+    """Get Slack configuration from .env file or environment variables.
+
+    Returns:
+        dict with key: bot_token
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    bot_token = _get_env("SLACK_BOT_TOKEN", env_file_vars)
+
+    if not bot_token:
+        raise ValueError(
+            "Missing required Slack configuration. "
+            "Set SLACK_BOT_TOKEN in .env file or environment variables. "
+            "Get token at: https://api.slack.com/apps "
+            "(create app → OAuth & Permissions → install to workspace)"
+        )
+
+    return {"bot_token": bot_token}
