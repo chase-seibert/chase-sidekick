@@ -137,10 +137,18 @@ Rules for clients
 - Follow the same rules for what not to include in Documentation
 
 ### Adding new Documentation (Skills, Agents, and READMEs)
-- Do not include PII like the names or email addresses of real people, use Bob/Alice/etc and example.com 
-- Do not include real corporate URLs unless they are related to the client REST API being called 
+- Do not include PII like the names or email addresses of real people, use Bob/Alice/etc and example.com
+- Do not include real corporate URLs unless they are related to the client REST API being called
 - Do no include any IDs that might be real data, use placeholders
 - MAKE SURE EXAMPLES DO NOT INCLUDE REAL DATA OR NAMES
+
+#### Documentation Size Limits
+Always-loaded files (CLAUDE.md, CLAUDE.local.md) should stay under **250 lines** to preserve context window space.
+
+When updating documentation that approaches this limit:
+1. **Summarize first**: Remove verbose examples, consolidate redundant sections
+2. **Break out details**: Move detailed content to separate doc files (in docs/ai folder)
+3. **Use references**: Keep a brief description in main file, link to detailed documentation
 
 #### New Skills
 - Invokable with /skill 
