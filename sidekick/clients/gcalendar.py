@@ -343,6 +343,19 @@ def _format_event_full(event: dict) -> str:
         lines.append(f"Description: {event['description']}")
     if "location" in event:
         lines.append(f"Location: {event['location']}")
+
+    # Conference data (Zoom, Meet, etc.)
+    if "conferenceData" in event:
+        conf = event["conferenceData"]
+        if "entryPoints" in conf:
+            for entry in conf["entryPoints"]:
+                if entry.get("entryPointType") == "video":
+                    lines.append(f"Video Link: {entry.get('uri', '')}")
+        if "conferenceSolution" in conf:
+            lines.append(f"Conference: {conf['conferenceSolution'].get('name', '')}")
+    elif "hangoutLink" in event:
+        lines.append(f"Hangout Link: {event['hangoutLink']}")
+
     if "attendees" in event:
         attendee_emails = [a.get("email", "") for a in event["attendees"]]
         lines.append(f"Attendees: {', '.join(attendee_emails)}")
