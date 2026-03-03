@@ -70,7 +70,8 @@
       "Skill(kudos)",
       "Skill(kudos:*)",
       "Bash(git rebase --continue)",
-      "WebFetch(domain:dropbox.atlassian.net)"
+      "WebFetch(domain:dropbox.atlassian.net)",
+      "Bash(git merge slack-client)"
     ],
     "additionalDirectories": [
       "/tmp"
