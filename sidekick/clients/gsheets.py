@@ -293,7 +293,7 @@ class GSheetsClient:
         """
         result = self._request(
             "GET",
-            f"/spreadsheets/{spreadsheet_id}/values/{range_name}"
+            f"/spreadsheets/{spreadsheet_id}/values/{urllib.parse.quote(range_name, safe='')}"
         )
         return result.get("values", [])
 

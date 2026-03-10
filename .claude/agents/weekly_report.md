@@ -8,25 +8,25 @@ auto-approve: true
 
 # Weekly Report Agent
 
-Generate a summary of notes from your 1:1 and meeting docs for the past week(s), organized by audience.
+Generate am executive summary of notes from your 1:1 docs, meeting docs, and Slack conversations for the past week(s), organized by audience.
 
 ## Overview
 
 This agent helps you:
-1. Review recent notes from all your 1:1 and recurring meeting docs
+1. Review recent notes from all your 1:1 and recurring meeting docs, and Slack
 2. Identify key topics that need communication
 3. Categorize items by audience (leadership, direct reports, everyone)
 
 ## Prerequisites
 
-- `CLAUDE.local.md` file with your 1:1 and meeting doc links
+- `CLAUDE.local.md` file with your 1:1 docs, meeting docs, and Slack channels
 - Configured Dropbox and Atlassian credentials in `.env`
 
 ## Usage Pattern
 
 ### Step 1: List Your Documents
 
-Get all 1:1 docs and meeting docs from `CLAUDE.local.md`
+Get all 1:1 docs, meeting docs, and Slack channels from `CLAUDE.local.md`
 These may be Confluence pages or Dropbox Paper docs
 
 ### Step 2: Fetch Recent Content
@@ -48,7 +48,9 @@ python -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" >
 python -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > memory/weekly_report/doc_name.md
 ```
 
-The fetched documents will be saved in `memory/weekly_report/` for review and won't be deleted. Keep track of docs that error out so we can print them out at the end. 
+For Slacks, use the Dash MCP to read recent channel contents, i.e. last 10 days
+
+The fetched content will be saved in `memory/weekly_report/` for review and won't be deleted. Keep track of docs that error out so we can print them out at the end. 
 
 ### Step 3: Review and Extract Notes
 
@@ -106,7 +108,8 @@ Thank yous for specific people:
 
 ### Step 5: Categorize Notes
 
-Print a list of documents that errored out trying to retrieve the contents. 
+- Print a list of documents and Slack channels were read successfully, and also those that errored out trying to retrieve the contents. 
+- Echo the actual executive summary contents in the chat, AND link to a file version if you have it
 
 
 ## Example Workflow
@@ -136,6 +139,7 @@ do
   echo "\n\n---\n\n" >> memory/weekly_report/all_docs.html
 done
 
+# Use Dash MCP for Slack
 # Review memory/weekly_report/all_docs.md and memory/weekly_report/all_docs.html
 # Extract and categorize recent notes manually
 # Files are preserved in memory/weekly_report/ for future reference
