@@ -17,6 +17,9 @@ How to gather information:
 - Normalize all estimates to hours (assume 30 hours/week/engineer, or 3600 seconds/hour from JIRA)
 - Write an executive summary 
 
+Instructions
+- Do not open the finder and show me in-progress files, or the final report file that way 
+
 Debug output
 - List the projects where you were able to extract estimates, and those you were not. 
 - For the items above, produce a list of projects, and total estimate for the project
