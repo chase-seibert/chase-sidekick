@@ -251,7 +251,7 @@ def get_dropbox_config() -> dict:
     """Get Dropbox configuration from .env file or environment variables.
 
     Returns:
-        dict with key: access_token
+        dict with keys: access_token, refresh_token, app_key, app_secret
 
     Raises:
         ValueError: If required environment variables are missing
@@ -259,16 +259,26 @@ def get_dropbox_config() -> dict:
     env_file_vars = _load_env_file()
 
     access_token = _get_env("DROPBOX_ACCESS_TOKEN", env_file_vars)
+    refresh_token = _get_env("DROPBOX_REFRESH_TOKEN", env_file_vars)
+    app_key = _get_env("DROPBOX_APP_KEY", env_file_vars)
+    app_secret = _get_env("DROPBOX_APP_SECRET", env_file_vars)
 
-    if not access_token:
+    # For automatic token refresh, we need app_key, app_secret, and refresh_token
+    # Access token is optional if using refresh token
+    if not refresh_token and not access_token:
         raise ValueError(
             "Missing required Dropbox configuration. "
-            "Set DROPBOX_ACCESS_TOKEN in .env file or environment variables. "
-            "Get token at: https://www.dropbox.com/developers/apps "
-            "(create app → generate access token)"
+            "Either set DROPBOX_ACCESS_TOKEN or set DROPBOX_REFRESH_TOKEN "
+            "with DROPBOX_APP_KEY and DROPBOX_APP_SECRET. "
+            "Run: python3 tools/get_dropbox_access_token.py to get OAuth tokens"
         )
 
-    return {"access_token": access_token}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "app_key": app_key,
+        "app_secret": app_secret
+    }
 
 
 def get_google_config() -> dict:

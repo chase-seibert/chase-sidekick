@@ -19,16 +19,79 @@ class DropboxClient:
     - No external dependencies (Python stdlib only)
     """
 
-    def __init__(self, access_token: str, timeout: int = 30):
-        """Initialize Dropbox client with OAuth access token.
+    def __init__(
+        self,
+        access_token: Optional[str] = None,
+        refresh_token: Optional[str] = None,
+        app_key: Optional[str] = None,
+        app_secret: Optional[str] = None,
+        timeout: int = 30
+    ):
+        """Initialize Dropbox client with OAuth credentials.
 
         Args:
-            access_token: Dropbox OAuth 2.0 access token
+            access_token: Dropbox OAuth 2.0 access token (optional if using refresh_token)
+            refresh_token: Dropbox OAuth 2.0 refresh token for automatic token refresh
+            app_key: Dropbox app key (required for token refresh)
+            app_secret: Dropbox app secret (required for token refresh)
             timeout: Request timeout in seconds (default: 30)
         """
         self.access_token = access_token
+        self.refresh_token = refresh_token
+        self.app_key = app_key
+        self.app_secret = app_secret
         self.timeout = timeout
         self.api_call_count = 0
+
+    def _refresh_access_token(self) -> str:
+        """Refresh OAuth2 access token using refresh token.
+
+        Returns:
+            New access token
+
+        Raises:
+            ValueError: If token refresh fails or credentials missing
+        """
+        if not self.refresh_token or not self.app_key or not self.app_secret:
+            raise ValueError(
+                "Cannot refresh access token: missing refresh_token, app_key, or app_secret. "
+                "Set DROPBOX_REFRESH_TOKEN, DROPBOX_APP_KEY, and DROPBOX_APP_SECRET in .env"
+            )
+
+        token_url = "https://api.dropbox.com/oauth2/token"
+        data = {
+            "grant_type": "refresh_token",
+            "refresh_token": self.refresh_token,
+            "client_id": self.app_key,
+            "client_secret": self.app_secret
+        }
+
+        encoded_data = urllib.parse.urlencode(data).encode()
+        req = urllib.request.Request(token_url, data=encoded_data, method="POST")
+        req.add_header("Content-Type", "application/x-www-form-urlencoded")
+
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                result = json.loads(response.read().decode())
+                return result["access_token"]
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode() if e.fp else ""
+            raise ValueError(f"Failed to refresh access token: {e.code} - {error_body}")
+        except (KeyError, json.JSONDecodeError):
+            raise ValueError("Invalid token response from Dropbox")
+
+    def _get_access_token(self) -> str:
+        """Get valid access token, refreshing if necessary.
+
+        Returns:
+            Valid access token
+
+        Raises:
+            ValueError: If no token available and refresh fails
+        """
+        if not self.access_token:
+            self.access_token = self._refresh_access_token()
+        return self.access_token
 
     def _get_auth_headers(self) -> dict:
         """Get authorization headers for API requests.
@@ -37,11 +100,11 @@ class DropboxClient:
             dict with Authorization header
         """
         return {
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self._get_access_token()}",
             "Content-Type": "application/json"
         }
 
-    def _request_api(self, endpoint: str, data: dict = None, content: bytes = None) -> dict:
+    def _request_api(self, endpoint: str, data: dict = None, content: bytes = None, retry_auth: bool = True) -> dict:
         """Make API request to api.dropboxapi.com.
 
         Used for metadata operations, sharing, and Paper export/import.
@@ -50,6 +113,7 @@ class DropboxClient:
             endpoint: API endpoint (e.g., "/2/files/get_metadata")
             data: JSON data to send in request body
             content: Optional binary content for requests like /files/import
+            retry_auth: Whether to retry once on auth failure
 
         Returns:
             dict with API response (parsed JSON)
@@ -92,11 +156,15 @@ class DropboxClient:
         except urllib.error.HTTPError as e:
             error_body = e.read().decode('utf-8') if e.fp else ''
 
+            # Retry once on 401 (token might be expired)
+            if e.code == 401 and retry_auth:
+                self.access_token = None  # Force token refresh
+                return self._request_api(endpoint, data, content, retry_auth=False)
+
             if e.code == 401:
                 raise ValueError(
                     f"Dropbox authentication failed (401 Unauthorized). "
-                    f"Check your access token. Get a new token at: "
-                    f"https://www.dropbox.com/developers/apps"
+                    f"Check your access token or refresh token credentials."
                 )
             elif e.code == 403:
                 raise ValueError(
@@ -133,7 +201,7 @@ class DropboxClient:
         except urllib.error.URLError as e:
             raise ConnectionError(f"Network error connecting to Dropbox: {e.reason}")
 
-    def _request_content(self, endpoint: str, api_arg: dict, upload_content: bytes = None) -> tuple:
+    def _request_content(self, endpoint: str, api_arg: dict, upload_content: bytes = None, retry_auth: bool = True) -> tuple:
         """Make content request to content.dropboxapi.com.
 
         Used for file download and upload operations.
@@ -142,6 +210,7 @@ class DropboxClient:
             endpoint: API endpoint (e.g., "/2/files/download")
             api_arg: JSON data for Dropbox-API-Arg header
             upload_content: Optional binary content for uploads
+            retry_auth: Whether to retry once on auth failure
 
         Returns:
             tuple of (response_metadata: dict, content: bytes)
@@ -154,7 +223,7 @@ class DropboxClient:
         url = f"https://content.dropboxapi.com{endpoint}"
 
         headers = {
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self._get_access_token()}",
             "Dropbox-API-Arg": json.dumps(api_arg)
         }
 
@@ -181,10 +250,15 @@ class DropboxClient:
         except urllib.error.HTTPError as e:
             error_body = e.read().decode('utf-8') if e.fp else ''
 
+            # Retry once on 401 (token might be expired)
+            if e.code == 401 and retry_auth:
+                self.access_token = None  # Force token refresh
+                return self._request_content(endpoint, api_arg, upload_content, retry_auth=False)
+
             if e.code == 401:
                 raise ValueError(
                     f"Dropbox authentication failed (401 Unauthorized). "
-                    f"Check your access token."
+                    f"Check your access token or refresh token credentials."
                 )
             elif e.code == 409:
                 # Parse error for more specific message
@@ -292,7 +366,7 @@ class DropboxClient:
 
             url = "https://content.dropboxapi.com/2/files/export"
             headers = {
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self._get_access_token()}",
                 "Dropbox-API-Arg": json.dumps(api_arg)
             }
 
@@ -305,6 +379,27 @@ class DropboxClient:
                     return content
             except urllib.error.HTTPError as e:
                 error_body = e.read().decode('utf-8') if e.fp else ''
+
+                # Retry once on 401 (token might be expired)
+                if e.code == 401:
+                    self.access_token = None  # Force token refresh
+                    # Retry the export request
+                    headers["Authorization"] = f"Bearer {self._get_access_token()}"
+                    req = urllib.request.Request(url, headers=headers, method='POST')
+                    try:
+                        with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                            content = response.read()
+                            return content
+                    except urllib.error.HTTPError as retry_e:
+                        error_body = retry_e.read().decode('utf-8') if retry_e.fp else ''
+                        if retry_e.code == 401:
+                            raise ValueError(
+                                f"Dropbox authentication failed (401 Unauthorized). "
+                                f"Check your access token or refresh token credentials."
+                            )
+                        # Let other errors fall through to original error handling below
+                        e = retry_e
+
                 if e.code == 404:
                     raise ValueError(
                         f"File export failed (404). This may indicate:\n"
@@ -510,7 +605,7 @@ class DropboxClient:
 
         url = "https://api.dropboxapi.com/2/files/paper/update"
         headers = {
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self._get_access_token()}",
             "Dropbox-API-Arg": json.dumps(api_arg),
             "Content-Type": "application/octet-stream"
         }
@@ -530,10 +625,32 @@ class DropboxClient:
         except urllib.error.HTTPError as e:
             error_body = e.read().decode('utf-8') if e.fp else ''
 
+            # Retry once on 401 (token might be expired)
+            if e.code == 401:
+                self.access_token = None  # Force token refresh
+                # Retry the update request
+                headers["Authorization"] = f"Bearer {self._get_access_token()}"
+                req = urllib.request.Request(url, data=content_bytes, headers=headers, method='POST')
+                try:
+                    with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                        response_body = response.read().decode('utf-8')
+                        if response_body:
+                            return json.loads(response_body)
+                        return {}
+                except urllib.error.HTTPError as retry_e:
+                    error_body = retry_e.read().decode('utf-8') if retry_e.fp else ''
+                    if retry_e.code == 401:
+                        raise ValueError(
+                            f"Dropbox authentication failed (401 Unauthorized). "
+                            f"Check your access token or refresh token credentials."
+                        )
+                    # Let other errors fall through to original error handling below
+                    e = retry_e
+
             if e.code == 401:
                 raise ValueError(
                     f"Dropbox authentication failed (401 Unauthorized). "
-                    f"Check your access token."
+                    f"Check your access token or refresh token credentials."
                 )
             elif e.code == 409:
                 try:
@@ -641,7 +758,12 @@ def main():
     try:
         from sidekick.config import get_dropbox_config
         config = get_dropbox_config()
-        client = DropboxClient(config["access_token"])
+        client = DropboxClient(
+            access_token=config.get("access_token"),
+            refresh_token=config.get("refresh_token"),
+            app_key=config.get("app_key"),
+            app_secret=config.get("app_secret")
+        )
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
