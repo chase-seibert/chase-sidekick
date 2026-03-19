@@ -25,7 +25,6 @@ The output follows a consistent template format suitable for executive communica
 
 ## Prerequisites
 
-- **pandoc** installed: `brew install pandoc`
 - **Configured credentials** in `.env` file:
   - `ATLASSIAN_EMAIL` and `ATLASSIAN_API_TOKEN` for Confluence and JIRA access
 - Valid Confluence URL to an MMR page
@@ -39,11 +38,10 @@ The agent is invoked through Claude Code by providing an MMR Confluence URL:
 ```
 
 The agent will:
-1. Fetch the Confluence page HTML
-2. Convert to markdown for parsing
-3. Extract and enrich JIRA issues
-4. Generate a structured executive summary
-5. Save to `memory/mmr_exec_summary/[slug].md`
+1. Fetch the Confluence page as Markdown
+2. Extract and enrich JIRA issues
+3. Generate a structured executive summary
+4. Save to `memory/mmr_exec_summary/[slug].md`
 
 **Note**: This agent runs with `auto-approve: true`, meaning all commands execute without user confirmation for streamlined processing.
 
@@ -59,12 +57,6 @@ mkdir -p $TMP_DIR
 # Set up cleanup trap
 trap "rm -rf $TMP_DIR" EXIT
 
-# Validate prerequisites
-if ! command -v pandoc &> /dev/null; then
-  echo "Error: pandoc not found. Install with: brew install pandoc" >&2
-  exit 1
-fi
-
 # Extract Confluence URL from user argument
 CONFLUENCE_URL="$1"
 if [ -z "$CONFLUENCE_URL" ]; then
@@ -75,24 +67,15 @@ fi
 
 echo "Fetching MMR document from Confluence..."
 
-# Fetch Confluence content as HTML
-python3 -m sidekick.clients.confluence get-content-from-link "$CONFLUENCE_URL" > $TMP_DIR/mmr.html 2>&1
+# Fetch Confluence content as Markdown (default)
+python3 -m sidekick.clients.confluence get-content-from-link "$CONFLUENCE_URL" > $TMP_DIR/mmr.md 2>&1
 if [ $? -ne 0 ]; then
   echo "Error: Failed to fetch Confluence page" >&2
-  cat $TMP_DIR/mmr.html >&2
+  cat $TMP_DIR/mmr.md >&2
   exit 1
 fi
 
-echo "✓ Fetched $(wc -l < $TMP_DIR/mmr.html | tr -d ' ') lines of HTML"
-
-# Convert HTML to Markdown using pandoc
-python3 -m sidekick.clients.markdown from-html $TMP_DIR/mmr.html $TMP_DIR/mmr.md
-if [ $? -ne 0 ]; then
-  echo "Error: Failed to convert HTML to markdown" >&2
-  exit 1
-fi
-
-echo "✓ Converted to $(wc -l < $TMP_DIR/mmr.md | tr -d ' ') lines of markdown"
+echo "✓ Fetched and converted to $(wc -l < $TMP_DIR/mmr.md | tr -d ' ') lines of markdown"
 ```
 
 ### Phase 2: Extract and Fetch JIRA Issues
@@ -425,8 +408,8 @@ echo "✓ Generated executive summary"
 # Create output directory
 mkdir -p memory/mmr_exec_summary
 
-# Generate filename slug from page title
-TITLE=$(grep -o '<title>[^<]*</title>' $TMP_DIR/mmr.html | sed 's/<[^>]*>//g' | sed 's/ - Confluence$//' | sed 's/ - [A-Za-z]* Confluence$//')
+# Generate filename slug from page title (extract first heading from markdown)
+TITLE=$(head -20 $TMP_DIR/mmr.md | grep -m1 '^# ' | sed 's/^# //' | sed 's/ - Confluence$//' | sed 's/ - [A-Za-z]* Confluence$//')
 
 # Convert to slug: lowercase, spaces to hyphens, remove special chars
 SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//')
@@ -521,12 +504,7 @@ Common issues and mitigations:
    - Continues with available data
    - Generates summary with "N/A" for missing sections
 
-4. **pandoc not installed**:
-   - Validates at start of execution
-   - Provides installation command
-   - Exits early with clear error message
-
-5. **Malformed markdown**:
+4. **Malformed markdown**:
    - Uses flexible sed patterns
    - Tries multiple patterns for section extraction
    - Falls back to basic extraction if specific patterns fail
@@ -565,8 +543,7 @@ User: "Create an executive summary for the January MMR"
       "URL: https://company.atlassian.net/wiki/spaces/ENG/pages/1234567890"
 
 Agent execution:
-✓ Fetched 8234 lines of HTML
-✓ Converted to 7333 lines of markdown
+✓ Fetched and converted to 7333 lines of markdown
 Found 15 unique JIRA issues in MMR document
 ✓ Successfully fetched 12 JIRA issues
 ✓ Extracted Key Improvements (42 lines)
@@ -637,8 +614,7 @@ Final output saved to `memory/mmr_exec_summary/`:
 - `[page-slug].md` - The executive summary (only file in directory)
 
 Intermediate artifacts in `/tmp/mmr_exec_summary_$$/` (auto-cleaned):
-- `mmr.html` - Raw HTML from Confluence
-- `mmr.md` - Converted markdown (7000+ lines)
+- `mmr.md` - Markdown from Confluence (7000+ lines)
 - `summary_section.txt` - Extracted Summary section
 - `key_improvements.txt` - Key Improvements bullet points
 - `key_concerns.txt` - Key Concerns bullet points

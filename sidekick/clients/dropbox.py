@@ -290,7 +290,8 @@ class DropboxClient:
         Returns:
             True if Paper doc link, False otherwise
         """
-        return 'paper.dropbox.com' in link.lower()
+        link_lower = link.lower()
+        return 'paper.dropbox.com' in link_lower or '.paper' in link_lower
 
     def _is_paper_file(self, metadata: dict) -> bool:
         """Check if file metadata indicates a Paper doc.
@@ -479,8 +480,9 @@ class DropboxClient:
         url: str,
         path: Optional[str] = None,
         link_password: Optional[str] = None,
-        override_download_setting: bool = False
-    ) -> bytes:
+        override_download_setting: bool = False,
+        return_markdown: bool = True
+    ) -> Union[bytes, str]:
         """Export content from file accessed via shared link.
 
         Downloads file content directly from a shared link without resolving to path first.
@@ -488,7 +490,8 @@ class DropboxClient:
         This is the ONLY way to get content of a Paper doc you don't own.
 
         IMPORTANT for Paper docs:
-        - The returned HTML includes extensive CSS and formatting not present in get-paper-contents
+        - By default (return_markdown=True), converts HTML to clean Markdown
+        - The raw HTML includes extensive CSS and formatting
         - Use get-paper-contents for Paper docs you own when doing read-write workflows
         - Use export-shared-link for Paper docs you don't own (read-only team space access)
 
@@ -497,9 +500,10 @@ class DropboxClient:
             path: Optional path within shared folder to specific file
             link_password: Optional password for password-protected links
             override_download_setting: Internal flag to override download restrictions
+            return_markdown: If True (default) and link is Paper doc, convert HTML to Markdown
 
         Returns:
-            bytes with file content
+            str with Markdown content (default for Paper docs), or bytes with raw file content
 
         Raises:
             ValueError: If link not found, access denied, or file not exportable
@@ -518,6 +522,13 @@ class DropboxClient:
 
         # Use _request_content for consistent error handling
         metadata, content = self._request_content("/2/sharing/export_shared_link", api_arg)
+
+        # Convert to markdown by default for Paper docs
+        if return_markdown and self._is_paper_link(url):
+            from sidekick.clients.markdown import MarkdownConverter
+            converter = MarkdownConverter()
+            html_str = content.decode('utf-8')
+            return converter.convert_html_to_markdown(html_str)
 
         return content
 
@@ -744,7 +755,7 @@ def main():
         print("", file=sys.stderr)
         print("Commands:", file=sys.stderr)
         print("  get-file-contents <path>", file=sys.stderr)
-        print("  export-shared-link <url> [--path <path>] [--password <password>] [--override-download]", file=sys.stderr)
+        print("  export-shared-link <url> [--path <path>] [--password <password>] [--override-download] [--html]", file=sys.stderr)
         print("  get-metadata <path>", file=sys.stderr)
         print("  get-paper-contents <path> [--format markdown|html]", file=sys.stderr)
         print("  get-paper-contents-from-link <share_link> [--format markdown|html]", file=sys.stderr)
@@ -896,6 +907,7 @@ def main():
             path = None
             link_password = None
             override_download_setting = False
+            return_markdown = True  # Default to Markdown
 
             # Parse optional flags
             i = 3
@@ -909,13 +921,20 @@ def main():
                 elif sys.argv[i] == "--override-download":
                     override_download_setting = True
                     i += 1
+                elif sys.argv[i] == "--html":  # Get HTML instead of Markdown
+                    return_markdown = False
+                    i += 1
                 else:
                     i += 1
 
-            content = client.export_shared_link(url, path, link_password, override_download_setting)
+            content = client.export_shared_link(url, path, link_password,
+                                               override_download_setting, return_markdown)
 
-            # Write binary content to stdout
-            sys.stdout.buffer.write(content)
+            # Write content to stdout
+            if isinstance(content, str):
+                print(content)
+            else:
+                sys.stdout.buffer.write(content)
 
         else:
             print(f"Error: Unknown command '{command}'", file=sys.stderr)

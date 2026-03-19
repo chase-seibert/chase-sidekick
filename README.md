@@ -73,6 +73,10 @@ Get running in 60 seconds with the JIRA skill:
 git clone https://github.com/chase-seibert/chase-sidekick.git
 cd chase-sidekick
 
+# Install dependencies (if not already installed)
+brew install pandoc          # For Markdown conversion
+brew install tidy-html5      # For HTML cleaning (recommended)
+
 # Configure credentials
 cp .env.example .env
 # Edit .env with your JIRA details:

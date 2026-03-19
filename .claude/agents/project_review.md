@@ -43,7 +43,7 @@ mkdir -p /tmp/project_review_$$
 
 **For Confluence pages:**
 ```bash
-python -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > /tmp/project_review_$$/doc_name.html
+python -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > /tmp/project_review_$$/doc_name.md
 ```
 
 **For Dropbox Paper docs:**
@@ -406,7 +406,7 @@ mkdir -p memory/project_review
 # Link 2: https://example.com/docs/project-brief
 
 # Fetch Confluence page
-python -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > $TMP_DIR/tech_spec.html
+python -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > $TMP_DIR/tech_spec.md
 
 # Fetch Paper doc
 python -m sidekick.clients.dropbox get-paper-contents-from-link "https://example.com/docs/project-brief" > $TMP_DIR/prd.md
@@ -438,7 +438,7 @@ cat memory/project_review/basic-gating-review.md
 
 # Re-fetch documents
 python -m sidekick.clients.dropbox get-paper-contents-from-link "$PRD_LINK" > $TMP_DIR/prd-new.md
-python -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > $TMP_DIR/tech-spec-new.html
+python -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > $TMP_DIR/tech-spec-new.md
 
 # Compare with previous versions
 # Update report sections that changed

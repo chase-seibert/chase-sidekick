@@ -12,11 +12,19 @@ class MarkdownConverter:
     """Convert between markdown and other formats using pandoc."""
 
     def __init__(self):
-        """Initialize converter."""
+        """Initialize converter and check dependencies."""
+        # Check pandoc is available
         if not shutil.which('pandoc'):
             raise RuntimeError(
                 "pandoc not found. Install with: brew install pandoc"
             )
+
+        # Check tidy is available (optional but recommended)
+        self.tidy_available = shutil.which('tidy') is not None
+        if not self.tidy_available:
+            print("Warning: tidy-html5 not found. Install with: brew install tidy-html5",
+                  file=sys.stderr)
+            print("HTML cleaning will be skipped.", file=sys.stderr)
 
     def convert_to_pdf(
         self,
@@ -131,6 +139,99 @@ class MarkdownConverter:
             )
 
         return output_path
+
+    def convert_html_to_markdown(
+        self,
+        html_content: str,
+        format: str = 'markdown',
+        clean_html: bool = True
+    ) -> str:
+        """Convert HTML string to markdown string in-memory using pandoc.
+
+        Uses stdin/stdout for efficient in-memory conversion without temp files.
+        Optionally cleans HTML with tidy-html5 before conversion for better output.
+        Handles large files by truncating to first ~10MB before processing.
+
+        Args:
+            html_content: HTML content as string
+            format: Markdown format variant (markdown, markdown_github, markdown_strict,
+                    markdown_mmd, markdown_phpextra)
+            clean_html: If True and tidy is available, clean HTML before conversion
+
+        Returns:
+            Markdown content as string
+
+        Raises:
+            RuntimeError: If pandoc conversion fails
+            ValueError: If invalid format specified
+        """
+        # Validate format
+        valid_formats = ['markdown', 'markdown_github', 'markdown_strict',
+                        'markdown_mmd', 'markdown_phpextra']
+        if format not in valid_formats:
+            raise ValueError(
+                f"Invalid format: {format}. Valid formats: {', '.join(valid_formats)}"
+            )
+
+        # Handle large files by truncating to first ~10MB
+        MAX_SIZE = 10 * 1024 * 1024  # 10MB
+        if len(html_content.encode('utf-8')) > MAX_SIZE:
+            # Truncate to first 10MB worth of characters (approximate)
+            char_limit = MAX_SIZE // 2  # Rough estimate for UTF-8
+            html_content = html_content[:char_limit]
+            # Try to close at a tag boundary to avoid breaking HTML
+            last_close = html_content.rfind('>')
+            if last_close > char_limit - 1000:  # Within last 1000 chars
+                html_content = html_content[:last_close + 1]
+
+        # Clean HTML with tidy if available and requested
+        if clean_html and self.tidy_available:
+            tidy_cmd = [
+                'tidy',
+                '-q',  # Quiet mode
+                '--show-warnings', 'no',  # Suppress warnings
+                '--show-errors', '0',  # Suppress errors
+                '--force-output', 'yes',  # Output even if errors
+                '--wrap', '0',  # No line wrapping
+                '--drop-empty-elements', 'no',  # Keep structure
+                '-ashtml',  # Treat as HTML
+                '-utf8'  # UTF-8 encoding
+            ]
+
+            try:
+                tidy_result = subprocess.run(
+                    tidy_cmd,
+                    input=html_content.encode('utf-8'),
+                    capture_output=True,
+                    check=False  # Tidy returns non-zero even on success
+                )
+                # Use cleaned output if successful
+                if tidy_result.stdout:
+                    html_content = tidy_result.stdout.decode('utf-8')
+            except Exception:
+                # If tidy fails, continue with original HTML
+                pass
+
+        # Build pandoc command
+        cmd = [
+            'pandoc',
+            '-f', 'html',
+            '-t', format
+        ]
+
+        try:
+            result = subprocess.run(
+                cmd,
+                input=html_content.encode('utf-8'),
+                capture_output=True,
+                check=True
+            )
+            return result.stdout.decode('utf-8')
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                f"Pandoc conversion failed:\n{e.stderr.decode('utf-8')}\n\n"
+                f"Command: {' '.join(cmd)}"
+            )
 
     def convert(self, *args, **kwargs) -> str:
         """Backward compatibility alias for convert_to_pdf."""

@@ -391,14 +391,15 @@ class ConfluenceClient:
 
         return self._request("GET", endpoint, params=params)
 
-    def get_page_content(self, page_id: str) -> str:
-        """Get page content in storage format (HTML).
+    def get_page_content(self, page_id: str, return_markdown: bool = True) -> str:
+        """Get page content as Markdown or HTML storage format.
 
         Args:
             page_id: Confluence page ID
+            return_markdown: If True (default), convert HTML to Markdown using pandoc
 
         Returns:
-            HTML content string in storage format
+            Markdown content string (default) or HTML content in storage format
 
         Raises:
             ValueError: If page not found or content not available
@@ -406,7 +407,15 @@ class ConfluenceClient:
         page = self.get_page(page_id, expand=['body.storage'])
 
         try:
-            return page['body']['storage']['value']
+            html_content = page['body']['storage']['value']
+
+            # Convert to markdown by default
+            if return_markdown:
+                from sidekick.clients.markdown import MarkdownConverter
+                converter = MarkdownConverter()
+                return converter.convert_html_to_markdown(html_content)
+
+            return html_content
         except (KeyError, TypeError):
             raise ValueError(f"Could not extract content from page {page_id}")
 
@@ -453,27 +462,41 @@ class ConfluenceClient:
 
         return self.get_page(page_id)
 
-    def get_content_from_link(self, link: str) -> str:
+    def get_content_from_link(self, link: str, return_markdown: bool = True) -> str:
         """Get page content from any Confluence link format.
 
         This is a convenience method that combines get_page_from_link and
-        extracts just the HTML content.
+        extracts the content, converting to Markdown by default.
 
         Args:
             link: Confluence page URL (e.g., https://domain.atlassian.net/wiki/x/HYeVwQ)
+            return_markdown: If True (default), convert HTML to Markdown using pandoc
 
         Returns:
-            HTML content string in storage format
+            Markdown content string (default) or HTML content in storage format
 
         Raises:
             ValueError: If link cannot be parsed or page not found
 
         Example:
-            content = client.get_content_from_link("https://dropbox.atlassian.net/wiki/x/HYeVwQ")
+            # Get as Markdown (default)
+            markdown = client.get_content_from_link("https://company.atlassian.net/wiki/x/ABC")
+
+            # Get as HTML
+            html = client.get_content_from_link("https://company.atlassian.net/wiki/x/ABC",
+                                                return_markdown=False)
         """
         page = self.get_page_from_link(link)
         try:
-            return page['body']['storage']['value']
+            html_content = page['body']['storage']['value']
+
+            # Convert to markdown by default
+            if return_markdown:
+                from sidekick.clients.markdown import MarkdownConverter
+                converter = MarkdownConverter()
+                return converter.convert_html_to_markdown(html_content)
+
+            return html_content
         except (KeyError, TypeError):
             raise ValueError(f"Could not extract content from page at link: {link}")
 
@@ -1036,8 +1059,8 @@ class ConfluenceClient:
         except Exception as e:
             print(f"[Warning] Could not verify page restrictions: {e}", file=sys.stderr)
 
-        # Get current content
-        content = self.get_page_content(page_id)
+        # Get current content (HTML for manipulation)
+        content = self.get_page_content(page_id, return_markdown=False)
 
         # Add topic to the section
         updated_content = _add_topic_to_html(content, topic, section_header)
@@ -1091,9 +1114,9 @@ class ConfluenceClient:
 
         # Generate content
         if template_link:
-            # Fetch content from template page
+            # Fetch content from template page (HTML for manipulation)
             print(f"Fetching template from: {template_link}", file=sys.stderr)
-            content = self.get_content_from_link(template_link)
+            content = self.get_content_from_link(template_link, return_markdown=False)
 
             # Replace template variables if paper_doc_url is provided
             if paper_doc_url:
@@ -1253,8 +1276,8 @@ def main():
         get-page <page-id>
         get-page-by-title <title> <space>
         get-page-from-link <url>
-        get-content-from-link <url>
-        read-page <page-id>
+        get-content-from-link <url> [--html]
+        read-page <page-id> [--html]
         create-page <space> <title> <content-file> [--parent PAGE-ID]
         update-page <page-id> <content-file> [--title TITLE]
         add-topic-to-oneonone <person-name> <topic> [--section SECTION]
@@ -1272,8 +1295,8 @@ def main():
         print("  get-page <page-id>")
         print("  get-page-by-title <title> <space>")
         print("  get-page-from-link <url>")
-        print("  get-content-from-link <url>")
-        print("  read-page <page-id>")
+        print("  get-content-from-link <url> [--html]")
+        print("  read-page <page-id> [--html]")
         print("  create-page <space> <title> <content-file> [--parent PAGE-ID]")
         print("  update-page <page-id> <content-file> [--title TITLE]")
         print("  add-topic-to-oneonone <person-name> <topic> [--section SECTION]")
@@ -1360,22 +1383,25 @@ def main():
 
         elif command == "get-content-from-link":
             if len(sys.argv) < 3:
-                print("Usage: get-content-from-link <url>", file=sys.stderr)
+                print("Usage: get-content-from-link <url> [--html]", file=sys.stderr)
                 sys.exit(1)
 
             link = sys.argv[2]
-            content = client.get_content_from_link(link)
+            return_markdown = "--html" not in sys.argv[3:]  # Markdown by default
+
+            content = client.get_content_from_link(link, return_markdown=return_markdown)
             print(content)
 
         elif command == "read-page":
             if len(sys.argv) < 3:
-                print("Usage: read-page <page-id>", file=sys.stderr)
+                print("Usage: read-page <page-id> [--html]", file=sys.stderr)
                 sys.exit(1)
 
             page_id = sys.argv[2]
+            return_markdown = "--html" not in sys.argv[3:]  # Markdown by default
 
             # Get and print content
-            content = client.get_page_content(page_id)
+            content = client.get_page_content(page_id, return_markdown=return_markdown)
             print(content)
 
         elif command == "create-page":
