@@ -11,6 +11,8 @@ Manage Confluence pages with search, read, and write operations.
 
 When invoked, use the Confluence client to handle the request: $ARGUMENTS
 
+**Note:** Confluence commands return Markdown by default. Use `--html` flag only if you need raw HTML for content manipulation.
+
 ## Available Commands
 
 ### Search for Pages
@@ -30,7 +32,11 @@ python -m sidekick.clients.confluence get-page-by-title "Title" SPACE
 
 ### Read Page Content
 ```bash
+# Returns Markdown by default
 python -m sidekick.clients.confluence read-page PAGE_ID
+
+# For raw HTML (content manipulation)
+python -m sidekick.clients.confluence read-page PAGE_ID --html
 ```
 
 ### Create New Page

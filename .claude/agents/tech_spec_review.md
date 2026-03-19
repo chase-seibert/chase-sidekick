@@ -11,8 +11,7 @@ You are a reviewer of estimates on tech specs. Your job is to produce a report i
 How to gather information:
 - Read this current project doc
 - Read recent projects in CLAUDE.local.md
-- For each document use /confluence, /dropbox or /gsheets skills
-- If the contents are HMTL, convert to Markdown before doing any analysis using /markdown skill 
+- For each document use /confluence, /dropbox or /gsheets skills (note: they return Markdown by default)
 - For all projects, look for a table of tasks and estimates 
 - Normalize all estimates to hours (assume 30 hours/week/engineer, or 3600 seconds/hour from JIRA)
 - Write an executive summary 

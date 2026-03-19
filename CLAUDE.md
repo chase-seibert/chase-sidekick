@@ -157,7 +157,7 @@ When updating documentation that approaches this limit:
 
 ### Running
 - Highlight in output any files that did not exist, or URLs that 404ed
-- When calling client functions that return HTML, use the /markdown skill to convert to Markdown before trying to do something with the results
+- Confluence and Dropbox clients return Markdown by default (use `--html` flag if you need raw HTML for content manipulation)
 
 ### Providing local context
 The `CLAUDE.local.md` contains context on 1:1 docs, meeting docs, teams, people, and projects. 

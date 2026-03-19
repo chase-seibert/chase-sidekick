@@ -11,10 +11,7 @@ Command-line interface for Dropbox file and Paper doc operations.
 
 When invoked, use the Dropbox client to handle the request: $ARGUMENTS
 
-**Special handling for Paper docs via export-shared-link:**
-- The command returns HTML with extensive CSS
-- Always convert the HTML output to Markdown before presenting to the user
-- This ensures readable output for Paper documents accessed from team space
+**Note:** Dropbox commands return Markdown by default for Paper documents. Use `--html` flag only if you need raw HTML for content manipulation.
 
 ## Available Commands
 
@@ -27,25 +24,20 @@ python -m sidekick.clients.dropbox get-file-contents /path/to/file.txt
 
 Download file content directly from a shared link. **Primary use: accessing team space files you don't own.**
 
-This is the ONLY way to get Paper doc content you don't own. The returned content is HTML with extensive CSS/formatting.
+This is the ONLY way to get Paper doc content you don't own.
 
-**For Paper docs: Convert HTML to Markdown**
+**For Paper docs:** Returns Markdown by default. Use `--html` flag only if you need raw HTML for content manipulation.
 
-When using export-shared-link for Paper docs, always convert the HTML output to Markdown:
-
-1. Run the export-shared-link command
-2. Convert the HTML output to Markdown format
-3. Present the Markdown to the user
-
-Example workflow:
+Example:
 ```bash
-# Export Paper doc (returns HTML)
-python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/Doc.paper?dl=0" > doc.html
+# Export Paper doc (returns Markdown by default)
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/Doc.paper?dl=0"
 
-# Claude: Convert doc.html to Markdown automatically and present to user
+# For HTML (content manipulation):
+python -m sidekick.clients.dropbox export-shared-link "https://www.dropbox.com/s/abc123/Doc.paper?dl=0" --html
 ```
 
-Use `get-paper-contents` for Paper docs you own when doing read-write workflows (returns cleaner Markdown directly).
+Use `get-paper-contents` for Paper docs you own when doing read-write workflows.
 
 For a specific file in a shared folder:
 
