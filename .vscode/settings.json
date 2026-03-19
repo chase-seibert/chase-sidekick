@@ -1,3 +1,5 @@
 {
-  "python.terminal.activateEnvironment": false
+  "python.terminal.activateEnvironment": false,
+  "terminal.integrated.enableBell": true,                                          
+  "terminal.integrated.bellDuration": 1000         
 }
