@@ -8,7 +8,7 @@ auto-approve: true
 
 # Weekly Report Agent
 
-Generate am executive summary of notes from your 1:1 docs, meeting docs, and Slack conversations for the past week(s), organized by audience.
+Generate am executive summary of notes from your 1:1 docs, meeting docs, and Slack conversations for the past week(s), organized by audience. With references.
 
 ## Overview
 
@@ -31,22 +31,7 @@ These may be Confluence pages or Dropbox Paper docs
 
 ### Step 2: Fetch Recent Content
 
-For each document, fetch the content:
-
-Create output directory first:
-```bash
-mkdir -p memory/weekly_report
-```
-
-**For Confluence pages:**
-```bash
-python -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > memory/weekly_report/doc_name.html
-```
-
-**For Dropbox Paper docs:**
-```bash
-python -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > memory/weekly_report/doc_name.md
-```
+For each document, fetch the content
 
 For Slacks, use the Dash MCP to read recent channel contents, i.e. last 10 days
 
@@ -111,39 +96,10 @@ Thank yous for specific people:
 - Print a list of documents and Slack channels were read successfully, and also those that errored out trying to retrieve the contents. 
 - Echo the actual executive summary contents in the chat, AND link to a file version if you have it
 
+### Step 6: Write to memory
 
-## Example Workflow
+Write or overwrite file at memory/weekly_report.md with is report contents
 
-```bash
-# Create output directory
-mkdir -p memory/weekly_report
-
-# Fetch all Paper docs from your CLAUDE.local.md
-for url in \
-  "<PAPER_URL_1>" \
-  "<PAPER_URL_2>" \
-  "<PAPER_URL_3>"
-  # ... add all your Paper doc URLs
-do
-  python -m sidekick.clients.dropbox get-paper-contents-from-link "$url" >> memory/weekly_report/all_docs.md
-  echo "\n\n---\n\n" >> memory/weekly_report/all_docs.md
-done
-
-# Fetch Confluence pages from your CLAUDE.local.md
-for url in \
-  "<CONFLUENCE_URL_1>" \
-  "<CONFLUENCE_URL_2>"
-  # ... add all your Confluence URLs
-do
-  python -m sidekick.clients.confluence get-content-from-link "$url" >> memory/weekly_report/all_docs.html
-  echo "\n\n---\n\n" >> memory/weekly_report/all_docs.html
-done
-
-# Use Dash MCP for Slack
-# Review memory/weekly_report/all_docs.md and memory/weekly_report/all_docs.html
-# Extract and categorize recent notes manually
-# Files are preserved in memory/weekly_report/ for future reference
-```
 
 ## Tips
 
