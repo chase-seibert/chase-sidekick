@@ -31,9 +31,15 @@ These may be Confluence pages or Dropbox Paper docs
 
 ### Step 2: Fetch Recent Content
 
-For each document, fetch the content
+For each document, fetch the content.
 
-For Slacks, use the Dash MCP to read recent channel contents, i.e. last 10 days
+**For Slack channels**, use the `/slack` skill to read messages from the last 10 days:
+1. Calculate date 10 days ago: `date -v-10d '+%Y-%m-%d'`
+2. Use `slack_search_messages` with `after:YYYY-MM-DD in:#channel-name` query and pagination
+3. Format results as Markdown (see `/slack` skill for formatting example)
+4. Save to `memory/weekly_report/slack-channel-name.md`
+
+**For Confluence and Paper docs**, use the respective clients to fetch content.
 
 The fetched content will be saved in `memory/weekly_report/` for review and won't be deleted. Keep track of docs that error out so we can print them out at the end. 
 
