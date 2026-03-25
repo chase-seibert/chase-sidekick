@@ -1,6 +1,5 @@
 {
   "python.terminal.activateEnvironment": false,
-  
   "terminal.integrated.bellDuration": 1000,
   "accessibility.signals.terminalBell": {
     "sound": "on"

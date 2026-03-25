@@ -8,7 +8,7 @@ auto-approve: true
 
 # Weekly Report Agent
 
-Generate am executive summary of notes from your 1:1 docs, meeting docs, and Slack conversations for the past week(s), organized by audience. With references.
+Generate am executive summary of notes from your 1:1 docs, meeting docs, and Slack conversations for the past week(s), organized by audience. With references. Aim for 20+ total docs or channels.
 
 ## Overview
 
@@ -26,7 +26,7 @@ This agent helps you:
 
 ### Step 1: List Your Documents
 
-Get all 1:1 docs, meeting docs, and Slack channels from `CLAUDE.local.md`
+Get all 1:1 docs, meeting docs, and Slack channels and Slack DMs from `CLAUDE.local.md`
 These may be Confluence pages or Dropbox Paper docs
 
 ### Step 2: Fetch Recent Content
