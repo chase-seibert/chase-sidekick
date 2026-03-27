@@ -35,19 +35,9 @@ mkdir -p memory/kudos
 
 ### Step 2: Fetch Recent Content
 
-For each document in `CLAUDE.local.md`, fetch the content:
-
-**For Confluence pages:**
-```bash
-python3 -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > memory/kudos/doc_name.html
-```
-
-**For Dropbox Paper docs:**
-```bash
-python3 -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > memory/kudos/doc_name.md
-```
-
-Keep track of docs that error out to report at the end.
+For each 1:1 document in `CLAUDE.local.md`, fetch the content
+Also look in recent Slack channels and DMs
+Keep track of docs that error out to report at the end
 
 ### Step 3: Review and Extract Kudos
 
