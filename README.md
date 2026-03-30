@@ -12,7 +12,7 @@ Here are examples of complex multi-skill tasks you can ask Claude Code to handle
 "Download all the files linked to my calendar events for this week, and generate
 a list of bullets as a summary for executive leadership"
 
-"For all teams that report to me, look up completed work across JIRA Epics for 
+"For all teams that report to me, look up completed work across JIRA Epics for
 the past 30 days and generate a team accomplishments report with kudos to specific engineers"
 
 "Migrate Paper 1:1 docs to Confluence for direct reports with restricted access and update
@@ -24,6 +24,8 @@ themes, decisions, and action items by person"
 "Find my most recent Zoom meeting with a transcript and generate a structured summary
 with key topics, decisions, and follow-up items"
 ```
+
+**Plus, trigger Claude from your phone:** Email yourself with "Claude" in the subject, get results via reply within 5 minutes. Ask for JIRA queries, file listings, or run any skill - all from your mobile email app.
 
 Note that these exact scenarios are not hard coded anywhere; Claude can combine existing client code and Skills on the fly to do these, all from natural language prompts. 
 
@@ -262,6 +264,9 @@ chase-sidekick/
 │   └── agents/              # Multi-step workflows
 │       ├── weekly_report.md    # Generate weekly summaries
 │       └── project_review.md   # Generate project status reports
+├── tools/
+│   ├── email_trigger_watcher.py  # Phone-to-desktop email triggers
+│   └── prep_tomorrow_meetings.py # Open meeting docs in browser
 ├── sidekick/
 │   ├── config.py            # Load from .env
 │   └── clients/             # Single-file service clients
@@ -298,6 +303,7 @@ Current skills (each is a single-file client + markdown docs):
 - **Markdown to PDF** - Convert docs with pandoc
 - **Transcript** - Save conversation transcripts as markdown to memory/transcripts
 - **Welcome Doc** - Create personalized employee onboarding documents in Confluence
+- **Email Triggers** - Trigger Claude Code from your phone via email (tools/email_trigger_watcher.py)
 
 
 ## Configuration
@@ -348,7 +354,38 @@ It also has connectors for Jira and Confluence; which has long-lived authenticat
    "Find my recent Zoom meetings and summarize the transcripts"
    ```
 
-Try adding your most important Slack channels to `CLAUDE.local.md` for quick context. 
+Try adding your most important Slack channels to `CLAUDE.local.md` for quick context.
+
+## Phone to Desktop: Email Triggers
+
+You can trigger Claude Code from your phone by sending yourself an email. 
+
+### Setup
+
+**Prerequisites:**
+- Gmail client must be configured (see [Gmail skill](.claude/skills/gmail/README.md) for OAuth setup)
+- Claude Code CLI must be available in PATH (`/Users/username/.local/bin/claude`)
+- Python 3 installed
+
+**Setup:**
+
+1. **Configure allowed sender emails** in `.env`:
+
+   Add your email addresses (comma-separated for multiple):
+   ```bash
+   CLAUDE_TRIGGER_EMAILS=your-work@company.com,your-personal@email.com
+   ```
+
+2. **Add to system crontab** (runs every 5 minutes):
+
+   ```bash
+   crontab -e
+   ```
+
+   Add this line (replace paths if needed):
+   ```bash
+   */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/claude_trigger.log 2>&1
+   ```
 
 ## Adding New Skills
 

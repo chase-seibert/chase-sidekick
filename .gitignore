@@ -1,6 +1,7 @@
 CLAUDE.local.md
 local/
 settings.local.json
+.claude/scheduled_tasks.json
 
 __pycache__/
 *.py[cod]
@@ -12,6 +13,8 @@ ENV/
 .env
 .DS_Store
 *.log
+*.lock
+*_state.txt
 
 # Memory files (saved command results)
 memory/

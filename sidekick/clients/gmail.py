@@ -306,6 +306,99 @@ class GmailClient:
 
         return self._request("POST", "/users/me/drafts", json_data=draft_data)
 
+    def send_message(
+        self,
+        to: str,
+        subject: str,
+        body: str,
+        thread_id: Optional[str] = None,
+        in_reply_to: Optional[str] = None,
+        references: Optional[str] = None,
+        cc: Optional[str] = None,
+        bcc: Optional[str] = None
+    ) -> dict:
+        """Send an email message.
+
+        Args:
+            to: Recipient email address(es), comma-separated
+            subject: Email subject
+            body: Email body (plain text)
+            thread_id: Thread ID to reply in (for threading)
+            in_reply_to: Message-ID this is replying to (for proper email threading)
+            references: Message-IDs this references (for proper email threading)
+            cc: CC recipients, comma-separated (optional)
+            bcc: BCC recipients, comma-separated (optional)
+
+        Returns:
+            Sent message dict with id, threadId, and labelIds
+        """
+        # Create MIME message
+        message = MIMEMultipart()
+        message["To"] = to
+        message["Subject"] = subject
+        if cc:
+            message["Cc"] = cc
+        if bcc:
+            message["Bcc"] = bcc
+
+        # Add threading headers for replies
+        if in_reply_to:
+            message["In-Reply-To"] = in_reply_to
+        if references:
+            message["References"] = references
+
+        # Add body
+        message.attach(MIMEText(body, "plain"))
+
+        # Encode message
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+
+        # Prepare send data
+        send_data = {
+            "raw": raw_message
+        }
+        if thread_id:
+            send_data["threadId"] = thread_id
+
+        return self._request("POST", "/users/me/messages/send", json_data=send_data)
+
+    def modify_labels(
+        self,
+        message_id: str,
+        add_labels: Optional[List[str]] = None,
+        remove_labels: Optional[List[str]] = None
+    ) -> dict:
+        """Modify labels on a message.
+
+        Args:
+            message_id: The message ID to modify
+            add_labels: List of label IDs to add (e.g., ["INBOX", "UNREAD"])
+            remove_labels: List of label IDs to remove (e.g., ["UNREAD"])
+
+        Returns:
+            Updated message dict with id, threadId, and labelIds
+
+        Common label IDs:
+            - INBOX: Inbox
+            - UNREAD: Unread
+            - STARRED: Starred
+            - SENT: Sent
+            - DRAFT: Draft
+            - SPAM: Spam
+            - TRASH: Trash
+        """
+        modify_data = {}
+        if add_labels:
+            modify_data["addLabelIds"] = add_labels
+        if remove_labels:
+            modify_data["removeLabelIds"] = remove_labels
+
+        return self._request(
+            "POST",
+            f"/users/me/messages/{message_id}/modify",
+            json_data=modify_data
+        )
+
 
 def _format_message_oneline(message: dict) -> str:
     """Format message as one-line summary."""

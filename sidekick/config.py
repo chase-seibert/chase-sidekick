@@ -312,3 +312,38 @@ def get_google_config() -> dict:
         "client_secret": client_secret,
         "refresh_token": refresh_token
     }
+
+
+def get_claude_trigger_config() -> dict:
+    """Get Claude trigger email configuration from .env file or environment variables.
+
+    Returns:
+        dict with keys: sender_emails (list of allowed sender email addresses)
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    emails_str = _get_env("CLAUDE_TRIGGER_EMAILS", env_file_vars)
+
+    if not emails_str:
+        raise ValueError(
+            "Missing required Claude trigger configuration. "
+            "Set CLAUDE_TRIGGER_EMAILS in .env file or environment variables. "
+            "Example: CLAUDE_TRIGGER_EMAILS=user@example.com,personal@email.com"
+        )
+
+    # Parse comma-separated email list
+    sender_emails = [email.strip() for email in emails_str.split(",") if email.strip()]
+
+    if not sender_emails:
+        raise ValueError(
+            "CLAUDE_TRIGGER_EMAILS is empty. "
+            "Provide at least one email address. "
+            "Example: CLAUDE_TRIGGER_EMAILS=user@example.com"
+        )
+
+    return {
+        "sender_emails": sender_emails
+    }
