@@ -266,7 +266,8 @@ chase-sidekick/
 │       └── project_review.md   # Generate project status reports
 ├── tools/
 │   ├── email_trigger_watcher.py  # Phone-to-desktop email triggers
-│   └── prep_tomorrow_meetings.py # Open meeting docs in browser
+│   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
+│   └── smoketest.py              # Test access to Paper, Confluence, Slack
 ├── sidekick/
 │   ├── config.py            # Load from .env
 │   └── clients/             # Single-file service clients
@@ -386,6 +387,31 @@ You can trigger Claude Code from your phone by sending yourself an email.
    ```bash
    */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/claude_trigger.log 2>&1
    ```
+
+## Testing Your Setup: Smoketest Tool
+
+The `tools/smoketest.py` script verifies that your client configurations are working correctly. It tests access to:
+- **Paper docs** - via Dropbox client
+- **Confluence docs** - via Confluence client
+- **Slack channels** - requires Dash MCP (only works in Claude Code, not standalone)
+
+### Usage
+
+```bash
+# Run with default test files from CLAUDE.local.md
+python3 tools/smoketest.py
+
+# Or specify custom URLs
+python3 tools/smoketest.py "https://dropbox.com/..." "https://confluence.com/..." "#channel-name"
+```
+
+The tool will:
+1. Test reading from each service
+2. Show a ✅ or 🛑 for each service
+3. Display a TL;DR preview of the content
+4. Describe how it accessed each resource
+
+**Note:** Slack testing requires the Dash MCP server which is only available when running within Claude Code, not from standalone Python scripts. This is expected behavior - the smoketest will flag this limitation.
 
 ## Adding New Skills
 

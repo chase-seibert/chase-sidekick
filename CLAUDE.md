@@ -161,3 +161,7 @@ When updating documentation that approaches this limit:
 
 ### Providing local context
 The `CLAUDE.local.md` contains context on 1:1 docs, meeting docs, teams, people, and projects. 
+
+## Tools
+
+The /tools directory is a collection of executable python scripts. Each one has `#!/usr/bin/env python3` and is chmod executable. They should not depend on Claude. 
