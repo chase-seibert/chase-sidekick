@@ -263,6 +263,11 @@ def process_trigger_email(client: GmailClient, message: dict, working_dir: str) 
 
         log(f"Extracted prompt: {prompt[:100]}...")
 
+        # Mark as read immediately to prevent reprocessing
+        # (even if Claude execution or reply fails)
+        log("Marking email as read...")
+        client.modify_labels(message_id, remove_labels=["UNREAD"])
+
         # Record execution for rate limiting
         record_execution()
 
@@ -286,10 +291,6 @@ def process_trigger_email(client: GmailClient, message: dict, working_dir: str) 
             in_reply_to=message_id_header,
             references=message_id_header
         )
-
-        # Mark as read
-        log("Marking email as read...")
-        client.modify_labels(message_id, remove_labels=["UNREAD"])
 
         log(f"✅ Successfully processed email {message_id}")
         return True
