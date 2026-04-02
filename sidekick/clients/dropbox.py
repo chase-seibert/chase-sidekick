@@ -428,12 +428,14 @@ class DropboxClient:
             metadata, content = self._request_content("/2/files/download", api_arg)
             return content
 
-    def get_paper_contents(self, path: str, export_format: str = 'markdown') -> str:
-        """Get Paper doc content.
+    def get_paper_contents(self, path: str, return_markdown: bool = True) -> str:
+        """Get Paper doc content as Markdown or HTML.
+
+        Uses Dropbox's native export for high-quality markdown output.
 
         Args:
             path: Dropbox path or file ID to Paper doc (e.g., "/Paper/MyDoc.paper" or "id:...")
-            export_format: Export format - 'markdown' (default) or 'html'
+            return_markdown: If True (default), return Markdown; if False, return HTML
 
         Returns:
             str with Paper doc content in requested format
@@ -441,16 +443,17 @@ class DropboxClient:
         Raises:
             ValueError: If path not found or is not a Paper doc
         """
-        # Use get_file_contents which handles Paper docs via /files/export
+        # Use Dropbox native export (superior quality)
+        export_format = 'markdown' if return_markdown else 'html'
         content_bytes = self.get_file_contents(path, export_format=export_format)
         return content_bytes.decode('utf-8')
 
-    def get_paper_contents_from_link(self, share_link: str, export_format: str = 'markdown') -> str:
-        """Get Paper doc content via share link.
+    def get_paper_contents_from_link(self, share_link: str, return_markdown: bool = True) -> str:
+        """Get Paper doc content via share link as Markdown or HTML.
 
         Args:
             share_link: Dropbox Paper share link URL
-            export_format: Export format - 'markdown' (default) or 'html'
+            return_markdown: If True (default), return Markdown; if False, return HTML
 
         Returns:
             str with Paper doc content in requested format
@@ -458,8 +461,7 @@ class DropboxClient:
         Raises:
             ValueError: If link is invalid or not a Paper doc
         """
-        # For shared links, use the URL directly with special format
-        # First resolve to get the ID
+        # Resolve share link to get file ID/path
         link_metadata = self.resolve_share_link(share_link)
 
         # Try to get the file ID
@@ -473,7 +475,7 @@ class DropboxClient:
             if not path:
                 raise ValueError("Could not extract path or ID from share link metadata")
 
-        return self.get_paper_contents(path, export_format)
+        return self.get_paper_contents(path, return_markdown)
 
     def export_shared_link(
         self,
@@ -485,30 +487,37 @@ class DropboxClient:
     ) -> Union[bytes, str]:
         """Export content from file accessed via shared link.
 
-        Downloads file content directly from a shared link without resolving to path first.
-        Primary use case: Accessing files in team space that you don't own.
-        This is the ONLY way to get content of a Paper doc you don't own.
+        For Paper docs: Resolves the share link and uses Dropbox's native markdown export
+        for high-quality output. For other files: Downloads content directly via sharing endpoint.
 
-        IMPORTANT for Paper docs:
-        - By default (return_markdown=True), converts HTML to clean Markdown
-        - The raw HTML includes extensive CSS and formatting
-        - Use get-paper-contents for Paper docs you own when doing read-write workflows
-        - Use export-shared-link for Paper docs you don't own (read-only team space access)
+        Primary use case: Accessing files in team space that you don't own.
 
         Args:
             url: Dropbox share link URL
             path: Optional path within shared folder to specific file
             link_password: Optional password for password-protected links
             override_download_setting: Internal flag to override download restrictions
-            return_markdown: If True (default) and link is Paper doc, convert HTML to Markdown
+            return_markdown: If True (default) and link is Paper doc, return Markdown; else HTML/bytes
 
         Returns:
-            str with Markdown content (default for Paper docs), or bytes with raw file content
+            str with Markdown/HTML content (for Paper docs), or bytes with raw file content (other files)
 
         Raises:
             ValueError: If link not found, access denied, or file not exportable
         """
-        # Build API arguments - only include optional params if provided
+        # For Paper docs: resolve and use native export (superior quality)
+        if self._is_paper_link(url):
+            # Resolve share link to get file ID
+            link_metadata = self.resolve_share_link(url)
+            file_id = link_metadata.get('id')
+
+            if not file_id:
+                raise ValueError(f"Could not resolve Paper doc share link to file ID: {url}")
+
+            # Delegate to get_paper_contents for native markdown export
+            return self.get_paper_contents(file_id, return_markdown=return_markdown)
+
+        # For non-Paper files: use sharing endpoint (original behavior)
         api_arg = {"url": url}
 
         if path is not None:
@@ -522,14 +531,6 @@ class DropboxClient:
 
         # Use _request_content for consistent error handling
         metadata, content = self._request_content("/2/sharing/export_shared_link", api_arg)
-
-        # Convert to markdown by default for Paper docs
-        if return_markdown and self._is_paper_link(url):
-            from sidekick.clients.markdown import MarkdownConverter
-            converter = MarkdownConverter()
-            html_str = content.decode('utf-8')
-            return converter.convert_html_to_markdown(html_str)
-
         return content
 
     def create_paper_contents(self, path: str, content: Union[bytes, str], import_format: str = 'markdown') -> dict:
@@ -757,8 +758,8 @@ def main():
         print("  get-file-contents <path>", file=sys.stderr)
         print("  export-shared-link <url> [--path <path>] [--password <password>] [--override-download] [--html]", file=sys.stderr)
         print("  get-metadata <path>", file=sys.stderr)
-        print("  get-paper-contents <path> [--format markdown|html]", file=sys.stderr)
-        print("  get-paper-contents-from-link <share_link> [--format markdown|html]", file=sys.stderr)
+        print("  get-paper-contents <path> [--html]", file=sys.stderr)
+        print("  get-paper-contents-from-link <share_link> [--html]", file=sys.stderr)
         print("  create-paper-contents <path> [--content <text>] [--format markdown|html]", file=sys.stderr)
         print("  update-paper-contents <path> [--content <text>] [--format markdown|html]", file=sys.stderr)
         sys.exit(1)
@@ -808,18 +809,24 @@ def main():
                 sys.exit(1)
 
             path = sys.argv[2]
-            export_format = "markdown"
+            return_markdown = True
 
-            # Check for --format flag
+            # Parse flags
             i = 3
             while i < len(sys.argv):
-                if sys.argv[i] == "--format" and i + 1 < len(sys.argv):
-                    export_format = sys.argv[i + 1]
+                if sys.argv[i] == "--html":
+                    return_markdown = False
+                    i += 1
+                elif sys.argv[i] == "--format" and i + 1 < len(sys.argv):
+                    # Backward compatibility with deprecation warning
+                    format_value = sys.argv[i + 1]
+                    print(f"[Deprecation Warning] --format is deprecated, use --html flag instead", file=sys.stderr)
+                    return_markdown = (format_value.lower() == 'markdown')
                     i += 2
                 else:
                     i += 1
 
-            content = client.get_paper_contents(path, export_format)
+            content = client.get_paper_contents(path, return_markdown)
             print(content)
 
         elif command == "get-paper-contents-from-link":
@@ -828,18 +835,24 @@ def main():
                 sys.exit(1)
 
             share_link = sys.argv[2]
-            export_format = "markdown"
+            return_markdown = True
 
-            # Check for --format flag
+            # Parse flags
             i = 3
             while i < len(sys.argv):
-                if sys.argv[i] == "--format" and i + 1 < len(sys.argv):
-                    export_format = sys.argv[i + 1]
+                if sys.argv[i] == "--html":
+                    return_markdown = False
+                    i += 1
+                elif sys.argv[i] == "--format" and i + 1 < len(sys.argv):
+                    # Backward compatibility with deprecation warning
+                    format_value = sys.argv[i + 1]
+                    print(f"[Deprecation Warning] --format is deprecated, use --html flag instead", file=sys.stderr)
+                    return_markdown = (format_value.lower() == 'markdown')
                     i += 2
                 else:
                     i += 1
 
-            content = client.get_paper_contents_from_link(share_link, export_format)
+            content = client.get_paper_contents_from_link(share_link, return_markdown)
             print(content)
 
         elif command == "create-paper-contents":
