@@ -287,14 +287,88 @@ class GCalendarClient:
 
         return self._request("PUT", f"/calendars/{calendar_id}/events/{event_id}", json_data=event)
 
-    def delete_event(self, event_id: str, calendar_id: str = "primary") -> None:
+    def delete_event(
+        self,
+        event_id: str,
+        calendar_id: str = "primary",
+        send_updates: str = "all"
+    ) -> None:
         """Delete a calendar event.
 
         Args:
             event_id: The event ID to delete
             calendar_id: Calendar ID (default: "primary")
+            send_updates: Whether to send notifications ("all", "externalOnly", "none")
         """
-        self._request("DELETE", f"/calendars/{calendar_id}/events/{event_id}")
+        params = {"sendUpdates": send_updates}
+        self._request("DELETE", f"/calendars/{calendar_id}/events/{event_id}", params=params)
+
+    def respond_to_event(
+        self,
+        event_id: str,
+        response_status: str,
+        calendar_id: str = "primary",
+        comment: Optional[str] = None,
+        send_updates: str = "all"
+    ) -> dict:
+        """Respond to a calendar event invitation.
+
+        Args:
+            event_id: The event ID
+            response_status: "accepted", "declined", or "tentative"
+            calendar_id: Calendar ID (default: "primary")
+            comment: Optional comment to include with response
+            send_updates: Whether to send notifications ("all", "externalOnly", "none")
+
+        Returns:
+            Updated event dict
+
+        Raises:
+            ValueError: If user is not an attendee of the event
+        """
+        # Get event to find current user's attendee entry
+        event = self.get_event(event_id, calendar_id)
+
+        # Find user's attendee entry (marked with "self": true)
+        user_attendee = None
+        for attendee in event.get("attendees", []):
+            if attendee.get("self"):
+                user_attendee = attendee
+                break
+
+        if not user_attendee:
+            raise ValueError("Cannot respond to event: user is not an attendee")
+
+        # Update user's response status
+        user_attendee["responseStatus"] = response_status
+        if comment:
+            user_attendee["comment"] = comment
+
+        # PATCH the event with only the attendees field
+        # Using PATCH instead of PUT to avoid overwriting other fields
+        patch_data = {"attendees": event["attendees"]}
+        params = {"sendUpdates": send_updates}
+        return self._request("PATCH", f"/calendars/{calendar_id}/events/{event_id}", params=params, json_data=patch_data)
+
+    def decline_event(
+        self,
+        event_id: str,
+        calendar_id: str = "primary",
+        message: Optional[str] = None,
+        send_updates: str = "all"
+    ) -> dict:
+        """Decline a calendar event invitation.
+
+        Args:
+            event_id: The event ID
+            calendar_id: Calendar ID (default: "primary")
+            message: Optional decline message
+            send_updates: Whether to send notifications ("all", "externalOnly", "none")
+
+        Returns:
+            Updated event dict
+        """
+        return self.respond_to_event(event_id, "declined", calendar_id, message, send_updates)
 
 
 def _format_event_oneline(event: dict) -> str:
@@ -374,13 +448,19 @@ def main():
         print("  get <event_id>                            - Get event details")
         print("  create <summary> <start> <end>            - Create new event")
         print("  update <event_id> <field> <value>         - Update event field")
-        print("  delete <event_id>                         - Delete event")
+        print("  delete <event_id> [--no-notify]           - Delete event")
+        print("  decline <event_id> [message] [--no-notify] - Decline event invitation")
+        print("  respond <event_id> <status> [comment] [--no-notify] - Respond to event (accepted/declined/tentative)")
+        print("\nFlags:")
+        print("  --no-notify  - Don't send email notifications to attendees/organizers")
         print("\nExamples:")
         print('  python -m sidekick.clients.gcalendar list "2024-01-01T00:00:00Z" "2024-01-31T23:59:59Z"')
         print('  python -m sidekick.clients.gcalendar get abc123def456')
         print('  python -m sidekick.clients.gcalendar create "Team Meeting" "2024-01-15T14:00:00Z" "2024-01-15T15:00:00Z"')
         print('  python -m sidekick.clients.gcalendar update abc123def456 summary "Updated Title"')
-        print('  python -m sidekick.clients.gcalendar delete abc123def456')
+        print('  python -m sidekick.clients.gcalendar delete abc123def456 --no-notify')
+        print('  python -m sidekick.clients.gcalendar decline abc123def456 "Out of office" --no-notify')
+        print('  python -m sidekick.clients.gcalendar respond abc123def456 accepted "See you there!"')
         sys.exit(1)
 
     # Load configuration
@@ -472,8 +552,42 @@ def main():
                 sys.exit(1)
 
             event_id = sys.argv[2]
-            client.delete_event(event_id)
+            send_updates = "none" if "--no-notify" in sys.argv else "all"
+            client.delete_event(event_id, send_updates=send_updates)
             print(f"Event deleted successfully: {event_id}")
+
+        elif command == "decline":
+            if len(sys.argv) < 3:
+                print("Error: Missing event_id argument", file=sys.stderr)
+                sys.exit(1)
+
+            event_id = sys.argv[2]
+            message = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != "--no-notify" else None
+            send_updates = "none" if "--no-notify" in sys.argv else "all"
+
+            event = client.decline_event(event_id, message=message, send_updates=send_updates)
+            notify_msg = " (no notifications sent)" if send_updates == "none" else ""
+            print(f"Event declined successfully!{notify_msg}")
+            print(_format_event_full(event))
+
+        elif command == "respond":
+            if len(sys.argv) < 4:
+                print("Error: Missing arguments. Need: event_id, status (accepted/declined/tentative)", file=sys.stderr)
+                sys.exit(1)
+
+            event_id = sys.argv[2]
+            response_status = sys.argv[3]
+            comment = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] != "--no-notify" else None
+            send_updates = "none" if "--no-notify" in sys.argv else "all"
+
+            if response_status not in ["accepted", "declined", "tentative"]:
+                print("Error: status must be 'accepted', 'declined', or 'tentative'", file=sys.stderr)
+                sys.exit(1)
+
+            event = client.respond_to_event(event_id, response_status, comment=comment, send_updates=send_updates)
+            notify_msg = " (no notifications sent)" if send_updates == "none" else ""
+            print(f"Event response set to '{response_status}' successfully!{notify_msg}")
+            print(_format_event_full(event))
 
         else:
             print(f"Error: Unknown command '{command}'", file=sys.stderr)
