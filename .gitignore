@@ -24,3 +24,6 @@ memory/
 
 # Cache files (search cache)
 cache/
+
+# Output files (agent outputs)
+output/
