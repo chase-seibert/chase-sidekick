@@ -2,7 +2,7 @@
 name: weekly_report
 description: Generate summary of 1:1 and meeting notes organized by audience
 argument-hint: [weeks]
-allowed-tools: Bash, Read
+allowed-tools: Bash, Read, Skill
 auto-approve: true
 ---
 
@@ -29,38 +29,91 @@ This agent helps you:
 Get all 1:1 docs, meeting docs, and Slack channels and Slack DMs from `CLAUDE.local.md`
 These may be Confluence pages or Dropbox Paper docs
 
-### Step 2: Fetch Recent Content
+### Step 2: Process Documents in Batches
 
-For each document, fetch the content.
+**IMPORTANT: Use batch processing to handle large numbers of documents efficiently.**
+
+Process all documents in batches of 12-15 documents at a time. For each batch:
+
+1. **Fetch documents** for this batch (continue on errors - see Error Handling below)
+2. **Immediately extract notes** from recent time period (last 7 days by default)
+3. **Categorize extracted notes** into the 4 categories (see Category Definitions below)
+4. **Append categorized notes** to `memory/weekly_report/notes_batch_N.md` (where N is batch number)
+5. **Discard full document content** from context (only keep extracted notes file)
+
+**Document batching strategy:**
+- Batch 1 (12-15 docs): 1:1 docs (prioritize recent/active relationships)
+- Batch 2 (12-15 docs): Meeting docs + remaining 1:1s
+- Batch 3 (12-15 docs): High-priority Slack channels (P0)
+- Batch 4+ (12-15 docs each): Remaining Slack channels and DMs
+
+After completing ALL batches, proceed to Step 3 (consolidation).
 
 **For Slack channels**, use the `/slack` skill to read messages from the last 10 days:
 1. Calculate date 10 days ago: `date -v-10d '+%Y-%m-%d'`
 2. Use `slack_search_messages` with `after:YYYY-MM-DD in:#channel-name` query and pagination
 3. Format results as Markdown (see `/slack` skill for formatting example)
-4. Save to `memory/weekly_report/slack-channel-name.md`
 
 **For Confluence and Paper docs**, use the respective clients to fetch content.
 
-The fetched content will be saved in `memory/weekly_report/` for review and won't be deleted. Keep track of docs that error out so we can print them out at the end. 
-
-### Step 3: Review and Extract Notes
-
-Manually review each document for notes from the target time period (e.g., last week).
-
-Look for:
+Look for notes from recent time period:
 - Date headers (e.g., "January 31, 2026", "Week of 1/27")
 - Bullet points under recent dates
 - Action items or discussion topics
+- **Important:** Ignore content under date headers older than your target time period
 
-**Important:** Ignore content that appears under date headers that are not recent (older than your target time period). Only extract notes from the sections with recent dates.
+#### Error Handling Strategy
 
-### Step 4: Categorize Notes
+When a document fails to fetch:
+1. **Log the error** with document name and error type (but DO NOT stop processing)
+2. **Continue to the next document** - process all documents in the batch regardless of failures
+3. **Track failures** in a list with categories:
+   - Auth failures (403/401): Document URL + error message
+   - Not found (404): Document URL
+   - Rate limits (429): Document URL (client will auto-retry once)
+   - Other errors: Document URL + error type
+4. **Report all failures** at Step 5 (Document Summary) by category
+
+**Error response format** (to be included in Step 5 output):
+```
+⚠️ Failed to fetch X documents:
+
+Auth failures (403/401):
+- [Doc name](URL) - 403 Forbidden
+
+Not found (404):
+- [Doc name](URL) - Document not found
+
+Rate limits (429):
+- [Doc name](URL) - Rate limit hit (retried)
+
+Other errors:
+- [Doc name](URL) - Error message
+```
+
+**IMPORTANT**: Never stop processing due to a single document failure. The goal is to extract as much context as possible from available documents. 
+
+### Step 3: Consolidate Notes from All Batches
+
+After processing all batches:
+
+1. **Read all batch notes files** (`memory/weekly_report/notes_batch_*.md`)
+2. **Merge notes by category** (combine all "Leadership" items, all "Direct Reports" items, etc.)
+3. **Deduplicate similar notes** across batches:
+   - If same topic appears in multiple docs, consolidate into ONE note
+   - Keep ALL `[ref]` links from all sources
+   - Example: `Topic X happened [[ref1]](url1) [[ref2]](url2)`
+4. **Prioritize within each category** by importance/urgency
+5. **Write consolidated report** to `memory/weekly_report.md`
+
+### Step 4: Category Definitions
 
 Sort extracted notes into the following categories. Each category should be a bullet list of notes. Each note should include a `[ref]` link to the source document URL from CLAUDE.local.md. 
 
-**Format example:**
+**Format examples:**
 ```markdown
-- Your note text here [[ref]](https://document-url-from-claude-local-md)
+- Single source: Your note text here [[ref]](https://document-url-from-claude-local-md)
+- Multiple sources: Topic X happened [[ref1]](url1) [[ref2]](url2)
 ```
 
 #### Things to Communicate to Leadership
@@ -97,19 +150,43 @@ Thank yous for specific people:
 - Person went above and beyond
 - Any impact attributable to a person 
 
-### Step 5: Categorize Notes
+### Step 5: Final Output
 
-- Print a list of documents and Slack channels were read successfully, and also those that errored out trying to retrieve the contents. 
-- Echo the actual executive summary contents in the chat, AND link to a file version if you have it
+1. **Print document processing summary:**
+   - Total documents attempted
+   - Successfully processed by type (1:1s, meetings, Slack)
+   - Failed documents with error details (see Error Handling format above)
 
-### Step 6: Write to memory
+2. **Write consolidated report** to `memory/weekly_report.md` with:
+   - All categorized notes from Step 3
+   - Each note with `[ref]` links to source documents
+   - Deduplicated entries with multiple references where applicable
 
-Write or overwrite file at memory/weekly_report.md with is report contents
+3. **Echo the report contents** to chat AND provide relative path to the memory file
+
+**Report structure:**
+```markdown
+# Weekly Report - [Date Range]
+
+## Things to Communicate to Leadership
+- Item 1 [[ref]](url)
+- Item 2 [[ref1]](url1) [[ref2]](url2)
+
+## Things to Communicate to Direct Reports
+- Item 1 [[ref]](url)
+
+## Things to Communicate to Everyone
+- Item 1 [[ref]](url)
+
+## Kudos
+- Person X for Y [[ref]](url)
+```
 
 
 ## Tips
 
 - **Time Period**: Default to last 7 days, adjust based on your reporting cadence
+- **Batch Size**: Keep batches to 12-15 documents to avoid context window issues
 - **Date Parsing**: Look for date headers in various formats:
   - "January 31, 2026"
   - "2026-01-31"
@@ -119,5 +196,6 @@ Write or overwrite file at memory/weekly_report.md with is report contents
 - **References**: Each note should end with `[[ref]](URL)` linking to the source doc URL from CLAUDE.local.md
 - **Deduplication**: Same topic might appear in multiple docs - consolidate but keep all references
 - **Prioritization**: Within each category, order by importance/urgency
-- **File Preservation**: Documents are saved in `memory/weekly_report/` and not deleted, allowing for iterative refinement
+- **Context Management**: Discard full document content after extracting notes from each batch to preserve context window
+- **Batch Files**: `notes_batch_*.md` files are intermediate artifacts - the final consolidated report goes in `weekly_report.md`
 
