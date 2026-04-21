@@ -2,7 +2,6 @@
 name: mmr_exec_summary
 description: Generate executive summary from MMR (Monthly Metric Review) Confluence pages
 argument-hint: <confluence-page-url>
-allowed-tools: Bash, Read
 auto-approve: true
 ---
 

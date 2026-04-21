@@ -2,7 +2,6 @@
 name: tech_spec_review
 description: Read a tech spec doc and write an executive summary
 argument-hint: <document-url>
-allowed-tools: Bash, Read
 auto-approve: true
 ---
 

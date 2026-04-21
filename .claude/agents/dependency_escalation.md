@@ -2,7 +2,6 @@
 name: dependency_escalation
 description: Draft a document for an escalation of a dependency request 
 argument-hint: <document-url>
-allowed-tools: Bash, Read
 auto-approve: true
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: smoketest
 description: Check that basic reading of common files is working
-allowed-tools: Bash, Read
 auto-approve: true
 ---
 

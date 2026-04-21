@@ -2,7 +2,6 @@
 name: sprint_review
 description: Generate a sprint review report 
 argument-hint: <google-sheets-url>
-allowed-tools: Bash, Read
 auto-approve: true
 ---
 

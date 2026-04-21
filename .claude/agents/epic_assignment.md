@@ -2,7 +2,6 @@
 name: epic_assignment
 description: Assign active Epics to Roadmap Initiatives based on recent activity
 argument-hint: <root-issue> [project] [issue-type] [days]
-allowed-tools: Bash, Read
 auto-approve: false
 ---
 

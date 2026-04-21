@@ -2,7 +2,6 @@
 name: pto_block
 description: Block calendar for PTO and handle conflicting meetings
 argument-hint: <start-date> <end-date> [reason] [--dry-run]
-allowed-tools: Bash, Read, Write
 auto-approve: false
 ---
 

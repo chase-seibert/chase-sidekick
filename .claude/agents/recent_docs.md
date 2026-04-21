@@ -2,7 +2,6 @@
 name: recent_docs
 description: Generate categorized summary of recent Paper and Confluence docs from Chrome history
 argument-hint: [days]
-allowed-tools: Bash, Read
 auto-approve: true
 ---
 

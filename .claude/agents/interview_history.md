@@ -2,7 +2,6 @@
 name: interview_history
 description: Generate all-time interview count report from Google Calendar
 argument-hint: <years-back>
-allowed-tools: Bash, Read, Write
 auto-approve: true
 ---
 
