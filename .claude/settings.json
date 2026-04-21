@@ -117,6 +117,7 @@
       "mcp__dropboxer__util_resolve",
       "mcp__ide__executeCode",
       "mcp__ide__getDiagnostics",
+      "Write(.claude/plans/*.md)",
       "WebFetch(domain:www.dropbox.com)",
       "WebFetch(domain:developer.atlassian.com)",
       "WebFetch(domain:community.atlassian.com)",
