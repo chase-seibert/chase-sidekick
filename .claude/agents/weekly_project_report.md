@@ -75,21 +75,60 @@ dash_invoke_search_action(
 
 **Handle pagination**: Check for `next_cursor` in response. Fetch additional pages if needed (up to ~100 messages total per channel).
 
-#### 3.2 Fetch JIRA Issue Comments
+#### 3.2 Fetch JIRA Issue Data
 
-For each JIRA Roadmap Initiative (DBX-XXXX), fetch recent comments:
+For each JIRA Roadmap Initiative (DBX-XXXX):
+
+**A. Fetch child Epics:**
+
+```bash
+# Query for child Epics of the Roadmap Initiative
+python -m sidekick.clients.jira query-by-parent DBX-XXXX
+```
+
+This returns all child issues (Epics, Stories, etc.). Filter for:
+- Issue type = "Epic"
+- Extract: key, summary, status
+
+Track the list of child Epic keys for this Roadmap Initiative.
+
+**B. Fetch Roadmap Initiative comments:**
 
 ```bash
 # Use the JIRA client to get issue with comments
 python -m sidekick.clients.jira get-issue DBX-XXXX
 ```
 
-Extract comments from the time period (last N days):
-- Filter comments by date (compare `created` field with `START_DATE`)
-- Include comment author, timestamp, and body
-- Look for status updates, blockers, milestone updates
+Extract:
+- Issue status field (for overall status)
+- Comments from the time period (filter by `created` field >= `START_DATE`)
+- For each comment: author, timestamp, body
 
-**Handle errors**: If issue fetch fails (404, auth error), note it and continue.
+**C. Fetch Epic comments (for each child Epic):**
+
+For each child Epic found in step A:
+
+```bash
+python -m sidekick.clients.jira get-issue EPIC-KEY
+```
+
+Extract:
+- Epic status
+- Comments from the time period
+
+**Status extraction priority:**
+When determining project status, prioritize in this order:
+1. **Recent comments** (most current, includes context and blockers)
+2. **Status field** (official status, but may lag reality)
+3. **Epic statuses** (aggregate view of work progress)
+
+Look in comments for:
+- Status updates ("moved to X", "now in Y phase")
+- Blockers and risks mentioned
+- Milestone updates
+- Team decisions and changes
+
+**Handle errors**: If issue fetch fails (404, auth error), note it and continue to next issue.
 
 #### 3.3 Extract Structured Summary
 
@@ -303,50 +342,109 @@ No Slack or JIRA activity in the last [DAYS] days.
 
 After generating the report, update `local/projects.md` with the latest JIRA status for each project.
 
-#### 6.1 Collect JIRA Status Data
+#### 6.1 Collect JIRA Status and Epic Data
 
-For each project processed in Step 3, collect the current status of all roadmap initiatives:
+For each project processed in Step 3, collect:
 
-```bash
-# For each JIRA issue (DBX-XXXX), get the status
-python -m sidekick.clients.jira get-issue DBX-XXXX
-```
+**A. Roadmap Initiative status:**
 
-Extract the `status` field (e.g., "In Progress", "Done", "To Do", "Blocked", etc.)
-
-Track:
+Track from Step 3.2:
 - Issue key (e.g., DBX-1234)
-- Status (e.g., "In Progress")
-- Summary (issue title)
+- Status from recent comments (primary) or status field (fallback)
+- Most recent status-related comment (if any)
 
-#### 6.2 Add Status to projects.md
+**B. Child Epics:**
 
-For each project section in `local/projects.md`, add a **Status** line after the **JIRA Roadmap Initiative** line.
+Track from Step 3.2A:
+- Epic key (e.g., TEXP-123)
+- Epic summary/title
+- Epic status
 
-**Format:**
+#### 6.2 Add Status and Child Epics to projects.md
+
+For each project section in `local/projects.md`, update or add these lines:
+
+**Status Line** (after JIRA Roadmap Initiative):
+
 ```markdown
 - **JIRA Roadmap Initiative:** [DBX-1234](link), [DBX-5678](link)
-- **Status:** DBX-1234: In Progress, DBX-5678: Done
+- **Status:** DBX-1234: In Progress (per comment 4/15: "moving to implementation phase"), DBX-5678: Done
 ```
 
-If multiple initiatives:
-- Show status for each issue
-- Format: `[Issue-Key]: [Status], [Issue-Key]: [Status]`
+**Format:**
+- For each initiative: `[Issue-Key]: [Status]`
+- If recent comment has status info, include brief excerpt: `[Status] (per comment [date]: "[excerpt]")`
+- Multiple initiatives: comma-separated
 
-If no initiatives or error fetching status:
-- Skip adding Status line (or show "Unknown" if line already exists)
+**Child Epics Line** (after Status):
+
+```markdown
+- **Status:** DBX-1234: In Progress
+- **Child Epics:** [TEXP-123: Enable everyone group](link) (In Progress), [TEXP-456: Permissions API](link) (Done)
+```
+
+**Format:**
+- For each Epic: `[KEY: Summary](jira-link) ([Status])`
+- Link format: `https://dropbox.atlassian.net/browse/EPIC-KEY`
+- Multiple Epics: comma-separated
+- If no child Epics: Skip this line or show "None"
+
+**Handling edge cases:**
+- No initiatives: Skip Status and Child Epics lines
+- No child Epics but has initiatives: Add Status line, skip Child Epics line
+- Error fetching data: Keep existing lines or show "Unknown"
 
 #### 6.3 Update the File
 
 Use the Edit tool to update `local/projects.md`:
-- For each project section, find the line after "JIRA Roadmap Initiative"
-- If "Status" line exists, update it
-- If "Status" line doesn't exist, add it as a new line
+
+**For each project section:**
+
+1. **Find the project section** by its `###` heading
+2. **Locate the JIRA Roadmap Initiative line** (starts with `- **JIRA Roadmap Initiative:**`)
+3. **Check for existing Status and Child Epics lines** (immediately after Roadmap Initiative)
+
+**If Status line exists:**
+- Update with new status information from Step 6.1
+
+**If Status line doesn't exist but project has initiatives:**
+- Add new Status line after Roadmap Initiative line
+- Preserve indentation (should be at same level as other metadata bullets)
+
+**If Child Epics line exists:**
+- Update with new Epic list from Step 6.1
+
+**If Child Epics line doesn't exist but project has Epics:**
+- Add new Child Epics line after Status line
+- Preserve indentation
+
+**Example transformation:**
+
+*Before:*
+```markdown
+### Domain Restriction (Basic Gating)
+- **Team:** Team Formation (Dan)
+- **JIRA Team Project:** TFM
+- **JIRA Roadmap Initiative:** [DBX-4526](link), [DBX-2957](link)
+- **Slack Channel:** [#channel](link)
+```
+
+*After:*
+```markdown
+### Domain Restriction (Basic Gating)
+- **Team:** Team Formation (Dan)
+- **JIRA Team Project:** TFM
+- **JIRA Roadmap Initiative:** [DBX-4526](link), [DBX-2957](link)
+- **Status:** DBX-4526: In Progress, DBX-2957: Done
+- **Child Epics:** [TFM-123: Email notifications](link) (In Progress), [TFM-456: Admin UI](link) (Done)
+- **Slack Channel:** [#channel](link)
+```
 
 **Important**: 
-- Only update Status lines, don't modify other content
-- Preserve exact formatting and spacing
-- If a project has no JIRA issues, skip it
+- Only update Status and Child Epics lines, don't modify other content
+- Preserve exact formatting and spacing (indentation, bullet style)
+- If a project has no JIRA initiatives, skip it
+- Make one Edit call per project section (more efficient than many small edits)
 
 #### 6.4 Identify Done Projects
 
@@ -397,10 +495,23 @@ Synthesize a one-sentence status update covering:
 - **Key achievement or blocker**: Most important recent development
 - **Momentum**: Is it progressing, stalled, at risk, or waiting on something
 
+**Prioritize JIRA comments for status:**
+- Recent comments often contain the most accurate status information
+- Look for phrases like "moving to X phase", "now unblocked", "waiting on Y team"
+- Comments provide context that status fields lack
+- Epic statuses show granular progress (e.g., "2 of 5 Epics complete")
+
+**Information sources (in priority order):**
+1. **JIRA comments** (most current, has context)
+2. **Slack messages** (real-time discussions, informal updates)
+3. **JIRA status field** (official but may lag)
+4. **Epic statuses** (aggregate work view)
+
 Examples:
 - "Experiment launched and ramped to 90% with positive early results; next phase focused on holdout analysis."
 - "Design review blocked on cross-team dependency; M2 milestone at risk of slipping by 2 weeks."
 - "No visible activity this period; project may be paused or transitioning."
+- "Per JIRA comment 4/18, project moved to implementation phase with 3 of 5 Epics in progress."
 
 ### What Shipped
 Look in both Slack messages and JIRA comments for past-tense or completion language:
@@ -472,17 +583,23 @@ Look for forward-looking milestone language:
 
 - **Parsing projects.md**: Look for `###` headings for project names, extract metadata from bullets below
 - **Multiple JIRA issues**: A project may have multiple roadmap initiatives - fetch all of them
+- **Child Epics**: Use `query-by-parent` to find Epics under each Roadmap Initiative; these show granular work breakdown
+- **Comment-based status**: Recent JIRA comments often have better status info than the status field itself
+- **Status extraction**: Look in comments for "moving to X", "now in Y phase", "unblocked" - more accurate than field
+- **Epic aggregation**: If 3 of 5 child Epics are Done, mention this in executive summary - shows concrete progress
 - **Date Extraction**: Look for various date formats in Slack and JIRA (ISO, natural language, relative)
 - **Keyword Matching**: Use case-insensitive matching for category keywords
 - **Context Matters**: "blocking" might be resolved - look for current vs. past tense
 - **JIRA Comments**: Only fetch comments from the time period, ignore older ones
 - **Thread Context**: Important Slack discussions often in threads, but API may not return thread context
-- **Sample Activity Selection**: Pick items that represent different topics/days/sources
+- **Sample Activity Selection**: Pick items that represent different topics/days/sources (mix Slack + JIRA)
 - **Milestone Dates**: Extract dates even if approximate ("end of month", "next week")
 - **Empty Categories**: It's normal and expected to have "None mentioned" for some categories
 - **Activity Level**: Combine Slack + JIRA count - high activity projects need more attention
 - **Executive Summary**: Should be scan-able - user should understand status in one sentence
 - **Metadata Accuracy**: Link to actual JIRA issues and Slack channels from projects.md
+- **File updates**: When updating projects.md, preserve exact formatting - only modify Status and Child Epics lines
+- **Batch edits**: Update one project section at a time with Edit tool for clarity and error recovery
 
 ## Output Location
 
@@ -496,10 +613,14 @@ Look for forward-looking milestone language:
 
 ## Performance Notes
 
-- **Expected time**: ~5-7 minutes for ~15-20 projects (depending on JIRA issue count)
+- **Expected time**: ~7-10 minutes for ~15-20 projects (depending on JIRA issue count and Epic count)
 - **Context window**: Stays manageable with immediate extraction and discard pattern
 - **API calls per project**: 
   - Slack: ~1-3 calls (search + pagination)
-  - JIRA: ~1 call per roadmap initiative
+  - JIRA Roadmap Initiatives: ~1-2 calls per initiative (get-issue + query-by-parent)
+  - JIRA Epics: ~1 call per Epic (get-issue for comments)
+  - Total JIRA calls: Can be 5-15+ per project if multiple initiatives and many Epics
 - **Rate limiting**: Should be rare, but handled with retry logic for both Slack and JIRA
 - **Parsing**: `local/projects.md` is parsed once at the beginning
+- **File updates**: Step 6 updates projects.md with ~1 Edit call per project section
+- **Optimization**: Immediate extraction and discard pattern keeps context manageable despite many API calls
