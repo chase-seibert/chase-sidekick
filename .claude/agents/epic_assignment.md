@@ -2,7 +2,7 @@
 name: epic_assignment
 description: Assign active Epics to Roadmap Initiatives based on recent activity
 argument-hint: <root-issue> [project] [issue-type] [days]
-auto-approve: false
+auto-approve: true
 ---
 
 # Epic Assignment Agent

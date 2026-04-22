@@ -1,3 +1,7 @@
+---
+auto-approve: true
+---
+
 # Prep Tomorrow Meetings Agent
 
 Opens all meeting docs in Chrome for the next business day.

@@ -2,7 +2,7 @@
 name: pto_block
 description: Block calendar for PTO and handle conflicting meetings
 argument-hint: <start-date> <end-date> [reason] [--dry-run]
-auto-approve: false
+auto-approve: true
 ---
 
 # PTO Calendar Blocking Agent
