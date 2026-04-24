@@ -268,7 +268,7 @@ chase-sidekick/
 │   ├── settings.json        # Claude-specific permissions/config
 │   └── skills -> ../.agents/skills
 ├── tools/
-│   ├── email_trigger_watcher.py  # Phone-to-desktop email triggers
+│   ├── email_trigger_watcher.py  # Phone-to-desktop Claude/Codex email triggers
 │   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
 │   └── smoketest.py              # Test access to Paper, Confluence, Slack
 ├── sidekick/
@@ -309,7 +309,7 @@ Current skills (each is a single-file client + markdown docs):
 - **Markdown to PDF** - Convert docs with pandoc
 - **Transcript** - Save conversation transcripts as markdown to memory/transcripts
 - **Welcome Doc** - Create personalized employee onboarding documents in Confluence
-- **Email Triggers** - Trigger Claude Code from your phone via email (tools/email_trigger_watcher.py)
+- **Email Triggers** - Trigger Claude Code or Codex from your phone via email (tools/email_trigger_watcher.py)
 
 
 ## Configuration
@@ -364,22 +364,24 @@ Try adding your most important Slack channels to `CLAUDE.local.md` for quick con
 
 ## Phone to Desktop: Email Triggers
 
-You can trigger Claude Code from your phone by sending yourself an email. Codex support for this watcher can be added later by changing the command it launches.
+You can trigger Claude Code or Codex from your phone by sending yourself an email. The subject prefix chooses the agent: use `Claude <prompt>` or `Codex <prompt>`.
 
 ### Setup
 
 **Prerequisites:**
 - Gmail client must be configured (see [Gmail skill](.agents/skills/gmail/README.md) for OAuth setup)
 - Claude Code CLI must be available in PATH (`/Users/username/.local/bin/claude`)
+- Codex CLI must be available in PATH for Codex triggers (`/opt/homebrew/bin/codex`)
 - Python 3 installed
 
 **Setup:**
 
 1. **Configure allowed sender emails** in `.env`:
 
-   Add your email addresses (comma-separated for multiple):
+   Add your email addresses (comma-separated for multiple). Codex triggers use `CODEX_TRIGGER_EMAILS` if present and fall back to `CLAUDE_TRIGGER_EMAILS`.
    ```bash
    CLAUDE_TRIGGER_EMAILS=your-work@company.com,your-personal@email.com
+   CODEX_TRIGGER_EMAILS=your-work@company.com,your-personal@email.com
    ```
 
 2. **Add to system crontab** (runs every 5 minutes):
@@ -390,7 +392,7 @@ You can trigger Claude Code from your phone by sending yourself an email. Codex 
 
    Add this line (replace paths if needed):
    ```bash
-   */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/claude_trigger.log 2>&1
+   */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/email_trigger_watcher.log 2>&1
    ```
 
 ## Adding New Skills

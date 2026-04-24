@@ -314,6 +314,61 @@ def get_google_config() -> dict:
     }
 
 
+def get_email_trigger_config(
+    env_var: str = "CLAUDE_TRIGGER_EMAILS",
+    display_name: str = "Claude",
+    fallback_env_var: str = None
+) -> dict:
+    """Get trigger email configuration from .env file or environment variables.
+
+    Args:
+        env_var: Primary environment variable containing allowed sender emails
+        display_name: Human-readable agent name for error messages
+        fallback_env_var: Optional fallback environment variable
+
+    Returns:
+        dict with keys:
+            sender_emails: list of allowed sender email addresses
+            source_env_var: environment variable used
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    source_env_var = env_var
+    emails_str = _get_env(env_var, env_file_vars)
+
+    if not emails_str and fallback_env_var:
+        source_env_var = fallback_env_var
+        emails_str = _get_env(fallback_env_var, env_file_vars)
+
+    if not emails_str:
+        env_hint = env_var
+        if fallback_env_var:
+            env_hint = f"{env_var} or {fallback_env_var}"
+        raise ValueError(
+            f"Missing required {display_name} trigger configuration. "
+            f"Set {env_hint} in .env file or environment variables. "
+            f"Example: {env_var}=user@example.com,personal@email.com"
+        )
+
+    # Parse comma-separated email list
+    sender_emails = [email.strip() for email in emails_str.split(",") if email.strip()]
+
+    if not sender_emails:
+        raise ValueError(
+            f"{source_env_var} is empty. "
+            "Provide at least one email address. "
+            f"Example: {env_var}=user@example.com"
+        )
+
+    return {
+        "sender_emails": sender_emails,
+        "source_env_var": source_env_var
+    }
+
+
 def get_claude_trigger_config() -> dict:
     """Get Claude trigger email configuration from .env file or environment variables.
 
@@ -323,27 +378,7 @@ def get_claude_trigger_config() -> dict:
     Raises:
         ValueError: If required environment variables are missing
     """
-    env_file_vars = _load_env_file()
-
-    emails_str = _get_env("CLAUDE_TRIGGER_EMAILS", env_file_vars)
-
-    if not emails_str:
-        raise ValueError(
-            "Missing required Claude trigger configuration. "
-            "Set CLAUDE_TRIGGER_EMAILS in .env file or environment variables. "
-            "Example: CLAUDE_TRIGGER_EMAILS=user@example.com,personal@email.com"
-        )
-
-    # Parse comma-separated email list
-    sender_emails = [email.strip() for email in emails_str.split(",") if email.strip()]
-
-    if not sender_emails:
-        raise ValueError(
-            "CLAUDE_TRIGGER_EMAILS is empty. "
-            "Provide at least one email address. "
-            "Example: CLAUDE_TRIGGER_EMAILS=user@example.com"
-        )
-
-    return {
-        "sender_emails": sender_emails
-    }
+    return get_email_trigger_config(
+        env_var="CLAUDE_TRIGGER_EMAILS",
+        display_name="Claude"
+    )
