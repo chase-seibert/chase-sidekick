@@ -1,12 +1,25 @@
 # Chase Sidekick
 
+Supported AI agents:
+
+- Claude Code
+- Codex
+
 **Build your own engineering manager toolkit, one command at a time.**
 
-Sidekick is playground for using Claude Code not for coding per-se, but to automate real work tasks using your favorite products. You write code, but the skills and agents are about personal productivity in Confluence, JIRA, etc. You're  building and running a set of super powers to enable Claude Code to get go into your everyday tools to get context, and then take action. 
+Sidekick is a playground for using AI agents not for coding per se, but to automate real work tasks using your favorite products. You write code, but the skills are about personal productivity in Confluence, JIRA, Slack, Google Calendar, and similar tools. You're building a set of superpowers that lets an AI coding agent gather context from your everyday tools and then take action.
+
+## Why This Exists
+
+Engineering management involves lots of repetitive data gathering: checking JIRA hierarchies, updating 1:1 docs, synthesizing meeting notes. Instead of building a monolithic tool with every feature baked in, this project takes a different approach:
+
+**You write simple Python scripts that read from stdin and write to stdout. Agents help you build, debug, and refine them as you go.**
+
+The magic is in keeping things simple enough that you can always understand and modify your tools, while powerful enough to automate real work.
 
 ## What You Can Ask For
 
-Here are examples of complex multi-skill tasks you can ask Claude Code to handle. 
+Here are examples of complex multi-skill tasks you can ask the agent to handle.
 
 ```
 "Download all the files linked to my calendar events for this week, and generate
@@ -25,24 +38,52 @@ themes, decisions, and action items by person"
 with key topics, decisions, and follow-up items"
 ```
 
-**Plus, trigger Claude from your phone:** Email yourself with "Claude" in the subject, get results via reply within 5 minutes. Ask for JIRA queries, file listings, or run any skill - all from your mobile email app.
+These exact scenarios are not hard coded anywhere; agents can combine existing client code and skills on the fly from natural language prompts.
 
-Note that these exact scenarios are not hard coded anywhere; Claude can combine existing client code and Skills on the fly to do these, all from natural language prompts. 
+### Available Skills
 
-## Why This Exists
+Current skills in `.agents/skills`:
 
-Engineering management involves lots of repetitive data gathering: checking JIRA hierarchies, updating 1:1 docs, synthesizing meeting notes. Instead of building a monolithic tool with every feature baked in, this project takes a different approach:
-
-**You write simple Python scripts that read from stdin and write to stdout. Claude Code helps you build, debug, and refine them as you go.**
-
-The magic is in keeping things simple enough that you can always understand and modify your tools, while powerful enough to automate real work.
+- **chrome** - Query Chrome browsing history.
+- **confluence** - Manage Confluence pages with search, read, and write operations.
+- **dependency_escalation** - Draft a document for an escalation of a dependency request.
+- **dropbox** - Manage Dropbox files and Paper docs.
+- **epic_assignment** - Assign active Epics to Roadmap Initiatives based on recent activity.
+- **gcalendar** - Manage Google Calendar events.
+- **gmail** - Search and manage Gmail messages.
+- **gsheets** - Manage Google Sheets: download, upload, and replace sheets with CSV data.
+- **interview_history** - Generate all-time interview count reports from Google Calendar.
+- **jira** - Query and manage JIRA issues.
+- **jira-roadmap** - Explore JIRA roadmap hierarchies recursively.
+- **kudos** - Generate kudos for team members from recent 1:1 and meeting notes.
+- **markdown** - Convert Markdown to and from other formats.
+- **meeting_prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
+- **memory** - Manage command memory files with prompt metadata and auto-generated filenames.
+- **mmr_exec_summary** - Generate executive summaries from MMR (Monthly Metric Review) Confluence pages.
+- **omnifocus** - Manage OmniFocus tasks on macOS.
+- **oneonone_prep** - Prepare copy/paste 1:1 agendas from 1:1 docs, weekly reports, project activity, Slack context, and management prompts.
+- **oneonone_setup** - Create or migrate 1:1 docs from Paper, or create new Confluence docs with permissions and calendar updates.
+- **prep-tomorrow-meetings** - Open all meeting docs in Chrome for the next business day.
+- **project_activity** - Generate weekly project activity summaries from Slack and JIRA.
+- **project_review** - Generate comprehensive project review reports from PRD and tech spec documents.
+- **pto_block** - Block calendar for PTO and handle conflicting meetings.
+- **recent_docs** - Generate categorized summaries of recent Paper and Confluence docs from Chrome history.
+- **sev-review-prep** - Generate questions to ask during SEV review meetings based on Confluence SEV review documents.
+- **slack** - Read recent messages from Slack channels using Dash MCP.
+- **smoketest** - Check that basic reading of common files is working.
+- **sprint_review** - Generate a sprint review report.
+- **team-group-analysis** - Analyze completed work across multiple JIRA projects with automatic theme categorization.
+- **tech_spec_review** - Read a tech spec doc and write an executive summary.
+- **transcript** - Save conversation transcripts as structured Markdown in `memory/transcripts`.
+- **weekly_report** - Generate summaries of 1:1 and meeting notes organized by audience.
+- **welcome-doc** - Create personalized employee onboarding documents in Confluence.
 
 ## What You'll Build
 
-Here's a real example. Ask Claude Code:
+Here's a real example. Ask your agent:
 
 ```
-Create an Agent to generate a project review report starting from a link to a Confluence doc. 
+Create a skill workflow to generate a project review report starting from a link to a Confluence doc.
 
 Look through the document and any linked docs (PRD, design, tech spec). Pull out the JIRA epic/initiative, figure out who the DRIs are, and create a structured report covering:
 
@@ -60,9 +101,9 @@ Use the original estimate units from the doc (hours, weeks, whatever they used).
 
 ```
 
-Claude will create the Agent for you. It will figure out how to call the existing clients to talk to Confluence, JIRA, Dropbox, etc. It will know how to save output in a place where it won't be committed to git. You can go back and forth iterating on the Agent to refine. For example, you could have a subsequent prompt that says "When I ask you to refresh the report, pull all the links again, update the report, and include a changelog at the bottom".
+Agents can create the skill workflow for you. It will figure out how to call the existing clients to talk to Confluence, JIRA, Dropbox, and other services. It will know how to save output in a place where it won't be committed to git. You can go back and forth iterating on the workflow to refine it. For example, you could have a subsequent prompt that says "When I ask you to refresh the report, pull all the links again, update the report, and include a changelog at the bottom".
 
-**The kicker?** It took 15 minutes for Claude Code to write this agent. I was literally able to create this agent and have it generate the report inside the silent reading period of an actual tech spec review meeting.
+**The kicker?** It took 15 minutes to write this workflow. I was literally able to create it and have it generate the report inside the silent reading period of an actual tech spec review meeting.
 
 That's the power of this approach: simple building blocks that combine into sophisticated automation, where you can build novel use cases ***quickly***. 
 
@@ -91,14 +132,15 @@ cp .env.example .env
 python -m sidekick.clients.jira query "project = PROJ AND status = Open"
 ```
 
-Now ask Claude Code to use it:
+Now ask Claude Code or Codex to use it:
 ```bash
 claude code "Show me all open issues in the PROJ project"
+codex "Show me all open issues in the PROJ project"
 ```
 
-Claude reads the skill documentation in `.claude/skills/jira/SKILL.md` and executes the right command.
+The agent reads the skill documentation in `.agents/skills/jira/SKILL.md` and executes the right command.
 
-If Claude tries to use a skill that is not configured yet, it will prompt you with the steps in the README.md for the skill to provision API keys, etc. 
+If a skill is not configured yet, the agent should point you to that skill's README.md setup steps for API keys and other credentials.
 
 ## Philosophy: Simple Tools, Standard I/O
 
@@ -109,19 +151,19 @@ Every client follows the same pattern:
 3. **Human-readable output** - Not JSON blobs, but formatted text you can read
 4. **Zero external dependencies** - Only Python stdlib (requests, json, urllib)
 
-This means you (and Claude) can:
+This means you and the agent can:
 - Pipe outputs together: `python -m jira query "..." | grep "backend"`
 - Save outputs: `python -m jira roadmap-hierarchy PROJ-100 > hierarchy.txt`
-- Chain commands: `python -m confluence search "API" | python -m output write ...`
+- Chain commands: `python -m sidekick.clients.confluence search "API" | python -m sidekick.clients.memory write "Search Confluence for API" confluence "search API" --md`
 
-You typically won't ***need** to think about how these are chained together, because Claude will figure it out. 
+You typically won't ***need** to think about how these are chained together, because Claude Code or Codex will figure it out.
 
-**Why this matters:** You can inspect, modify, and understand every tool. You can see the steps, and inspect the intermediate outputs. And so can Claude. 
+**Why this matters:** You can inspect, modify, and understand every tool. You can see the steps and inspect the intermediate outputs. So can Claude Code and Codex.
 
-**Skills and agents are markdown documentation.** Look at `.claude/agents/project-review.md`:
+**Skills are markdown documentation.** Look at `.agents/skills/project_review/SKILL.md`:
 
 ```markdown
-# Project Review Agent
+# Project Review Skill
 
 Generate comprehensive project status reports from JIRA data.
 
@@ -138,18 +180,18 @@ Generate comprehensive project status reports from JIRA data.
 - "Create a status report for the Auth Migration initiative"
 ```
 
-Claude Code reads these files at the start of every session. When you ask for a project review, Claude sees the agent workflow, understands which clients to invoke, and executes the steps in order.
+Claude Code and Codex discover these skills from `.agents/skills`. When you ask for a project review, the agent sees the workflow, understands which clients to invoke, and executes the steps in order.
 
-**Important: The `memory/` directory is in `.gitignore`** - This is where command outputs get saved (JIRA hierarchies, Confluence searches, agent results). These files provide context for Claude across sessions but aren't checked into version control. Think of them as a local knowledge base that grows as you work.
+**Important: The `memory/` directory is in `.gitignore`** - This is where command outputs get saved (JIRA hierarchies, Confluence searches, workflow results). These files provide context across sessions but aren't checked into version control. Think of them as a local knowledge base that grows as you work.
 
-## Using CLAUDE.local.md for Context
+## Using AGENTS.override.md for Context
 
-When you ask Claude to "look up JIRA Epics for my teams", or "fetch recent content from my 1:1 docs", how does it know what to do?
+When you ask your agent to "look up JIRA Epics for my teams", or "fetch recent content from my 1:1 docs", how does it know what to do?
 
-Create `CLAUDE.local.md` in your project root (it's gitignored):
+Create `AGENTS.override.md` in your project root (it's gitignored):
 
 ```markdown
-# CLAUDE.local.md
+# AGENTS.override.md 
 
 ## My Teams
 
@@ -166,23 +208,25 @@ Create `CLAUDE.local.md` in your project root (it's gitignored):
 
 - Auth Migration: PLAT-1500, PLAT-1520 - Migrate to OAuth2
 - API Gateway: API-200 - Centralized API routing
+
+Load [AGENTS.md](AGENTS.md)
 ```
 
-The content here can be in ANY format. It's just additional text content for all your prompts. Now when you ask Claude "Add a topic to my 1:1 with Alice," it knows where to look. When you say "Show me all Platform issues," it knows to query `project = PLAT`.
+**The last line is very important, that's what tells the agent to also load the main Markdown file, in an agent-neutral way.**
 
-**This is your personal context layer.** It makes Claude's responses more relevant without cluttering the shared codebase.
+The content here can be in ANY format. It's just additional text content for workflows that need your local context. Now when you ask "Add a topic to my 1:1 with Alice," the agent knows where to look. When you say "Show me all Platform issues," it knows to query `project = PLAT`.
+
+**This is your personal context layer.** It makes responses more relevant without cluttering the shared codebase.
 
 ## Using "Memory" for file-based context 
 
 Sidekick includes a Skill called "memory". This can read and write the results of any prompt in a local directory structure at `./memory`. The folder structure is namespaced by skill. The entire folder is ignored by git; meaning that it's OK to have secrets or personal/work data in there. 
 
-You can ask Claude to "download the spreadsheet at link X and save as CSV in memory". It will handle naming it, etc. Now, at any point in the future you can at-mention this file in your prompts to reload that context. 
+You can ask the agent to "download the spreadsheet at link X and save as CSV in memory". It will handle naming it, etc. Now, at any point in the future you can at-mention this file in your prompts to reload that context.
 
 You can also manually add any file you want to the memory folder. 
 
-For example, you can prompt Claude "@employee.csv show me employees at L5+ in San Francisco". If that data is in the file, there is a very good change Claude will nail this. 
-
-***Note: in order to be able to at-mention .gitignored files, you need to toggle the Claude setting for "Claude Code: Respect Git Ignore".***
+For example, you can prompt "@employee.csv show me employees at L5+ in San Francisco". If that data is in the file, there is a very good chance the agent will nail this.
 
 ## Design Decisions
 
@@ -198,7 +242,7 @@ By using only Python stdlib, everything just works. Clone the repo, set environm
 
 **The trade-off:** You write more code. The `jira.py` client has a `_request()` method instead of using `requests`. That's ~50 lines of HTTP handling, but it's code you can read and fix.
 
-**The Claude Code advantage:** When clients are short (300-500 lines) and use only stdlib, Claude can load the entire implementation into context. It doesn't need to make assumptions about external library implementation details. It knows exactly how authentication works, how errors are handled, what the API surface looks like - because it wrote that code, the docstrings, the calling conventions. This makes debugging and extending clients remarkably fast.
+**The AI coding agent advantage:** When clients are short (300-500 lines) and use only stdlib, Claude Code or Codex can load the entire implementation into context. It doesn't need to make assumptions about external library implementation details. It can see exactly how authentication works, how errors are handled, and what the API surface looks like. This makes debugging and extending clients remarkably fast.
 
 ### Why No Unit Tests?
 
@@ -206,7 +250,7 @@ This is a toolkit for your own use, not a library for others. The test is: **doe
 
 When something breaks:
 1. You notice immediately (you're the only user)
-2. Claude Code helps you fix it in real-time
+2. Claude Code or Codex helps you fix it in real-time
 3. You learn how it works by debugging
 
 Traditional testing makes sense for software that ships to users. This is software you use yourself, and you're paired with an AI that can refactor and fix issues as they arise.
@@ -223,22 +267,22 @@ The effort-to-value ratio is poor. You'd spend more time maintaining mocks than 
 
 The goal isn't to give you a finished product. **It's to give you something good enough to use, and simple enough to modify.**
 
-When you need a new field from JIRA, you add it. When your Confluence doc structure changes, you adjust the parser. Claude Code helps with the changes, but you understand what's happening.
+When you need a new field from JIRA, you add it. When your Confluence doc structure changes, you adjust the parser. Claude Code or Codex helps with the changes, but you understand what's happening.
 
-This is the opposite of a SaaS tool where you file a feature request and wait. Here, you just ask Claude to make the change, review the diff, and run it.
+This is the opposite of a SaaS tool where you file a feature request and wait. Here, you ask Claude Code or Codex to make the change, review the diff, and run it.
 
 ## Warning: Live Network Calls
 
 ⚠️ **These tools make real API calls while you're writing and debugging them.**
 
-When Claude is developing a new JIRA command, it will test it against your actual JIRA instance. When debugging Confluence integration, it will read from your real wiki.
+When an agent is developing a new JIRA command, it may test it against your actual JIRA instance. When debugging Confluence integration, it may read from your real wiki.
 
 This is by design - you see results immediately - but be aware:
 - Failed experiments might create test issues (clean them up after)
 - API rate limits are real (JIRA allows ~100 requests/minute)
 - Bugs in write operations affect real data (though most skills are read-only)
 
-**Safety guardrails:** The `CLAUDE.md` instructions specify that Claude should ask for confirmation before making calls that write data to remote services (creating issues, updating pages, sending emails). Read operations do not require confirmation - Claude can query JIRA, search Confluence, or read files without asking.
+**Safety guardrails:** `CLAUDE.md` and `AGENTS.md` both specify that the agent should ask for confirmation before making calls that write data to remote services (creating issues, updating pages, sending emails). Read operations do not require confirmation; the agent can query JIRA, search Confluence, or read files without asking.
 
 **Start with read operations and queries.** Once you trust a command, move to writes.
 
@@ -246,66 +290,72 @@ This is by design - you see results immediately - but be aware:
 
 ```
 chase-sidekick/
+├── .agents/
+│   └── skills/              # Canonical shared skills for Claude Code and Codex
+│       ├── chrome/
+│       ├── confluence/
+│       ├── dependency_escalation/
+│       ├── dropbox/
+│       ├── epic_assignment/
+│       ├── gcalendar/
+│       ├── gmail/
+│       ├── gsheets/
+│       ├── interview_history/
+│       ├── jira/
+│       ├── jira-roadmap/
+│       ├── kudos/
+│       ├── markdown/
+│       ├── meeting_prep/
+│       ├── memory/
+│       ├── mmr_exec_summary/
+│       ├── omnifocus/
+│       ├── oneonone_prep/
+│       ├── oneonone_setup/
+│       ├── prep-tomorrow-meetings/
+│       ├── project_activity/
+│       ├── project_review/
+│       ├── pto_block/
+│       ├── recent_docs/
+│       ├── sev-review-prep/
+│       ├── slack/
+│       ├── smoketest/
+│       ├── sprint_review/
+│       ├── team-group-analysis/
+│       ├── tech_spec_review/
+│       ├── transcript/
+│       ├── weekly_report/
+│       └── welcome-doc/
 ├── .claude/
-│   ├── skills/              # Command documentation (Claude reads these)
-│   │   ├── jira/
-│   │   │   ├── SKILL.md     # JIRA skill documentation (Claude reads this)
-│   │   │   └── README.md    # Extended JIRA reference (for humans)
-│   │   ├── confluence/
-│   │   │   ├── SKILL.md     # Confluence skill documentation
-│   │   │   └── README.md    # Extended reference
-│   │   ├── omnifocus/
-│   │   │   ├── SKILL.md     # OmniFocus skill documentation
-│   │   │   └── README.md    # Extended reference
-│   │   ├── dropbox/
-│   │   │   ├── SKILL.md     # Dropbox skill documentation
-│   │   │   └── README.md    # Extended reference
-│   │   └── ...              # Other skills follow same pattern
-│   └── agents/              # Multi-step workflows
-│       ├── weekly_report.md    # Generate weekly summaries
-│       └── project_review.md   # Generate project status reports
+│   ├── settings.json        # Claude-specific permissions/config
+│   └── skills -> ../.agents/skills
 ├── tools/
-│   ├── email_trigger_watcher.py  # Phone-to-desktop email triggers
+│   ├── email_trigger_watcher.py  # Phone-to-desktop Claude/Codex email triggers
 │   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
 │   └── smoketest.py              # Test access to Paper, Confluence, Slack
 ├── sidekick/
 │   ├── config.py            # Load from .env
 │   └── clients/             # Single-file service clients
-│       ├── jira.py          # ~400 lines, stdlib only
-│       ├── confluence.py    # ~500 lines, stdlib only
-│       ├── chrome.py        # ~600 lines, stdlib only
-│       ├── dropbox.py       # ~300 lines, stdlib only
-│       ├── omnifocus.py     # ~400 lines, stdlib only
-│       ├── gmail.py         # ~300 lines, stdlib only
-│       └── gcalendar.py     # ~250 lines, stdlib only
+│       ├── chrome.py        # Chrome history queries
+│       ├── confluence.py    # Confluence search/read/write
+│       ├── dropbox.py       # Dropbox files and Paper docs
+│       ├── gcalendar.py     # Google Calendar events
+│       ├── gmail.py         # Gmail search and drafts
+│       ├── gsheets.py       # Google Sheets CSV workflows
+│       ├── jira.py          # JIRA issue queries and updates
+│       ├── markdown.py      # Markdown/HTML conversion
+│       ├── markdown_pdf.py  # Markdown to PDF rendering
+│       ├── memory.py        # Local memory file management
+│       └── omnifocus.py     # OmniFocus task management
 ├── memory/                  # Saved command outputs (gitignored)
 │   ├── jira/               # JIRA query results
 │   ├── confluence/         # Confluence search results
 │   ├── weekly_report/      # Weekly report outputs
 │   └── project_review/     # Project review outputs
 ├── .env                     # Your credentials (gitignored)
+├── AGENTS.md                # Codex guidance
+├── CLAUDE.md                # Claude Code guidance
 └── CLAUDE.local.md          # Your personal context (optional, gitignored)
 ```
-
-## Available Skills
-
-Current skills (each is a single-file client + markdown docs):
-
-- **JIRA** - Query issues, traverse hierarchies, manage labels
-- **Confluence** - Search pages, read/write content, manage 1:1 docs
-- **Slack** - Search messages and channels (via Dash MCP)
-- **Zoom** - Access meeting transcripts and recordings (via Dash MCP)
-- **Chrome** - Query browsing history, search visited pages, filter by service (Confluence, JIRA, Paper, etc.)
-- **Dropbox** - Read/write files and Paper docs
-- **OmniFocus** - Task management (macOS only)
-- **Gmail** - Search messages, create drafts
-- **Google Calendar** - Manage events
-- **Google Sheets** - CSV import/export
-- **Markdown to PDF** - Convert docs with pandoc
-- **Transcript** - Save conversation transcripts as markdown to memory/transcripts
-- **Welcome Doc** - Create personalized employee onboarding documents in Confluence
-- **Email Triggers** - Trigger Claude Code from your phone via email (tools/email_trigger_watcher.py)
-
 
 ## Configuration
 
@@ -337,7 +387,7 @@ GOOGLE_REFRESH_TOKEN=your_refresh_token
 To enable Slack, Zoom, and other Dropbox Dash integrations via MCP (Model Context Protocol):
 
 1. **Install Dash MCP Server:**
-   - Open Claude *in the terminal*
+   - Open Claude Code or Codex in the terminal
    - Use /mcp and add via URL [https://mcp.dropbox.com/dash](https://mcp.dropbox.com/dash)
    - It will prompt you to authenticate in a browser
    - Make sure you enable the desired connectors on Dash web
@@ -349,7 +399,7 @@ To enable Slack, Zoom, and other Dropbox Dash integrations via MCP (Model Contex
 It also has connectors for Jira and Confluence; which has long-lived authentication tokens. 
 
 3. **Usage:**
-   Once connected, Claude Code can automatically use Dash MCP to:
+   Once connected, Claude Code or Codex can use Dash MCP to:
    ```
    "Search Slack #engineering for discussions about API changes this week"
    "Find my recent Zoom meetings and summarize the transcripts"
@@ -359,22 +409,24 @@ Try adding your most important Slack channels to `CLAUDE.local.md` for quick con
 
 ## Phone to Desktop: Email Triggers
 
-You can trigger Claude Code from your phone by sending yourself an email. 
+You can trigger Claude Code or Codex from your phone by sending yourself an email. The subject prefix chooses the agent: use `Claude <prompt>` or `Codex <prompt>`.
 
 ### Setup
 
 **Prerequisites:**
-- Gmail client must be configured (see [Gmail skill](.claude/skills/gmail/README.md) for OAuth setup)
+- Gmail client must be configured (see [Gmail skill](.agents/skills/gmail/README.md) for OAuth setup)
 - Claude Code CLI must be available in PATH (`/Users/username/.local/bin/claude`)
+- Codex CLI must be available in PATH for Codex triggers (`/opt/homebrew/bin/codex`)
 - Python 3 installed
 
 **Setup:**
 
 1. **Configure allowed sender emails** in `.env`:
 
-   Add your email addresses (comma-separated for multiple):
+   Add your email addresses (comma-separated for multiple). Codex triggers use `CODEX_TRIGGER_EMAILS` if present and fall back to `CLAUDE_TRIGGER_EMAILS`.
    ```bash
    CLAUDE_TRIGGER_EMAILS=your-work@company.com,your-personal@email.com
+   CODEX_TRIGGER_EMAILS=your-work@company.com,your-personal@email.com
    ```
 
 2. **Add to system crontab** (runs every 5 minutes):
@@ -385,53 +437,28 @@ You can trigger Claude Code from your phone by sending yourself an email.
 
    Add this line (replace paths if needed):
    ```bash
-   */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/claude_trigger.log 2>&1
+   */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/email_trigger_watcher.log 2>&1
    ```
-
-## Testing Your Setup: Smoketest Tool
-
-The `tools/smoketest.py` script verifies that your client configurations are working correctly. It tests access to:
-- **Paper docs** - via Dropbox client
-- **Confluence docs** - via Confluence client
-- **Slack channels** - requires Dash MCP (only works in Claude Code, not standalone)
-
-### Usage
-
-```bash
-# Run with default test files from CLAUDE.local.md
-python3 tools/smoketest.py
-
-# Or specify custom URLs
-python3 tools/smoketest.py "https://dropbox.com/..." "https://confluence.com/..." "#channel-name"
-```
-
-The tool will:
-1. Test reading from each service
-2. Show a ✅ or 🛑 for each service
-3. Display a TL;DR preview of the content
-4. Describe how it accessed each resource
-
-**Note:** Slack testing requires the Dash MCP server which is only available when running within Claude Code, not from standalone Python scripts. This is expected behavior - the smoketest will flag this limitation.
 
 ## Adding New Skills
 
-Want to add a Slack client? Claude is really good at writing this kind of thing; it's been done thousands of times in its training set. 
+Want to add a Slack client? Claude Code or Codex is good at writing this kind of thing.
 
-1. **Ask Claude to write the client:**
+1. **Ask the agent to write the client:**
    ```
    "Write a Slack client that can list channels, send messages, and search message history."
    ```
 
-Claude will nail this, and give you examples of how to call the client at the command line. 
+The agent should give you examples of how to call the client at the command line.
 
 2. **Test it until it works:**
    ```bash
    python -m sidekick.clients.slack list-channels
    ```
 
-This is where you will need to create and copy in to `.env` any credentials that Claude identifies for this client. 
+This is where you will need to create and copy in to `.env` any credentials the agent identifies for this client.
 
-3. **Ask Claude to document it:**
+3. **Ask the agent to document it:**
    ```
    "Now write a Skill for this client"
    ```
@@ -441,7 +468,7 @@ This is where you will need to create and copy in to `.env` any credentials that
    "Show me recent messages in #engineering"
    ```
 
-Claude reads the skill documentation and knows how to invoke your new command. You don't need to register anything or update a central config. You can use subsequent prompts to refine the client and the Skill as you debug, find new use cases, etc. 
+Claude Code and Codex read the skill documentation and know how to invoke your new command. You don't need to register anything or update a central config. You can use subsequent prompts to refine the client and the skill as you debug, find new use cases, etc.
 
 ## Why This Is Fun
 
@@ -450,46 +477,9 @@ Building these tools is satisfying because:
 1. **You see results immediately** - Run a command, get real data
 2. **No yak shaving** - No build systems, dependency management, or framework configuration
 3. **You own the code** - Simple enough to understand, small enough to modify
-4. **You could write it, but you don't have to** - Claude handles HTTP parsing, error checking, argument parsing, docstrings, CLI interfaces
+4. **You could write it, but you don't have to** - the agent handles HTTP parsing, error checking, argument parsing, docstrings, and CLI interfaces
 5. **It compounds** - Each skill makes the next one easier to build
 
-This is coding as conversation with an AI, where you focus on what you want and Claude handles implementation details.
+This is coding as conversation with an AI, where you focus on what you want and the agent handles implementation details.
 
-It's also a great way to stay technical as a manager. You're writing real code that solves real problems, but without the overhead of maintaining production systems. You could absolutely write this code yourself, but having Claude do the tedious parts means you actually finish projects instead of abandoning them after the fun parts are done.
-
----
-
-## Full Command Reference
-
-### Available Skills
-
-See individual skill documentation for detailed command usage:
-
-- [JIRA](.claude/skills/jira/README.md) - Query issues, traverse hierarchies, manage labels
-- [Confluence](.claude/skills/confluence/README.md) - Search pages, read/write content, manage 1:1 docs
-- [Chrome](.claude/skills/chrome/README.md) - Query browsing history, search visited pages, filter by service
-- [OmniFocus](.claude/skills/omnifocus/README.md) - Task management (macOS only)
-- [Dropbox](.claude/skills/dropbox/README.md) - Read/write files and Paper docs
-- [Gmail](.claude/skills/gmail/README.md) - Search messages, create drafts
-- [Google Calendar](.claude/skills/gcalendar/README.md) - Manage events
-- [Google Sheets](.claude/skills/gsheets/README.md) - CSV import/export
-- [Memory Management](.claude/skills/memory/README.md) - Save command outputs with metadata
-- [Markdown to PDF](.claude/skills/markdown-pdf/README.md) - Convert docs with pandoc
-- [Transcript](.claude/skills/transcript/README.md) - Save conversation transcripts to memory/transcripts
-- [Welcome Doc](.claude/skills/welcome-doc/README.md) - Create personalized employee onboarding documents
-
-### Available Agents
-
-Multi-step workflows that coordinate multiple clients:
-
-- [Weekly Report](.claude/agents/weekly_report.md) - Generate weekly summaries from 1:1 and meeting docs
-- [Project Review](.claude/agents/project_review.md) - Generate project status reports from JIRA data
-- [Welcome Doc](.claude/agents/welcome-doc.md) - Create personalized employee onboarding documents with interactive prompts
-
-Or just ask Claude Code:
-```
-"How do I query JIRA issues by label?"
-"Show me how to add topics to my 1:1 docs"
-"What can I do with the Dropbox client?"
-"What agents are available?"
-```
+It's also a great way to stay technical as a manager. You're writing real code that solves real problems, but without the overhead of maintaining production systems. You could absolutely write this code yourself, but having Claude Code or Codex do the tedious parts means you actually finish projects instead of abandoning them after the fun parts are done.

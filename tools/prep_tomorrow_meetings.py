@@ -13,6 +13,7 @@ import re
 import subprocess
 from pathlib import Path
 from datetime import datetime, timedelta
+from html import unescape
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -80,8 +81,8 @@ def extract_urls_from_html(html_text: str) -> list:
 
         # Only include document URLs (not calendar, zoom, etc.)
         if any(pattern in url for pattern in doc_patterns):
-            # Clean up URL (remove any HTML entities)
-            url = url.split('&amp;')[0]  # Remove HTML-encoded query params
+            # Unescape HTML entities (e.g., &amp; -> &)
+            url = unescape(url)
             if url not in urls:
                 urls.append(url)
 
@@ -93,6 +94,8 @@ def extract_urls_from_html(html_text: str) -> list:
         url = match.group(0)
         # Remove trailing HTML tags or entities
         url = re.sub(r'<[^>]*>.*$', '', url)
+        # Unescape HTML entities
+        url = unescape(url)
         if url not in urls:
             urls.append(url)
 
@@ -236,7 +239,17 @@ def main():
                     'summary': summary,
                     'urls': doc_urls
                 })
+                # Add to all_doc_urls, but deduplicate later
                 all_doc_urls.extend(doc_urls)
+
+        # Deduplicate URLs while preserving order
+        seen = set()
+        unique_doc_urls = []
+        for url in all_doc_urls:
+            if url not in seen:
+                seen.add(url)
+                unique_doc_urls.append(url)
+        all_doc_urls = unique_doc_urls
 
         # Report results
         if not meetings_with_docs:
@@ -264,8 +277,8 @@ def main():
                 print(f"  - {doc_type}: {url}")
             print()
 
-        # Open all docs in Chrome
-        print(f"Opening {len(all_doc_urls)} docs in Chrome...")
+        # Open all docs in Chrome (already deduplicated)
+        print(f"Opening {len(all_doc_urls)} unique docs in Chrome...")
         open_urls_in_chrome(all_doc_urls)
 
         print("✓ Done")
