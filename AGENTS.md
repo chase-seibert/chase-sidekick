@@ -26,6 +26,8 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Every `SKILL.md` must include frontmatter with `name` and `description`.
 - Keep skill descriptions specific enough that Codex can decide when to invoke them.
 - Add new reusable workflows as `.agents/skills/<skill-name>/SKILL.md`.
+- Never put reusable skill source files under `memory/`, including `memory/*_skill/SKILL.md`; `memory/` is for generated reports, cached context, and personal working data.
+- When a skill writes reports or memories, keep only those generated outputs under `memory/`; the skill definition itself still belongs in `.agents/skills/<skill-name>/SKILL.md`.
 - Do not create `.codex/agents` for these Sidekick workflows; the current workflows are skills, not Codex subagent personas.
 
 ## Local Context
