@@ -1,10 +1,21 @@
 # Chase Sidekick
 
+Supported AI agents:
+
+- Claude Code
+- Codex
+
 **Build your own engineering manager toolkit, one command at a time.**
 
 Sidekick is a playground for using AI agents not for coding per se, but to automate real work tasks using your favorite products. You write code, but the skills are about personal productivity in Confluence, JIRA, Slack, Google Calendar, and similar tools. You're building a set of superpowers that lets an AI coding agent gather context from your everyday tools and then take action.
 
-Currently supported AI agents: Claude Code, Codex.
+## Why This Exists
+
+Engineering management involves lots of repetitive data gathering: checking JIRA hierarchies, updating 1:1 docs, synthesizing meeting notes. Instead of building a monolithic tool with every feature baked in, this project takes a different approach:
+
+**You write simple Python scripts that read from stdin and write to stdout. Agents help you build, debug, and refine them as you go.**
+
+The magic is in keeping things simple enough that you can always understand and modify your tools, while powerful enough to automate real work.
 
 ## What You Can Ask For
 
@@ -29,13 +40,43 @@ with key topics, decisions, and follow-up items"
 
 These exact scenarios are not hard coded anywhere; agents can combine existing client code and skills on the fly from natural language prompts.
 
-## Why This Exists
+### Available Skills
 
-Engineering management involves lots of repetitive data gathering: checking JIRA hierarchies, updating 1:1 docs, synthesizing meeting notes. Instead of building a monolithic tool with every feature baked in, this project takes a different approach:
+Current skills in `.agents/skills`:
 
-**You write simple Python scripts that read from stdin and write to stdout. Agents help you build, debug, and refine them as you go.**
-
-The magic is in keeping things simple enough that you can always understand and modify your tools, while powerful enough to automate real work.
+- **chrome** - Query Chrome browsing history.
+- **confluence** - Manage Confluence pages with search, read, and write operations.
+- **dependency_escalation** - Draft a document for an escalation of a dependency request.
+- **dropbox** - Manage Dropbox files and Paper docs.
+- **epic_assignment** - Assign active Epics to Roadmap Initiatives based on recent activity.
+- **gcalendar** - Manage Google Calendar events.
+- **gmail** - Search and manage Gmail messages.
+- **gsheets** - Manage Google Sheets: download, upload, and replace sheets with CSV data.
+- **interview_history** - Generate all-time interview count reports from Google Calendar.
+- **jira** - Query and manage JIRA issues.
+- **jira-roadmap** - Explore JIRA roadmap hierarchies recursively.
+- **kudos** - Generate kudos for team members from recent 1:1 and meeting notes.
+- **markdown** - Convert Markdown to and from other formats.
+- **meeting_prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
+- **memory** - Manage command memory files with prompt metadata and auto-generated filenames.
+- **mmr_exec_summary** - Generate executive summaries from MMR (Monthly Metric Review) Confluence pages.
+- **omnifocus** - Manage OmniFocus tasks on macOS.
+- **oneonone_prep** - Prepare copy/paste 1:1 agendas from 1:1 docs, weekly reports, project activity, Slack context, and management prompts.
+- **oneonone_setup** - Create or migrate 1:1 docs from Paper, or create new Confluence docs with permissions and calendar updates.
+- **prep-tomorrow-meetings** - Open all meeting docs in Chrome for the next business day.
+- **project_activity** - Generate weekly project activity summaries from Slack and JIRA.
+- **project_review** - Generate comprehensive project review reports from PRD and tech spec documents.
+- **pto_block** - Block calendar for PTO and handle conflicting meetings.
+- **recent_docs** - Generate categorized summaries of recent Paper and Confluence docs from Chrome history.
+- **sev-review-prep** - Generate questions to ask during SEV review meetings based on Confluence SEV review documents.
+- **slack** - Read recent messages from Slack channels using Dash MCP.
+- **smoketest** - Check that basic reading of common files is working.
+- **sprint_review** - Generate a sprint review report.
+- **team-group-analysis** - Analyze completed work across multiple JIRA projects with automatic theme categorization.
+- **tech_spec_review** - Read a tech spec doc and write an executive summary.
+- **transcript** - Save conversation transcripts as structured Markdown in `memory/transcripts`.
+- **weekly_report** - Generate summaries of 1:1 and meeting notes organized by audience.
+- **welcome-doc** - Create personalized employee onboarding documents in Confluence.
 
 ## What You'll Build
 
@@ -251,19 +292,39 @@ This is by design - you see results immediately - but be aware:
 chase-sidekick/
 ├── .agents/
 │   └── skills/              # Canonical shared skills for Claude Code and Codex
-│   │   ├── jira/
-│   │   │   ├── SKILL.md     # JIRA skill documentation
-│   │   │   └── README.md    # Extended JIRA reference (for humans)
-│   │   ├── confluence/
-│   │   │   ├── SKILL.md     # Confluence skill documentation
-│   │   │   └── README.md    # Extended reference
-│   │   ├── omnifocus/
-│   │   │   ├── SKILL.md     # OmniFocus skill documentation
-│   │   │   └── README.md    # Extended reference
-│   │   ├── dropbox/
-│   │   │   ├── SKILL.md     # Dropbox skill documentation
-│   │   │   └── README.md    # Extended reference
-│   │   └── ...              # Other skills follow same pattern
+│       ├── chrome/
+│       ├── confluence/
+│       ├── dependency_escalation/
+│       ├── dropbox/
+│       ├── epic_assignment/
+│       ├── gcalendar/
+│       ├── gmail/
+│       ├── gsheets/
+│       ├── interview_history/
+│       ├── jira/
+│       ├── jira-roadmap/
+│       ├── kudos/
+│       ├── markdown/
+│       ├── meeting_prep/
+│       ├── memory/
+│       ├── mmr_exec_summary/
+│       ├── omnifocus/
+│       ├── oneonone_prep/
+│       ├── oneonone_setup/
+│       ├── prep-tomorrow-meetings/
+│       ├── project_activity/
+│       ├── project_review/
+│       ├── pto_block/
+│       ├── recent_docs/
+│       ├── sev-review-prep/
+│       ├── slack/
+│       ├── smoketest/
+│       ├── sprint_review/
+│       ├── team-group-analysis/
+│       ├── tech_spec_review/
+│       ├── transcript/
+│       ├── weekly_report/
+│       └── welcome-doc/
 ├── .claude/
 │   ├── settings.json        # Claude-specific permissions/config
 │   └── skills -> ../.agents/skills
@@ -274,13 +335,17 @@ chase-sidekick/
 ├── sidekick/
 │   ├── config.py            # Load from .env
 │   └── clients/             # Single-file service clients
-│       ├── jira.py          # ~400 lines, stdlib only
-│       ├── confluence.py    # ~500 lines, stdlib only
-│       ├── chrome.py        # ~600 lines, stdlib only
-│       ├── dropbox.py       # ~300 lines, stdlib only
-│       ├── omnifocus.py     # ~400 lines, stdlib only
-│       ├── gmail.py         # ~300 lines, stdlib only
-│       └── gcalendar.py     # ~250 lines, stdlib only
+│       ├── chrome.py        # Chrome history queries
+│       ├── confluence.py    # Confluence search/read/write
+│       ├── dropbox.py       # Dropbox files and Paper docs
+│       ├── gcalendar.py     # Google Calendar events
+│       ├── gmail.py         # Gmail search and drafts
+│       ├── gsheets.py       # Google Sheets CSV workflows
+│       ├── jira.py          # JIRA issue queries and updates
+│       ├── markdown.py      # Markdown/HTML conversion
+│       ├── markdown_pdf.py  # Markdown to PDF rendering
+│       ├── memory.py        # Local memory file management
+│       └── omnifocus.py     # OmniFocus task management
 ├── memory/                  # Saved command outputs (gitignored)
 │   ├── jira/               # JIRA query results
 │   ├── confluence/         # Confluence search results
@@ -291,26 +356,6 @@ chase-sidekick/
 ├── CLAUDE.md                # Claude Code guidance
 └── CLAUDE.local.md          # Your personal context (optional, gitignored)
 ```
-
-## Available Skills
-
-Current skills (each is a single-file client + markdown docs):
-
-- **JIRA** - Query issues, traverse hierarchies, manage labels
-- **Confluence** - Search pages, read/write content, manage 1:1 docs
-- **Slack** - Search messages and channels (via Dash MCP)
-- **Zoom** - Access meeting transcripts and recordings (via Dash MCP)
-- **Chrome** - Query browsing history, search visited pages, filter by service (Confluence, JIRA, Paper, etc.)
-- **Dropbox** - Read/write files and Paper docs
-- **OmniFocus** - Task management (macOS only)
-- **Gmail** - Search messages, create drafts
-- **Google Calendar** - Manage events
-- **Google Sheets** - CSV import/export
-- **Markdown to PDF** - Convert docs with pandoc
-- **Transcript** - Save conversation transcripts as markdown to memory/transcripts
-- **Welcome Doc** - Create personalized employee onboarding documents in Confluence
-- **Email Triggers** - Trigger Claude Code or Codex from your phone via email (tools/email_trigger_watcher.py)
-
 
 ## Configuration
 
@@ -438,40 +483,3 @@ Building these tools is satisfying because:
 This is coding as conversation with an AI, where you focus on what you want and the agent handles implementation details.
 
 It's also a great way to stay technical as a manager. You're writing real code that solves real problems, but without the overhead of maintaining production systems. You could absolutely write this code yourself, but having Claude Code or Codex do the tedious parts means you actually finish projects instead of abandoning them after the fun parts are done.
-
----
-
-## Full Command Reference
-
-### Available Skills
-
-See individual skill documentation for detailed command usage:
-
-- [JIRA](.agents/skills/jira/README.md) - Query issues, traverse hierarchies, manage labels
-- [Confluence](.agents/skills/confluence/README.md) - Search pages, read/write content, manage 1:1 docs
-- [Chrome](.agents/skills/chrome/README.md) - Query browsing history, search visited pages, filter by service
-- [OmniFocus](.agents/skills/omnifocus/README.md) - Task management (macOS only)
-- [Dropbox](.agents/skills/dropbox/README.md) - Read/write files and Paper docs
-- [Gmail](.agents/skills/gmail/README.md) - Search messages, create drafts
-- [Google Calendar](.agents/skills/gcalendar/README.md) - Manage events
-- [Google Sheets](.agents/skills/gsheets/README.md) - CSV import/export
-- [Memory Management](.agents/skills/memory/README.md) - Save command outputs with metadata
-- [Markdown](.agents/skills/markdown/README.md) - Convert docs with pandoc
-- [Transcript](.agents/skills/transcript/README.md) - Save conversation transcripts to memory/transcripts
-- [Welcome Doc](.agents/skills/welcome-doc/README.md) - Create personalized employee onboarding documents
-
-### Workflow Skills
-
-Multi-step workflows that coordinate multiple clients:
-
-- [Weekly Report](.agents/skills/weekly_report/SKILL.md) - Generate weekly summaries from 1:1 and meeting docs
-- [Project Review](.agents/skills/project_review/SKILL.md) - Generate project status reports from JIRA data
-- [Welcome Doc](.agents/skills/welcome-doc/SKILL.md) - Create personalized employee onboarding documents with interactive prompts
-
-Or just ask Claude Code or Codex:
-```
-"How do I query JIRA issues by label?"
-"Show me how to add topics to my 1:1 docs"
-"What can I do with the Dropbox client?"
-"What workflow skills are available?"
-```
