@@ -7,6 +7,7 @@ the results.
 
 Usage:
     python3 tools/email_trigger_watcher.py
+    python3 tools/email_trigger_watcher.py --max-emails 3
 
 Expected email format:
     Subject: Claude <your prompt here>
@@ -26,6 +27,7 @@ The script will:
 4. Reply to the email with results
 5. Mark the email as read
 """
+import argparse
 import os
 import re
 import subprocess
@@ -43,7 +45,8 @@ from sidekick import config
 from sidekick.clients.gmail import GmailClient
 
 # Configuration
-MAX_PROMPTS_PER_RUN = 5  # Process max 5 emails per run
+DEFAULT_EMAILS_PER_RUN = 1
+SEARCH_PAGE_SIZE = 100
 EXECUTION_TIMEOUT = 300  # 5 minutes timeout for agent execution
 MAX_HOURLY_EXECUTIONS = 20  # Rate limit
 
@@ -96,6 +99,36 @@ def log(message: str):
     """Log message with timestamp."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}] {message}")
+
+
+def positive_int(value: str) -> int:
+    """Parse a positive integer argument."""
+    try:
+        parsed = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("must be an integer")
+
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be at least 1")
+
+    return parsed
+
+
+def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Monitor Gmail for unread Claude/Codex trigger emails."
+    )
+    parser.add_argument(
+        "--max-emails",
+        type=positive_int,
+        default=DEFAULT_EMAILS_PER_RUN,
+        help=(
+            "Maximum trigger emails to process this run, starting with the "
+            f"oldest matches (default: {DEFAULT_EMAILS_PER_RUN})."
+        ),
+    )
+    return parser.parse_args(argv)
 
 
 def check_rate_limit(state_file: str) -> bool:
@@ -459,7 +492,48 @@ def load_active_agent_configs() -> List[dict]:
     return active_agent_configs
 
 
-def search_trigger_messages(client: GmailClient, active_agent_configs: List[dict]) -> List[dict]:
+def message_internal_date(message: dict) -> int:
+    """Return Gmail internalDate as an integer timestamp in milliseconds."""
+    try:
+        return int(message.get("internalDate", 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def search_all_messages(client: GmailClient, query: str) -> List[dict]:
+    """Search Gmail for all messages matching a query."""
+    messages = []
+    next_page_token = None
+
+    while True:
+        params = {
+            "q": query,
+            "maxResults": SEARCH_PAGE_SIZE,
+        }
+        if next_page_token:
+            params["pageToken"] = next_page_token
+
+        result = client._request("GET", "/users/me/messages", params=params)
+        page_messages = result.get("messages", [])
+
+        for message in page_messages:
+            try:
+                messages.append(client.get_message(message["id"]))
+            except Exception:
+                messages.append(message)
+
+        next_page_token = result.get("nextPageToken")
+        if not next_page_token:
+            break
+
+    return messages
+
+
+def search_trigger_messages(
+    client: GmailClient,
+    active_agent_configs: List[dict],
+    max_emails: int
+) -> List[dict]:
     """Search once for unread trigger messages for every active agent."""
     messages_by_id: Dict[str, dict] = {}
     searchable_agent_configs = []
@@ -493,7 +567,7 @@ def search_trigger_messages(client: GmailClient, active_agent_configs: List[dict
     query = f"is:unread ({from_query}) ({subject_query})"
     log(f"Searching for trigger emails: {query}")
 
-    messages = client.search_messages(query, max_results=MAX_PROMPTS_PER_RUN)
+    messages = search_all_messages(client, query)
     log(f"Found {len(messages)} possible trigger email(s)")
 
     for message in messages:
@@ -507,12 +581,19 @@ def search_trigger_messages(client: GmailClient, active_agent_configs: List[dict
         if message_id and message_id not in messages_by_id:
             messages_by_id[message_id] = message
 
-    return list(messages_by_id.values())
+    trigger_messages = sorted(messages_by_id.values(), key=message_internal_date)
+
+    if len(trigger_messages) > max_emails:
+        log(f"Processing oldest {max_emails} of {len(trigger_messages)} trigger email(s)")
+
+    return trigger_messages[:max_emails]
 
 
-def main():
+def main(argv: Optional[List[str]] = None):
     """Main entry point."""
+    args = parse_args(argv)
     log("=== Email Trigger Watcher Starting ===")
+    log(f"Max emails to process this run: {args.max_emails}")
 
     # Load configuration
     try:
@@ -534,7 +615,7 @@ def main():
     )
 
     try:
-        messages = search_trigger_messages(client, active_agent_configs)
+        messages = search_trigger_messages(client, active_agent_configs, args.max_emails)
         log(f"Found {len(messages)} trigger email(s)")
 
         if not messages:

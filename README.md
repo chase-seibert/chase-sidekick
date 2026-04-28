@@ -435,7 +435,7 @@ You can trigger Claude Code or Codex from your phone by sending yourself an emai
    crontab -e
    ```
 
-   Add this line (replace paths if needed):
+   Add this line (replace paths if needed). By default, each run processes the oldest unread matching trigger email:
    ```bash
    */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/email_trigger_watcher.log 2>&1
    ```
