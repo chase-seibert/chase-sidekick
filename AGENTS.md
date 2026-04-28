@@ -18,6 +18,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Load configuration from `.env` through `sidekick/config.py`, with environment variables as the source of truth.
 - Return dictionaries from client APIs rather than custom domain classes.
 - Keep auth logic inside the relevant client class unless a shared helper is already present.
+- Do not generate fixture, fake-client, self-test, or other test-only code unless the user explicitly asks for tests.
 
 ## Shared Skills
 

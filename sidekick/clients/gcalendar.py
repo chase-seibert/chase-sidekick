@@ -1,11 +1,25 @@
 """Google Calendar API Client - single file implementation with CLI support."""
 
+import argparse
 import sys
 import json
+import re
 import urllib.request
 import urllib.parse
 import urllib.error
+from collections import Counter, defaultdict
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List
+
+
+DEFAULT_AUDIT_INSTANCES = 4
+DEFAULT_AUDIT_THRESHOLD = 0.50
+DEFAULT_AUDIT_MIN_INSTANCES = 4
+DEFAULT_AUDIT_LOOKBACK_DAYS = 180
+DEFAULT_AUDIT_LOOKAHEAD_DAYS = 180
+DEFAULT_AUDIT_SEND_UPDATES = "all"
+RSVP_STATUSES = {"accepted", "declined", "tentative", "needsAction"}
+SPLIT_RECURRING_SERIES_RE = re.compile(r"^(.+)_R\d{8}T\d{6}$")
 
 
 class GCalendarClient:
@@ -134,6 +148,10 @@ class GCalendarClient:
         except urllib.error.URLError as e:
             raise ConnectionError(f"Network error: {e.reason}")
 
+    def _calendar_endpoint(self, calendar_id: str, suffix: str) -> str:
+        """Build a URL-safe Calendar API endpoint for a calendar."""
+        return f"/calendars/{urllib.parse.quote(calendar_id, safe='')}{suffix}"
+
     def list_events(
         self,
         calendar_id: str = "primary",
@@ -168,6 +186,87 @@ class GCalendarClient:
         result = self._request("GET", f"/calendars/{calendar_id}/events", params=params)
         return result.get("items", []) if result else []
 
+    def list_events_paginated(
+        self,
+        calendar_id: str = "primary",
+        time_min: Optional[str] = None,
+        time_max: Optional[str] = None,
+        max_results: int = 2500,
+        order_by: str = "startTime",
+        single_events: bool = True
+    ) -> List[dict]:
+        """List all calendar events in a range, following nextPageToken pages."""
+        params = {
+            "maxResults": max_results,
+            "orderBy": order_by
+        }
+        if single_events:
+            params["singleEvents"] = "true"
+        if time_min:
+            params["timeMin"] = time_min
+        if time_max:
+            params["timeMax"] = time_max
+
+        events = []
+        page_token = None
+        while True:
+            if page_token:
+                params["pageToken"] = page_token
+            else:
+                params.pop("pageToken", None)
+
+            result = self._request("GET", self._calendar_endpoint(calendar_id, "/events"), params=params)
+            if not result:
+                break
+            events.extend(result.get("items", []))
+            page_token = result.get("nextPageToken")
+            if not page_token:
+                break
+
+        return events
+
+    def list_event_instances(
+        self,
+        event_id: str,
+        calendar_id: str = "primary",
+        time_min: Optional[str] = None,
+        time_max: Optional[str] = None,
+        max_results: int = 2500,
+        max_items: Optional[int] = None
+    ) -> List[dict]:
+        """List instances for one recurring event, following nextPageToken pages."""
+        page_size = min(max_results, max_items) if max_items else max_results
+        params = {"maxResults": page_size}
+        if time_min:
+            params["timeMin"] = time_min
+        if time_max:
+            params["timeMax"] = time_max
+
+        events = []
+        page_token = None
+        event_path = urllib.parse.quote(event_id, safe="")
+        while True:
+            if page_token:
+                params["pageToken"] = page_token
+            else:
+                params.pop("pageToken", None)
+
+            result = self._request(
+                "GET",
+                self._calendar_endpoint(calendar_id, f"/events/{event_path}/instances"),
+                params=params
+            )
+            if not result:
+                break
+            events.extend(result.get("items", []))
+            if max_items and len(events) >= max_items:
+                return events[:max_items]
+            page_token = result.get("nextPageToken")
+            if not page_token:
+                break
+
+        return events
+
     def get_event(self, event_id: str, calendar_id: str = "primary") -> dict:
         """Get a specific event by ID.
 
@@ -178,7 +277,26 @@ class GCalendarClient:
         Returns:
             Event dict with full details
         """
-        return self._request("GET", f"/calendars/{calendar_id}/events/{event_id}")
+        return self._request(
+            "GET",
+            self._calendar_endpoint(calendar_id, f"/events/{urllib.parse.quote(event_id, safe='')}")
+        )
+
+    def patch_event(
+        self,
+        event_id: str,
+        calendar_id: str = "primary",
+        patch_data: Optional[dict] = None,
+        send_updates: str = "all"
+    ) -> dict:
+        """Patch an event with partial data."""
+        params = {"sendUpdates": send_updates}
+        return self._request(
+            "PATCH",
+            self._calendar_endpoint(calendar_id, f"/events/{urllib.parse.quote(event_id, safe='')}"),
+            params=params,
+            json_data=patch_data or {}
+        )
 
     def create_event(
         self,
@@ -371,6 +489,493 @@ class GCalendarClient:
         return self.respond_to_event(event_id, "declined", calendar_id, message, send_updates)
 
 
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _iso_z(dt: datetime) -> str:
+    return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _parse_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(value).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _event_start(event: dict) -> Optional[datetime]:
+    return _parse_datetime(event.get("start", {}).get("dateTime"))
+
+
+def _format_dt(dt: Optional[datetime]) -> str:
+    if dt is None:
+        return "unknown"
+    return dt.astimezone().strftime("%Y-%m-%d %I:%M %p %Z").replace(" 0", " ")
+
+
+def _normalize_email(email: Optional[str]) -> str:
+    return (email or "").strip().lower()
+
+
+def _is_recurring_meeting_instance(event: dict) -> bool:
+    if event.get("status") == "cancelled":
+        return False
+    if not event.get("recurringEventId"):
+        return False
+    if event.get("start", {}).get("date") and not event.get("start", {}).get("dateTime"):
+        return False
+    return len(event.get("attendees") or []) > 1
+
+
+def _recurring_family_id(series_id: str) -> str:
+    match = SPLIT_RECURRING_SERIES_RE.match(series_id or "")
+    return match.group(1) if match else series_id
+
+
+def _group_recurring_instances_by_family(events: List[dict]) -> dict:
+    grouped = defaultdict(list)
+    for event in events:
+        recurring_id = event.get("recurringEventId")
+        if not recurring_id:
+            continue
+        grouped[_recurring_family_id(recurring_id)].append(event)
+    return grouped
+
+
+def _attendee_by_email(event: dict) -> dict:
+    attendees = {}
+    for attendee in event.get("attendees") or []:
+        email = _normalize_email(attendee.get("email"))
+        if email:
+            attendees[email] = attendee
+    return attendees
+
+
+def _is_excluded_attendee(attendee: dict, organizer_email: str) -> bool:
+    email = _normalize_email(attendee.get("email"))
+    if not email:
+        return True
+    if attendee.get("self"):
+        return True
+    if attendee.get("resource"):
+        return True
+    return email == organizer_email
+
+
+def _response_status(attendee: Optional[dict]) -> str:
+    if not attendee:
+        return "missing"
+    status = attendee.get("responseStatus") or "needsAction"
+    return status if status in RSVP_STATUSES else "unknown"
+
+
+def _analyze_attendees(
+    master_event: dict,
+    instances: List[dict],
+    threshold: float,
+    min_instances: int
+) -> tuple:
+    organizer_email = _normalize_email(master_event.get("organizer", {}).get("email"))
+    instance_attendees = [_attendee_by_email(instance) for instance in instances]
+    attendee_stats = []
+    suggestions = []
+
+    for attendee in master_event.get("attendees") or []:
+        email = _normalize_email(attendee.get("email"))
+        if _is_excluded_attendee(attendee, organizer_email):
+            continue
+
+        counts = Counter()
+        seen_count = 0
+        for attendees in instance_attendees:
+            status = _response_status(attendees.get(email))
+            counts[status] += 1
+            if status != "missing":
+                seen_count += 1
+
+        bad_count = counts["declined"] + counts["needsAction"]
+        bad_rate = bad_count / seen_count if seen_count else 0.0
+        stat = {
+            "email": email,
+            "display_name": attendee.get("displayName", ""),
+            "seen_instances": seen_count,
+            "evaluated_instances": len(instances),
+            "accepted": counts["accepted"],
+            "declined": counts["declined"],
+            "tentative": counts["tentative"],
+            "needs_action": counts["needsAction"],
+            "missing": counts["missing"],
+            "bad_count": bad_count,
+            "bad_rate": round(bad_rate, 4),
+        }
+        attendee_stats.append(stat)
+        if len(instances) >= min_instances and seen_count >= min_instances and bad_rate >= threshold:
+            suggestions.append(stat)
+
+    attendee_stats.sort(key=lambda item: (-item["bad_rate"], item["email"]))
+    suggestions.sort(key=lambda item: (-item["bad_rate"], item["email"]))
+    return attendee_stats, suggestions
+
+
+def _owner_label(record: dict) -> str:
+    if record.get("owned_by_me"):
+        return "Meetings I own"
+    name = record.get("owner_name")
+    email = record.get("owner_email", "unknown")
+    return f"{name} ({email})" if name else email
+
+
+def _format_audit_counts(stat: dict) -> str:
+    return (
+        f"A {stat['accepted']}, D {stat['declined']}, "
+        f"T {stat['tentative']}, NR {stat['needs_action']}"
+    )
+
+
+def _render_suggestions_table(suggestions: List[dict]) -> List[str]:
+    if not suggestions:
+        return ["No suggested removals."]
+    lines = [
+        "| Attendee | Non-attendance rate | RSVP counts | Seen |",
+        "| --- | ---: | --- | ---: |",
+    ]
+    for stat in suggestions:
+        rate = f"{stat['bad_rate'] * 100:.0f}%"
+        lines.append(
+            f"| `{stat['email']}` | {rate} | {_format_audit_counts(stat)} | "
+            f"{stat['seen_instances']}/{stat['evaluated_instances']} |"
+        )
+    return lines
+
+
+def _unique_recurring_series(events: List[dict]) -> List[dict]:
+    series = {}
+    for event in events:
+        if not _is_recurring_meeting_instance(event):
+            continue
+        series_id = _recurring_family_id(event["recurringEventId"])
+        existing = series.get(series_id)
+        if not existing or (_event_start(event) or datetime.max.replace(tzinfo=timezone.utc)) < (_event_start(existing) or datetime.max.replace(tzinfo=timezone.utc)):
+            series[series_id] = event
+    return sorted(series.values(), key=lambda event: _event_start(event) or datetime.max.replace(tzinfo=timezone.utc))
+
+
+def _is_evaluable_instance(event: dict) -> bool:
+    if event.get("status") == "cancelled":
+        return False
+    if event.get("start", {}).get("date") and not event.get("start", {}).get("dateTime"):
+        return False
+    return len(event.get("attendees") or []) > 1
+
+
+def _audit_recurring_meetings(
+    client: GCalendarClient,
+    calendar_id: str,
+    created_at: datetime,
+    instances_to_check: int,
+    threshold: float,
+    min_instances: int,
+    lookback_days: int,
+    lookahead_days: int
+) -> tuple:
+    upcoming_events = client.list_events_paginated(
+        calendar_id=calendar_id,
+        time_min=_iso_z(created_at),
+        time_max=_iso_z(created_at + timedelta(days=lookahead_days)),
+    )
+    past_events = client.list_events_paginated(
+        calendar_id=calendar_id,
+        time_min=_iso_z(created_at - timedelta(days=lookback_days)),
+        time_max=_iso_z(created_at),
+    )
+    past_instances_by_family = _group_recurring_instances_by_family(past_events)
+    recurring_meetings = _unique_recurring_series(upcoming_events)
+    reviewed_meetings = []
+    records = []
+
+    for next_instance in recurring_meetings:
+        series_id = next_instance["recurringEventId"]
+        reviewed = {
+            "series_id": series_id,
+            "summary": next_instance.get("summary") or "(No title)",
+            "owner_email": _normalize_email(next_instance.get("organizer", {}).get("email")) or "unknown",
+            "owner_name": next_instance.get("organizer", {}).get("displayName", ""),
+            "owned_by_me": bool(next_instance.get("organizer", {}).get("self")),
+            "next_occurrence": _iso_z(_event_start(next_instance)) if _event_start(next_instance) else "",
+            "status": "reviewed",
+            "recommendation_count": 0,
+        }
+        try:
+            master_event = client.get_event(series_id, calendar_id)
+            owner = master_event.get("organizer") or next_instance.get("organizer") or {}
+            reviewed.update({
+                "summary": master_event.get("summary") or reviewed["summary"],
+                "owner_email": _normalize_email(owner.get("email")) or "unknown",
+                "owner_name": owner.get("displayName", ""),
+                "owned_by_me": bool(owner.get("self")),
+            })
+            prior_instances = client.list_event_instances(
+                series_id,
+                calendar_id=calendar_id,
+                time_min=_iso_z(created_at - timedelta(days=lookback_days)),
+                time_max=_iso_z(created_at),
+            )
+        except Exception as exc:
+            reviewed["status"] = f"skipped: {exc}"
+            reviewed_meetings.append(reviewed)
+            print(f"Warning: skipped recurring meeting {series_id}: {exc}", file=sys.stderr)
+            continue
+        combined_prior_instances = {
+            event.get("id"): event
+            for event in prior_instances + past_instances_by_family.get(_recurring_family_id(series_id), [])
+            if event.get("id")
+        }
+
+        evaluated_instances = sorted(
+            [event for event in combined_prior_instances.values() if _is_evaluable_instance(event)],
+            key=lambda event: _event_start(event) or datetime.min.replace(tzinfo=timezone.utc),
+            reverse=True
+        )[:instances_to_check]
+        if len(evaluated_instances) < min_instances:
+            reviewed["status"] = f"insufficient history ({len(evaluated_instances)}/{min_instances} instances in {lookback_days} days)"
+            reviewed_meetings.append(reviewed)
+            continue
+
+        attendee_stats, suggestions = _analyze_attendees(
+            master_event,
+            evaluated_instances,
+            threshold=threshold,
+            min_instances=min_instances
+        )
+        if not suggestions:
+            reviewed["status"] = "no recommendations"
+            reviewed_meetings.append(reviewed)
+            continue
+
+        reviewed["status"] = "recommended removals"
+        reviewed["recommendation_count"] = len(suggestions)
+        reviewed_meetings.append(reviewed)
+        owner = master_event.get("organizer") or next_instance.get("organizer") or {}
+        owned_by_me = bool(owner.get("self"))
+        guests_can_modify = bool(master_event.get("guestsCanModify") or next_instance.get("guestsCanModify"))
+        records.append({
+            "series_id": series_id,
+            "summary": master_event.get("summary") or next_instance.get("summary") or "(No title)",
+            "owner_email": _normalize_email(owner.get("email")) or "unknown",
+            "owner_name": owner.get("displayName", ""),
+            "owned_by_me": owned_by_me,
+            "guests_can_modify": guests_can_modify,
+            "actionable": bool(owned_by_me or guests_can_modify),
+            "calendar_id": calendar_id,
+            "html_link": master_event.get("htmlLink") or next_instance.get("htmlLink", ""),
+            "next_occurrence": _iso_z(_event_start(next_instance)) if _event_start(next_instance) else "",
+            "evaluated_instances": [
+                {
+                    "event_id": instance.get("id", ""),
+                    "start": _iso_z(_event_start(instance)) if _event_start(instance) else "",
+                }
+                for instance in evaluated_instances
+            ],
+            "evaluated_instance_count": len(evaluated_instances),
+            "attendee_stats": attendee_stats,
+            "suggested_removals": suggestions,
+        })
+
+    records.sort(
+        key=lambda record: (
+            not record["owned_by_me"],
+            record["owner_email"],
+            record["summary"].lower(),
+            record["series_id"]
+        )
+    )
+    return records, reviewed_meetings
+
+
+def _build_attendance_audit_output(records: List[dict], reviewed_meetings: List[dict], settings: dict, created_at: datetime) -> dict:
+    suggestion_count = sum(len(record.get("suggested_removals", [])) for record in records)
+    actionable_count = sum(1 for record in records if record.get("actionable"))
+    return {
+        "created_at": _iso_z(created_at),
+        "settings": settings,
+        "summary": {
+            "unique_recurring_meetings_scanned": len(reviewed_meetings),
+            "meetings_with_suggested_removals": len(records),
+            "suggested_attendee_removals": suggestion_count,
+            "actionable_meetings_with_suggestions": actionable_count,
+        },
+        "meetings_reviewed": reviewed_meetings,
+        "recommended_removals": records,
+    }
+
+
+def _parse_email_list(value: str) -> List[str]:
+    emails = []
+    for chunk in value.split(","):
+        email = _normalize_email(chunk)
+        if email:
+            emails.append(email)
+    return emails
+
+
+def _remove_attendees_from_recurring_event(
+    client: GCalendarClient,
+    calendar_id: str,
+    series_id: str,
+    emails: List[str],
+    send_updates: str
+) -> dict:
+    requested = {_normalize_email(email) for email in emails if _normalize_email(email)}
+    if not requested:
+        return {
+            "status": "noop",
+            "summary": "",
+            "requested_emails": [],
+            "removed_emails": [],
+            "missing_emails": [],
+            "protected_emails": [],
+        }
+
+    master = client.get_event(series_id, calendar_id)
+    if master.get("attendeesOmitted"):
+        raise ValueError("Cannot safely patch attendees because the event returned attendeesOmitted=true")
+
+    organizer_email = _normalize_email(master.get("organizer", {}).get("email"))
+    kept_attendees = []
+    removed_emails = []
+    protected_emails = []
+    current_emails = set()
+
+    for attendee in master.get("attendees") or []:
+        email = _normalize_email(attendee.get("email"))
+        if email:
+            current_emails.add(email)
+        if email in requested:
+            if attendee.get("self") or attendee.get("resource") or email == organizer_email:
+                protected_emails.append(email)
+                kept_attendees.append(attendee)
+            else:
+                removed_emails.append(email)
+        else:
+            kept_attendees.append(attendee)
+
+    missing_emails = sorted(requested - current_emails)
+    if not removed_emails:
+        return {
+            "status": "noop",
+            "summary": master.get("summary", "(No title)"),
+            "requested_emails": sorted(requested),
+            "removed_emails": [],
+            "missing_emails": missing_emails,
+            "protected_emails": sorted(protected_emails),
+        }
+
+    updated = client.patch_event(
+        series_id,
+        calendar_id=calendar_id,
+        patch_data={"attendees": kept_attendees},
+        send_updates=send_updates
+    )
+    return {
+        "status": "success",
+        "summary": master.get("summary", "(No title)"),
+        "requested_emails": sorted(requested),
+        "removed_emails": sorted(removed_emails),
+        "missing_emails": missing_emails,
+        "protected_emails": sorted(protected_emails),
+        "updated_event_id": updated.get("id", series_id) if updated else series_id,
+    }
+
+
+def _remove_attendees_from_future_instances(
+    client: GCalendarClient,
+    calendar_id: str,
+    series_id: str,
+    emails: List[str],
+    send_updates: str,
+    future_start: Optional[datetime] = None,
+    max_instances: int = 2500
+) -> dict:
+    requested = {_normalize_email(email) for email in emails if _normalize_email(email)}
+    if not requested:
+        return {
+            "status": "noop",
+            "summary": "",
+            "requested_emails": [],
+            "removed_emails": [],
+            "missing_emails": [],
+            "protected_emails": [],
+            "updated_instances": 0,
+        }
+
+    future_start = future_start or _now_utc()
+    master = client.get_event(series_id, calendar_id)
+    instances = client.list_event_instances(
+        series_id,
+        calendar_id=calendar_id,
+        time_min=_iso_z(future_start),
+        max_items=max_instances,
+    )
+
+    updated_instances = 0
+    removed_emails = set()
+    protected_emails = set()
+    seen_emails = set()
+
+    for instance in instances:
+        if instance.get("status") == "cancelled":
+            continue
+        attendees = instance.get("attendees") or []
+        if not attendees:
+            continue
+
+        organizer_email = _normalize_email(instance.get("organizer", {}).get("email") or master.get("organizer", {}).get("email"))
+        kept_attendees = []
+        removed_from_instance = []
+
+        for attendee in attendees:
+            email = _normalize_email(attendee.get("email"))
+            if email:
+                seen_emails.add(email)
+            if email in requested:
+                if attendee.get("self") or attendee.get("resource") or email == organizer_email:
+                    protected_emails.add(email)
+                    kept_attendees.append(attendee)
+                else:
+                    removed_emails.add(email)
+                    removed_from_instance.append(email)
+            else:
+                kept_attendees.append(attendee)
+
+        if removed_from_instance:
+            client.patch_event(
+                instance["id"],
+                calendar_id=calendar_id,
+                patch_data={"attendees": kept_attendees},
+                send_updates=send_updates
+            )
+            updated_instances += 1
+
+    missing_emails = sorted(requested - seen_emails)
+    status = "success" if updated_instances else "noop"
+    return {
+        "status": status,
+        "summary": master.get("summary", "(No title)"),
+        "requested_emails": sorted(requested),
+        "removed_emails": sorted(removed_emails),
+        "missing_emails": missing_emails,
+        "protected_emails": sorted(protected_emails),
+        "updated_instances": updated_instances,
+        "max_instances": max_instances,
+        "future_start": _iso_z(future_start),
+    }
+
+
 def _format_event_oneline(event: dict) -> str:
     """Format event as one-line summary."""
     event_id = event.get("id", "")
@@ -439,6 +1044,101 @@ def _format_event_full(event: dict) -> str:
     return "\n".join(lines)
 
 
+def _attendance_audit_audit_command(client: GCalendarClient, args: argparse.Namespace) -> int:
+    created_at = _now_utc()
+    records, reviewed_meetings = _audit_recurring_meetings(
+        client,
+        calendar_id=args.calendar_id,
+        created_at=created_at,
+        instances_to_check=args.instances,
+        threshold=args.threshold,
+        min_instances=args.min_instances,
+        lookback_days=args.lookback_days,
+        lookahead_days=args.lookahead_days,
+    )
+    settings = {
+        "instances": args.instances,
+        "threshold": args.threshold,
+        "min_instances": args.min_instances,
+        "lookback_days": args.lookback_days,
+        "lookahead_days": args.lookahead_days,
+    }
+    output = _build_attendance_audit_output(
+        records,
+        reviewed_meetings,
+        settings,
+        created_at,
+    )
+    print(json.dumps(output, indent=2, sort_keys=True))
+    return 0
+
+
+def _handle_attendance_audit_cli(client: Optional[GCalendarClient], argv: List[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="python3 -m sidekick.clients.gcalendar attendance-audit",
+        description="Audit recurring meetings by Google Calendar RSVP history."
+    )
+    subparsers = parser.add_subparsers(dest="audit_command", required=True)
+
+    audit = subparsers.add_parser("audit", help="print recurring meeting attendance audit data as JSON")
+    audit.add_argument("--calendar-id", default="primary")
+    audit.add_argument("--instances", type=int, default=DEFAULT_AUDIT_INSTANCES)
+    audit.add_argument("--threshold", type=float, default=DEFAULT_AUDIT_THRESHOLD)
+    audit.add_argument("--min-instances", type=int, default=DEFAULT_AUDIT_MIN_INSTANCES)
+    audit.add_argument("--lookback-days", type=int, default=DEFAULT_AUDIT_LOOKBACK_DAYS)
+    audit.add_argument("--lookahead-days", type=int, default=DEFAULT_AUDIT_LOOKAHEAD_DAYS)
+    args = parser.parse_args(argv)
+
+    if args.audit_command == "audit":
+        return _attendance_audit_audit_command(client, args)
+    parser.error(f"Unknown attendance-audit command: {args.audit_command}")
+    return 2
+
+
+def _handle_remove_attendees_cli(client: GCalendarClient, argv: List[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="python3 -m sidekick.clients.gcalendar remove-attendees",
+        description="Remove attendees from one Calendar event or recurring master event."
+    )
+    parser.add_argument("--event-id", required=True)
+    parser.add_argument("--emails", required=True, help="comma-separated email addresses to remove")
+    parser.add_argument("--calendar-id", default="primary")
+    parser.add_argument("--scope", default="future-instances", choices=["future-instances", "whole-series"])
+    parser.add_argument("--future-start", default="", help="RFC3339 start for future-instance removals; defaults to now")
+    parser.add_argument("--max-instances", type=int, default=2500, help="safety cap for future-instance removals")
+    parser.add_argument("--send-updates", default=DEFAULT_AUDIT_SEND_UPDATES, choices=["all", "externalOnly", "none"])
+    args = parser.parse_args(argv)
+
+    emails = _parse_email_list(args.emails)
+    if args.scope == "whole-series":
+        result = _remove_attendees_from_recurring_event(
+            client,
+            args.calendar_id,
+            args.event_id,
+            emails,
+            args.send_updates,
+        )
+    else:
+        future_start = _parse_datetime(args.future_start) if args.future_start else None
+        if args.future_start and future_start is None:
+            raise ValueError(f"Invalid --future-start datetime: {args.future_start}")
+        result = _remove_attendees_from_future_instances(
+            client,
+            args.calendar_id,
+            args.event_id,
+            emails,
+            args.send_updates,
+            future_start=future_start,
+            max_instances=args.max_instances,
+        )
+
+    summary = result.get("summary") or args.event_id
+    result["summary"] = summary
+    result["scope"] = args.scope
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
 def main():
     """CLI interface for Google Calendar client."""
     if len(sys.argv) < 2:
@@ -451,6 +1151,8 @@ def main():
         print("  delete <event_id> [--no-notify]           - Delete event")
         print("  decline <event_id> [message] [--no-notify] - Decline event invitation")
         print("  respond <event_id> <status> [comment] [--no-notify] - Respond to event (accepted/declined/tentative)")
+        print("  attendance-audit <subcommand>             - Audit recurring meeting RSVP history")
+        print("  remove-attendees --event-id ID --emails EMAILS - Remove attendees from an event")
         print("\nFlags:")
         print("  --no-notify  - Don't send email notifications to attendees/organizers")
         print("\nExamples:")
@@ -461,7 +1163,15 @@ def main():
         print('  python -m sidekick.clients.gcalendar delete abc123def456 --no-notify')
         print('  python -m sidekick.clients.gcalendar decline abc123def456 "Out of office" --no-notify')
         print('  python -m sidekick.clients.gcalendar respond abc123def456 accepted "See you there!"')
+        print('  python -m sidekick.clients.gcalendar attendance-audit audit')
+        print('  python -m sidekick.clients.gcalendar remove-attendees --event-id abc123def456 --emails "a@example.com,b@example.com"')
         sys.exit(1)
+
+    command = sys.argv[1]
+    if command == "attendance-audit" and ("--help" in sys.argv[2:] or "-h" in sys.argv[2:]):
+        sys.exit(_handle_attendance_audit_cli(None, sys.argv[2:]))
+    if command == "remove-attendees" and ("--help" in sys.argv[2:] or "-h" in sys.argv[2:]):
+        sys.exit(_handle_remove_attendees_cli(None, sys.argv[2:]))
 
     # Load configuration
     try:
@@ -481,10 +1191,14 @@ def main():
         refresh_token=config["refresh_token"]
     )
 
-    command = sys.argv[1]
-
     try:
-        if command == "list":
+        if command == "attendance-audit":
+            sys.exit(_handle_attendance_audit_cli(client, sys.argv[2:]))
+
+        elif command == "remove-attendees":
+            sys.exit(_handle_remove_attendees_cli(client, sys.argv[2:]))
+
+        elif command == "list":
             time_min = sys.argv[2] if len(sys.argv) > 2 else None
             time_max = sys.argv[3] if len(sys.argv) > 3 else None
             max_results = int(sys.argv[4]) if len(sys.argv) > 4 else 10
