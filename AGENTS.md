@@ -23,6 +23,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 
 - `.agents/skills` is the canonical checked-in skill tree for both Codex and Claude Code.
 - `.claude/skills` is a compatibility symlink to `../.agents/skills`.
+- `AGENTS.md` is the canonical project instruction file for Codex. Use nested `AGENTS.md` files for narrower scoped guidance rather than Codex-specific files such as `agents/openai.yaml`.
 - Every `SKILL.md` must include frontmatter with `name` and `description`.
 - Keep skill descriptions specific enough that Codex can decide when to invoke them.
 - Add new reusable workflows as `.agents/skills/<skill-name>/SKILL.md`.
