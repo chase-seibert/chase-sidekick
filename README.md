@@ -46,6 +46,7 @@ Current skills in `.agents/skills`:
 
 - **chrome** - Query Chrome browsing history.
 - **confluence** - Manage Confluence pages with search, read, and write operations.
+- **confluence-meeting-notes-update** - Safely update Confluence meeting notes within a targeted section, placeholder, or agenda row.
 - **dependency_escalation** - Draft a document for an escalation of a dependency request.
 - **dropbox** - Manage Dropbox files and Paper docs.
 - **epic_assignment** - Assign active Epics to Roadmap Initiatives based on recent activity.
@@ -57,6 +58,7 @@ Current skills in `.agents/skills`:
 - **jira-roadmap** - Explore JIRA roadmap hierarchies recursively.
 - **kudos** - Generate kudos for team members from recent 1:1 and meeting notes.
 - **markdown** - Convert Markdown to and from other formats.
+- **meeting-attendance-audit** - Audit recurring meetings for low-response attendees and guide approved removals.
 - **meeting_prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
 - **memory** - Manage command memory files with prompt metadata and auto-generated filenames.
 - **mmr_exec_summary** - Generate executive summaries from MMR (Monthly Metric Review) Confluence pages.
@@ -294,6 +296,7 @@ chase-sidekick/
 │   └── skills/              # Canonical shared skills for Claude Code and Codex
 │       ├── chrome/
 │       ├── confluence/
+│       ├── confluence-meeting-notes-update/
 │       ├── dependency_escalation/
 │       ├── dropbox/
 │       ├── epic_assignment/
@@ -305,6 +308,7 @@ chase-sidekick/
 │       ├── jira-roadmap/
 │       ├── kudos/
 │       ├── markdown/
+│       ├── meeting-attendance-audit/
 │       ├── meeting_prep/
 │       ├── memory/
 │       ├── mmr_exec_summary/
