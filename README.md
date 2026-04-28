@@ -230,6 +230,27 @@ You can also manually add any file you want to the memory folder.
 
 For example, you can prompt "@employee.csv show me employees at L5+ in San Francisco". If that data is in the file, there is a very good chance the agent will nail this.
 
+### Syncing Memory to Dropbox
+
+To easily share Markdown `memory/` files, put the real folder in Dropbox and make the repo's `./memory` path a symlink to it. **Back up up your memory directory, first.**
+
+```bash
+DROPBOX_MEMORY_DIR="/path/to/Dropbox/sidekick-memory"
+mkdir -p "$DROPBOX_MEMORY_DIR"
+ln -s "$DROPBOX_MEMORY_DIR" memory
+ls -la memory
+```
+
+You also need to update `~/.codex/config.toml`:
+
+```toml
+[sandbox_workspace_write]
+network_access = true
+writable_roots = [
+  "/path/to/Dropbox/sidekick-memory",
+]
+```
+
 ## Design Decisions
 
 ### Why No External Libraries?
