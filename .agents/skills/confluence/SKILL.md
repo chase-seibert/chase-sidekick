@@ -49,10 +49,8 @@ python -m sidekick.clients.confluence create-page SPACE "Title" content.html [--
 python -m sidekick.clients.confluence update-page PAGE_ID content.html [--title "New Title"]
 ```
 
-### Add Topic to 1:1 Doc
-```bash
-python -m sidekick.clients.confluence add-topic-to-oneonone PERSON "Topic" [--section SECTION]
-```
+For meeting-note agenda updates, use the `confluence-meeting-notes-update`
+skill. It performs safe raw-storage HTML edits with target-range validation.
 
 ## Search Cache
 
@@ -69,7 +67,7 @@ python -m sidekick.clients.confluence cache-clear
 When the user asks to:
 - "Search for API documentation in Confluence" - Use search command
 - "Read the contents of my 1:1 doc with Bob" - Search for the doc and read it
-- "Add a topic to my 1:1 with Alice" - Use add-topic-to-oneonone command
+- "Add a topic to my 1:1 with Alice" - Use the confluence-meeting-notes-update skill
 - "Update the team wiki page" - Use update-page command
 
 For full documentation, see the detailed Confluence skill documentation in this folder.
