@@ -185,6 +185,11 @@ class OmniFocusClient:
                 "Use ISO format: YYYY-MM-DD (e.g., 2026-02-10)"
             )
 
+    def _applescript_string(self, value: str) -> str:
+        """Return a value as a quoted AppleScript string literal."""
+        escaped = str(value).replace("\\", "\\\\").replace('"', '\\"')
+        return f'"{escaped}"'
+
     def _format_task_dict(self, jxa_json: str) -> dict:
         """Parse JXA task JSON output into standardized dict.
 
@@ -809,6 +814,116 @@ var task = tasks[0];
 "Task updated";
 '''
         self._execute_jxa(script)
+
+    def append_task_note(self, task_id: str, note_block: str) -> None:
+        """Append a note block to an existing task note.
+
+        Args:
+            task_id: Task ID
+            note_block: Text to append to the task note
+
+        Raises:
+            ValueError: If task not found
+        """
+        task_id_json = json.dumps(task_id)
+        note_block_json = json.dumps(note_block)
+
+        script = f'''
+var app = Application("OmniFocus");
+var doc = app.defaultDocument;
+var taskId = {task_id_json};
+var noteBlock = {note_block_json};
+var tasks = doc.flattenedTasks.whose({{id: taskId}});
+
+if (tasks.length === 0) {{
+    throw new Error("Task not found: " + taskId);
+}}
+
+var task = tasks[0];
+var existingNote = task.note() || "";
+if (existingNote.length > 0) {{
+    task.note = existingNote + "\\n\\n" + noteBlock;
+}} else {{
+    task.note = noteBlock;
+}}
+
+"Task note appended";
+'''
+        self._execute_jxa(script)
+
+    def add_task_tag(
+        self,
+        task_id: str,
+        tag_name: str,
+        create_missing: bool = True
+    ) -> None:
+        """Add a tag to a task while preserving existing tags.
+
+        Args:
+            task_id: Task ID
+            tag_name: Tag name to add
+            create_missing: Create the tag at the root if it does not exist
+
+        Raises:
+            ValueError: If task not found, or tag not found when create_missing is False
+        """
+        task_id_literal = self._applescript_string(task_id)
+        tag_name_literal = self._applescript_string(tag_name)
+        create_missing_literal = "true" if create_missing else "false"
+
+        script = f'''
+tell application "OmniFocus"
+    tell default document
+        set taskId to {task_id_literal}
+        set tagName to {tag_name_literal}
+        set createMissing to {create_missing_literal}
+
+        set matchingTasks to flattened tasks whose id is taskId
+        if length of matchingTasks is 0 then
+            error "Task not found: " & taskId
+        end if
+        set theTask to item 1 of matchingTasks
+
+        set matchingTags to flattened tags whose name is tagName
+        if length of matchingTags is 0 then
+            if createMissing then
+                set theTag to make new tag with properties {{name:tagName}}
+            else
+                error "Tag not found: " & tagName
+            end if
+        else
+            set theTag to item 1 of matchingTags
+        end if
+
+        set alreadyTagged to false
+        repeat with existingTag in tags of theTask
+            if name of existingTag is tagName then
+                set alreadyTagged to true
+            end if
+        end repeat
+
+        if alreadyTagged is false then
+            add theTag to tags of theTask
+        end if
+
+        return "Task tag added"
+    end tell
+end tell
+'''
+        self._execute_applescript(script)
+
+    def mark_task_processed(self, task_id: str, started_note: str) -> None:
+        """Tag a task as processed and append the processing start note.
+
+        The tag is applied before the note append so the task is protected from
+        repeated processing if the later note update fails.
+
+        Args:
+            task_id: Task ID
+            started_note: Note block describing processing start
+        """
+        self.add_task_tag(task_id, "processed", create_missing=True)
+        self.append_task_note(task_id, started_note)
 
     def complete_task(self, task_id: str) -> None:
         """Mark task as complete.

@@ -334,6 +334,7 @@ chase-sidekick/
 │   └── skills -> ../.agents/skills
 ├── tools/
 │   ├── email_trigger_watcher.py  # Phone-to-desktop Claude/Codex email triggers
+│   ├── omnifocus_trigger_watcher.py # OmniFocus Inbox Codex triggers
 │   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
 │   └── smoketest.py              # Test access to Paper, Confluence, Slack
 ├── sidekick/
@@ -415,6 +416,17 @@ Try adding your most important Slack channels to `CLAUDE.local.md` for quick con
 
 You can trigger Claude Code or Codex from your phone by sending yourself an email. The subject prefix chooses the agent: use `Claude <prompt>` or `Codex <prompt>`.
 
+You can also trigger Codex from OmniFocus by creating Inbox tasks that start with `Codex`. The watcher processes untagged Inbox tasks, immediately adds the `processed` tag to prevent retry loops, appends start/result notes, and leaves the task incomplete.
+
+Supported OmniFocus task examples:
+```text
+Codex summarize my open JIRA work
+Codex 1:1 Alex discuss the roadmap handoff
+Codex meeting Core Eng LT staffing concerns for hiring IC5s
+```
+
+The `1:1` shortcut resolves people from `local/one-on-ones.md`. The `meeting` shortcut resolves the longest matching meeting heading from `local/meetings.md`. Both shortcuts ask Codex to use the `confluence-meeting-notes-update` skill to add the remaining text as a next-meeting agenda topic.
+
 ### Setup
 
 **Prerequisites:**
@@ -442,6 +454,16 @@ You can trigger Claude Code or Codex from your phone by sending yourself an emai
    Add this line (replace paths if needed). By default, each run processes the oldest unread matching trigger email:
    ```bash
    */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/email_trigger_watcher.py >> /tmp/email_trigger_watcher.log 2>&1
+   ```
+
+   For OmniFocus Inbox triggers, add a separate watcher entry:
+   ```bash
+   */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/omnifocus_trigger_watcher.py >> /tmp/omnifocus_trigger_watcher.log 2>&1
+   ```
+
+   Preview OmniFocus trigger matching without mutating tasks or running Codex:
+   ```bash
+   python3 tools/omnifocus_trigger_watcher.py --dry-run
    ```
 
 ## Adding New Skills
