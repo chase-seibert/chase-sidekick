@@ -20,6 +20,10 @@ Expected email format:
     Subject: Codex
     Body: <your prompt here>
 
+Codex shortcut formats:
+    Subject: Codex 1:1 Alex foo bar bat
+    Subject: Codex meeting Core Eng LT staffing concerns for hiring IC5s
+
 The script will:
 1. Search for unread emails from allowed senders with the agent name as first word
 2. Extract the prompt from subject or body
@@ -49,6 +53,10 @@ DEFAULT_EMAILS_PER_RUN = 1
 SEARCH_PAGE_SIZE = 100
 EXECUTION_TIMEOUT = 300  # 5 minutes timeout for agent execution
 MAX_HOURLY_EXECUTIONS = 20  # Rate limit
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+ONE_ON_ONE_DOCS_PATH = REPO_ROOT / "local" / "one-on-ones.md"
+MEETING_DOCS_PATH = REPO_ROOT / "local" / "meetings.md"
 
 
 def build_claude_command(prompt: str, working_dir: str) -> List[str]:
@@ -221,6 +229,140 @@ def extract_prompt(subject: str, body: str, trigger_word: str) -> Optional[str]:
             return body
 
     return None
+
+
+def load_one_on_one_docs(path: Path = ONE_ON_ONE_DOCS_PATH) -> Dict[str, str]:
+    """Load 1:1 doc links keyed by visible person name."""
+    docs = {}
+    link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^)]+)\)")
+
+    content = path.read_text()
+    for match in link_pattern.finditer(content):
+        docs[match.group(1).strip().lower()] = match.group(2).strip()
+
+    return docs
+
+
+def load_meeting_docs(path: Path = MEETING_DOCS_PATH) -> List[dict]:
+    """Load meeting doc links from heading blocks in local/meetings.md."""
+    meetings = []
+    current_title = None
+    current_url = None
+    heading_pattern = re.compile(r"^#{2,}\s+(.+?)\s*$")
+    url_pattern = re.compile(r"https?://\S+")
+
+    def flush_current() -> None:
+        if current_title and current_url:
+            meetings.append({
+                "title": current_title,
+                "url": current_url.rstrip(").,"),
+            })
+
+    for line in path.read_text().splitlines():
+        heading_match = heading_pattern.match(line)
+        if heading_match:
+            flush_current()
+            current_title = heading_match.group(1).strip()
+            current_url = None
+            continue
+
+        if current_title and not current_url:
+            url_match = url_pattern.search(line)
+            if url_match:
+                current_url = url_match.group(0)
+
+    flush_current()
+    return meetings
+
+
+def build_one_on_one_prompt(person_name: str, topic: str, page_url: str) -> str:
+    """Build the Codex prompt for adding a 1:1 agenda topic."""
+    return f"""Use the confluence-meeting-notes-update skill to add this topic to the next agenda section of my 1:1 document.
+
+Person: {person_name}
+Document: {page_url}
+Topic: {topic}
+"""
+
+
+def build_meeting_prompt(meeting_name: str, topic: str, page_url: str) -> str:
+    """Build the Codex prompt for adding a meeting agenda topic."""
+    return f"""Use the confluence-meeting-notes-update skill to add this topic to the next agenda section of this meeting notes document.
+
+Meeting: {meeting_name}
+Document: {page_url}
+Topic: {topic}
+"""
+
+
+def expand_codex_prompt(prompt: str) -> Tuple[str, str]:
+    """Expand Codex shortcut prompts into the full prompt."""
+    one_on_one_match = re.match(r"^1:1\s+(\S+)(?:\s+(.+))?$", prompt, re.IGNORECASE)
+    if one_on_one_match:
+        person_name = one_on_one_match.group(1).strip()
+        topic = (one_on_one_match.group(2) or "").strip()
+        if not topic:
+            raise ValueError(f"Missing agenda topic for 1:1 shortcut: {prompt}")
+
+        one_on_one_docs = load_one_on_one_docs()
+        page_url = one_on_one_docs.get(person_name.lower())
+        if not page_url:
+            available = ", ".join(sorted(one_on_one_docs.keys()))
+            raise ValueError(
+                f"No 1:1 doc found for '{person_name}' in {ONE_ON_ONE_DOCS_PATH.relative_to(REPO_ROOT)}. "
+                f"Available names: {available}"
+            )
+
+        return (
+            build_one_on_one_prompt(person_name, topic, page_url),
+            f"1:1 shortcut for {person_name}",
+        )
+
+    meeting_match = re.match(r"^meeting\s+(.+)$", prompt, re.IGNORECASE)
+    if meeting_match:
+        meeting_text = meeting_match.group(1).strip()
+        if not meeting_text:
+            raise ValueError(f"Missing meeting name and topic for meeting shortcut: {prompt}")
+
+        meetings = sorted(
+            load_meeting_docs(),
+            key=lambda item: len(item["title"]),
+            reverse=True,
+        )
+
+        for meeting in meetings:
+            title = meeting["title"]
+            title_match = re.match(
+                rf"^{re.escape(title)}(?:\s+(.+))?$",
+                meeting_text,
+                re.IGNORECASE,
+            )
+            if not title_match:
+                continue
+
+            topic = (title_match.group(1) or "").strip()
+            if not topic:
+                raise ValueError(f"Missing agenda topic for meeting shortcut: {prompt}")
+
+            return (
+                build_meeting_prompt(title, topic, meeting["url"]),
+                f"meeting shortcut for {title}",
+            )
+
+        available = ", ".join(meeting["title"] for meeting in meetings)
+        raise ValueError(
+            f"No meeting doc heading matched '{meeting_text}' in {MEETING_DOCS_PATH.relative_to(REPO_ROOT)}. "
+            f"Available meetings: {available}"
+        )
+
+    return prompt, "generic Codex prompt"
+
+
+def prepare_agent_prompt(prompt: str, agent_config: dict) -> Tuple[str, str]:
+    """Expand agent-specific shortcuts before execution."""
+    if agent_config.get("cli_name") == "codex":
+        return expand_codex_prompt(prompt)
+    return prompt, "generic prompt"
 
 
 def get_agent_config_for_subject(subject: str, agent_configs: List[dict]) -> Optional[dict]:
@@ -410,6 +552,10 @@ def process_trigger_email(
 
         log(f"Extracted prompt: {prompt[:100]}...")
 
+        execution_prompt, prompt_kind = prepare_agent_prompt(prompt, agent_config)
+        if execution_prompt != prompt:
+            log(f"Expanded Codex prompt using {prompt_kind}")
+
         # Mark as read immediately to prevent reprocessing
         # (even if agent execution or reply fails)
         log("Marking email as read...")
@@ -419,10 +565,17 @@ def process_trigger_email(
         record_execution(agent_config["state_file"])
 
         # Execute agent CLI
-        success, output, duration = execute_agent(prompt, working_dir, agent_config)
+        success, output, duration = execute_agent(execution_prompt, working_dir, agent_config)
 
         # Format reply
-        reply_body = format_reply(success, output, duration, prompt, working_dir, agent_config)
+        reply_body = format_reply(
+            success,
+            output,
+            duration,
+            execution_prompt,
+            working_dir,
+            agent_config,
+        )
         reply_subject = f"Re: {subject}"
 
         # Get Message-ID for threading

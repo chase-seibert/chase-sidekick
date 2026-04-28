@@ -418,7 +418,7 @@ You can trigger Claude Code or Codex from your phone by sending yourself an emai
 
 You can also trigger Codex from OmniFocus by creating Inbox tasks that start with `Codex`. The watcher processes untagged Inbox tasks, immediately adds the `processed` tag to prevent retry loops, appends start/result notes, and leaves the task incomplete.
 
-Supported OmniFocus task examples:
+Supported Codex shortcut examples (email subject or OmniFocus task):
 ```text
 Codex summarize my open JIRA work
 Codex 1:1 Alex discuss the roadmap handoff
