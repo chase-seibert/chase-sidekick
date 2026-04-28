@@ -1,7 +1,8 @@
-CLAUDE.local.md
-local/
+/CLAUDE.local.md
+/AGENTS.override.md
+/local/
 settings.local.json
-.claude/scheduled_tasks.json
+/.claude/scheduled_tasks.json
 
 __pycache__/
 *.py[cod]
@@ -17,13 +18,10 @@ ENV/
 *_state.txt
 
 # Memory files (saved command results)
-memory/
-!memory/.gitkeep
-!memory/*/.gitkeep
-!memory/README.md
+/memory/
+!/memory/.gitkeep
+!/memory/*/.gitkeep
+!/memory/README.md
 
 # Cache files (search cache)
-cache/
-
-# Output files (agent outputs)
-output/
+/cache/

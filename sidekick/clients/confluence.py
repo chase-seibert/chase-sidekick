@@ -20,7 +20,7 @@ class SearchCache:
         Default: memory/confluence/confluence_search_cache.yaml
         """
         if cache_file is None:
-            cache_dir = Path(__file__).parent.parent.parent / "output" / "confluence"
+            cache_dir = Path(__file__).parent.parent.parent / "memory" / "confluence"
             cache_dir.mkdir(parents=True, exist_ok=True)
             cache_file = cache_dir / "confluence_search_cache.yaml"
 

@@ -146,6 +146,7 @@ python3 -m sidekick.clients.gcalendar delete <event_id> --no-notify
 **Action**: Report for manual handling
 - Cannot decline your own meeting via API
 - User must cancel or delegate manually
+- **IMPORTANT**: If delegating to someone else to run the meeting, do NOT delete the event - deleting will break the Zoom/meeting link
 - Include in "Manual Action Required" section of report
 
 #### 3. Boss's Boss Meetings → DECLINE but KEEP
@@ -305,7 +306,8 @@ memory/pto-block-summary-{start_date}-to-{end_date}.md
 **Meetings You're Organizing:**
 - **Mon 2026-04-15 11:00 AM**: Sprint Planning
   - **You are the organizer** - cannot decline via API
-  - Recommendation: Cancel meeting and notify attendees
+  - Recommendation: Cancel meeting OR delegate to someone else to run it
+  - **IMPORTANT**: If delegating, do NOT delete the event - deleting will break the Zoom/meeting link. Leave the event on your calendar so others can still join.
 
 ---
 
@@ -342,7 +344,8 @@ Run without `--dry-run` flag to execute these changes.
 
 ### Meetings You Organized (Cannot Auto-Decline)
 - **Date Time**: Meeting Title
-  - Action: Cancel or delegate to someone else
+  - Action: Cancel OR delegate to someone else to run it
+  - **IMPORTANT**: If delegating, do NOT delete the event - this will break the Zoom/meeting link. Leave the event on your calendar so the delegate and others can still join.
 
 ## Calendar Blocks Created
 - 2026-04-15 (Mon): 9:00 AM - 5:00 PM PST

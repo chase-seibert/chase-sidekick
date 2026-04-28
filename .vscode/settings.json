@@ -4,5 +4,14 @@
   "accessibility.signals.terminalBell": {
     "sound": "on"
   },
-  "terminal.integrated.enableVisualBell": true
+  "terminal.integrated.enableVisualBell": true,
+  "files.exclude": {
+    ".claude/skills": true
+  },
+  "search.exclude": {
+    ".claude/skills": true
+  },
+  "files.watcherExclude": {
+    ".claude/skills/**": true
+  }
 }
