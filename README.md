@@ -76,6 +76,7 @@ Current skills in `.agents/skills`:
 - **sprint_review** - Generate a sprint review report.
 - **team-group-analysis** - Analyze completed work across multiple JIRA projects with automatic theme categorization.
 - **tech_spec_review** - Read a tech spec doc and write an executive summary.
+- **top-projects-exec-summary** - Generate executive summaries for the user's top five projects from local context, docs, Slack, and JIRA.
 - **transcript** - Save conversation transcripts as structured Markdown in `memory/transcripts`.
 - **weekly_report** - Generate summaries of 1:1 and meeting notes organized by audience.
 - **welcome-doc** - Create personalized employee onboarding documents in Confluence.
@@ -359,6 +360,7 @@ chase-sidekick/
 │       ├── sprint_review/
 │       ├── team-group-analysis/
 │       ├── tech_spec_review/
+│       ├── top-projects-exec-summary/
 │       ├── transcript/
 │       ├── weekly_report/
 │       └── welcome-doc/
