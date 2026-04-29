@@ -21,16 +21,20 @@ Shortcuts:
 """
 import argparse
 import re
-import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+TOOLS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = TOOLS_DIR.parent
 
+# Add project and tools directories to path for imports
+sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(TOOLS_DIR))
+
+from codex_app_runner import CodexRunResult, execute_codex_with_fallback
 from sidekick import config
 from sidekick.clients.omnifocus import OmniFocusClient
 
@@ -41,7 +45,6 @@ EXECUTION_TIMEOUT = 300
 PROCESSED_TAG = "processed"
 TRIGGER_WORD = "Codex"
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 ONE_ON_ONE_DOCS_PATH = REPO_ROOT / "local" / "one-on-ones.md"
 MEETING_DOCS_PATH = REPO_ROOT / "local" / "meetings.md"
 
@@ -96,58 +99,25 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def build_codex_command(prompt: str, working_dir: str) -> List[str]:
-    """Build the Codex command for non-interactive execution."""
-    return [
-        "codex",
-        "--ask-for-approval",
-        "never",
-        "exec",
-        "--cd",
-        working_dir,
-        "--sandbox",
-        "workspace-write",
-        prompt,
-    ]
-
-
-def execute_codex(prompt: str, working_dir: str) -> Tuple[bool, str, float, Optional[int]]:
+def execute_codex(prompt: str, working_dir: str) -> CodexRunResult:
     """Execute Codex with the given prompt."""
-    start_time = time.time()
+    log(f"Executing Codex with Desktop-visible app-server runner: {prompt[:100]}...")
+    result = execute_codex_with_fallback(
+        prompt=prompt,
+        working_dir=working_dir,
+        timeout=EXECUTION_TIMEOUT,
+    )
+    if result.thread_id:
+        log(f"Codex runner: {result.runner}; thread id: {result.thread_id}")
+    else:
+        log(f"Codex runner: {result.runner}")
 
-    try:
-        log(f"Executing Codex with prompt: {prompt[:100]}...")
-        result = subprocess.run(
-            build_codex_command(prompt, working_dir),
-            cwd=working_dir,
-            capture_output=True,
-            text=True,
-            timeout=EXECUTION_TIMEOUT,
-        )
-        duration = time.time() - start_time
+    if result.success:
+        log(f"Codex executed successfully in {result.duration:.1f}s")
+    else:
+        log(f"Codex failed via {result.runner}")
 
-        if result.returncode == 0:
-            log(f"Codex executed successfully in {duration:.1f}s")
-            return True, result.stdout, duration, result.returncode
-
-        output = result.stderr or result.stdout or "Unknown error"
-        log(f"Codex failed with exit code {result.returncode}")
-        return False, output, duration, result.returncode
-
-    except subprocess.TimeoutExpired:
-        duration = time.time() - start_time
-        log(f"Codex timed out after {duration:.1f}s")
-        return False, f"Execution timed out after {EXECUTION_TIMEOUT} seconds", duration, None
-
-    except FileNotFoundError:
-        duration = time.time() - start_time
-        log("Error: codex command not found")
-        return False, "Codex CLI not found in PATH (codex)", duration, None
-
-    except Exception as e:
-        duration = time.time() - start_time
-        log(f"Error executing Codex: {e}")
-        return False, str(e), duration, None
+    return result
 
 
 def normalize_tag_names(task: dict) -> List[str]:
@@ -363,11 +333,15 @@ def format_result_note(
     working_dir: str,
     exit_code: Optional[int],
     prompt_kind: str,
+    runner: Optional[str] = None,
+    thread_id: Optional[str] = None,
 ) -> str:
     """Format the final result note block."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     status = "success" if success else "failed"
     exit_code_text = str(exit_code) if exit_code is not None else "n/a"
+    runner_text = runner or "n/a"
+    thread_id_text = thread_id or "n/a"
     output = output if output else "(no output)"
 
     executed_prompt_section = ""
@@ -381,6 +355,8 @@ Executed Prompt:
 Finished: {timestamp}
 Status: {status}
 Prompt Type: {prompt_kind}
+Runner: {runner_text}
+Codex Thread ID: {thread_id_text}
 Duration: {duration:.1f}s
 Working Directory: {working_dir}
 Exit Code: {exit_code_text}
@@ -475,19 +451,21 @@ def process_task(
             raise ValueError("Could not extract prompt from task name or note")
 
         executed_prompt, prompt_kind = expand_prompt(original_prompt)
-        success, output, duration, exit_code = execute_codex(executed_prompt, working_dir)
+        result = execute_codex(executed_prompt, working_dir)
         result_note = format_result_note(
-            success=success,
-            output=output,
-            duration=duration,
+            success=result.success,
+            output=result.output,
+            duration=result.duration,
             original_prompt=original_prompt,
             executed_prompt=executed_prompt,
             working_dir=working_dir,
-            exit_code=exit_code,
+            exit_code=result.exit_code,
             prompt_kind=prompt_kind,
+            runner=result.runner,
+            thread_id=result.thread_id,
         )
         client.append_task_note(task_id, result_note)
-        return success
+        return result.success
 
     except Exception as e:
         duration = time.time() - process_start
@@ -500,6 +478,8 @@ def process_task(
             working_dir=working_dir,
             exit_code=None,
             prompt_kind=prompt_kind,
+            runner="not run",
+            thread_id=None,
         )
         try:
             client.append_task_note(task_id, failure_note)

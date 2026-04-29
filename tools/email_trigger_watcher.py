@@ -42,9 +42,14 @@ from datetime import datetime
 from email.utils import parseaddr
 from typing import Dict, List, Optional, Tuple
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+TOOLS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = TOOLS_DIR.parent
 
+# Add project and tools directories to path for imports
+sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(TOOLS_DIR))
+
+from codex_app_runner import CodexRunResult, execute_codex_with_fallback
 from sidekick import config
 from sidekick.clients.gmail import GmailClient
 
@@ -54,7 +59,6 @@ SEARCH_PAGE_SIZE = 100
 EXECUTION_TIMEOUT = 300  # 5 minutes timeout for agent execution
 MAX_HOURLY_EXECUTIONS = 20  # Rate limit
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 ONE_ON_ONE_DOCS_PATH = REPO_ROOT / "local" / "one-on-ones.md"
 MEETING_DOCS_PATH = REPO_ROOT / "local" / "meetings.md"
 
@@ -99,6 +103,7 @@ AGENT_CONFIGS = {
         "state_file": "/tmp/codex_trigger_state.txt",
         "log_file": "/tmp/codex_trigger.log",
         "command_builder": build_codex_command,
+        "use_codex_app_runner": True,
     },
 }
 
@@ -390,7 +395,11 @@ def sender_is_allowed(from_addr: str, agent_config: dict) -> bool:
     return sender in allowed_senders
 
 
-def execute_agent(prompt: str, working_dir: str, agent_config: dict) -> Tuple[bool, str, float]:
+def execute_agent(
+    prompt: str,
+    working_dir: str,
+    agent_config: dict
+) -> Tuple[bool, str, float, dict]:
     """Execute the configured agent CLI with the given prompt.
 
     Args:
@@ -399,10 +408,39 @@ def execute_agent(prompt: str, working_dir: str, agent_config: dict) -> Tuple[bo
         agent_config: Agent configuration
 
     Returns:
-        Tuple of (success, output, duration_seconds)
+        Tuple of (success, output, duration_seconds, execution_metadata)
     """
     start_time = time.time()
     display_name = agent_config["display_name"]
+
+    if agent_config.get("use_codex_app_runner"):
+        log(f"Executing {display_name} with Desktop-visible app-server runner: {prompt[:100]}...")
+        result: CodexRunResult = execute_codex_with_fallback(
+            prompt=prompt,
+            working_dir=working_dir,
+            timeout=EXECUTION_TIMEOUT,
+        )
+        if result.thread_id:
+            log(f"{display_name} runner: {result.runner}; thread id: {result.thread_id}")
+        else:
+            log(f"{display_name} runner: {result.runner}")
+
+        if result.success:
+            log(f"{display_name} executed successfully in {result.duration:.1f}s")
+        else:
+            log(f"{display_name} failed via {result.runner}")
+
+        return (
+            result.success,
+            result.output,
+            result.duration,
+            {
+                "runner": result.runner,
+                "thread_id": result.thread_id,
+                "exit_code": result.exit_code,
+                "app_server_error": result.app_server_error,
+            },
+        )
 
     try:
         log(f"Executing {display_name} with prompt: {prompt[:100]}...")
@@ -420,27 +458,47 @@ def execute_agent(prompt: str, working_dir: str, agent_config: dict) -> Tuple[bo
 
         if result.returncode == 0:
             log(f"{display_name} executed successfully in {duration:.1f}s")
-            return True, result.stdout, duration
+            return True, result.stdout, duration, {
+                "runner": "subprocess",
+                "thread_id": None,
+                "exit_code": result.returncode,
+            }
         else:
             error_msg = result.stderr or result.stdout or "Unknown error"
             log(f"{display_name} failed with exit code {result.returncode}")
-            return False, error_msg, duration
+            return False, error_msg, duration, {
+                "runner": "subprocess",
+                "thread_id": None,
+                "exit_code": result.returncode,
+            }
 
     except subprocess.TimeoutExpired:
         duration = time.time() - start_time
         log(f"{display_name} timed out after {duration:.1f}s")
-        return False, f"Execution timed out after {EXECUTION_TIMEOUT} seconds", duration
+        return False, f"Execution timed out after {EXECUTION_TIMEOUT} seconds", duration, {
+            "runner": "subprocess",
+            "thread_id": None,
+            "exit_code": None,
+        }
 
     except FileNotFoundError:
         duration = time.time() - start_time
         cli_name = agent_config["cli_name"]
         log(f"Error: {cli_name} command not found")
-        return False, f"{display_name} CLI not found in PATH ({cli_name})", duration
+        return False, f"{display_name} CLI not found in PATH ({cli_name})", duration, {
+            "runner": "subprocess",
+            "thread_id": None,
+            "exit_code": None,
+        }
 
     except Exception as e:
         duration = time.time() - start_time
         log(f"Error executing {display_name}: {e}")
-        return False, str(e), duration
+        return False, str(e), duration, {
+            "runner": "subprocess",
+            "thread_id": None,
+            "exit_code": None,
+        }
 
 
 def format_reply(
@@ -449,7 +507,8 @@ def format_reply(
     duration: float,
     prompt: str,
     working_dir: str,
-    agent_config: dict
+    agent_config: dict,
+    execution_metadata: Optional[dict] = None,
 ) -> str:
     """Format reply email body.
 
@@ -466,6 +525,12 @@ def format_reply(
     """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     display_name = agent_config["display_name"]
+    execution_metadata = execution_metadata or {}
+    runner = execution_metadata.get("runner") or "unknown"
+    thread_id = execution_metadata.get("thread_id")
+    exit_code = execution_metadata.get("exit_code")
+    exit_code_text = str(exit_code) if exit_code is not None else "n/a"
+    thread_line = f"Codex Thread ID: {thread_id}\n" if thread_id else ""
 
     if success:
         return f"""✅ {display_name} executed at: {timestamp}
@@ -475,9 +540,10 @@ def format_reply(
 
 === Execution Details ===
 Agent: {display_name}
-Duration: {duration:.1f}s
+Runner: {runner}
+{thread_line}Duration: {duration:.1f}s
 Working Directory: {working_dir}
-Exit Code: 0
+Exit Code: {exit_code_text}
 """
     else:
         log_file = agent_config["log_file"]
@@ -491,8 +557,10 @@ Check {log_file} for details.
 
 === Execution Details ===
 Agent: {display_name}
-Duration: {duration:.1f}s
+Runner: {runner}
+{thread_line}Duration: {duration:.1f}s
 Working Directory: {working_dir}
+Exit Code: {exit_code_text}
 """
 
 
@@ -565,7 +633,11 @@ def process_trigger_email(
         record_execution(agent_config["state_file"])
 
         # Execute agent CLI
-        success, output, duration = execute_agent(execution_prompt, working_dir, agent_config)
+        success, output, duration, execution_metadata = execute_agent(
+            execution_prompt,
+            working_dir,
+            agent_config,
+        )
 
         # Format reply
         reply_body = format_reply(
@@ -575,6 +647,7 @@ def process_trigger_email(
             execution_prompt,
             working_dir,
             agent_config,
+            execution_metadata,
         )
         reply_subject = f"Re: {subject}"
 
