@@ -186,39 +186,51 @@ Claude Code and Codex discover these skills from `.agents/skills`. When you ask 
 
 **Important: The `memory/` directory is in `.gitignore`** - This is where command outputs get saved (JIRA hierarchies, Confluence searches, workflow results). These files provide context across sessions but aren't checked into version control. Think of them as a local knowledge base that grows as you work.
 
-## Using AGENTS.override.md for Context
+## Local Context Without Committing It
 
-When you ask your agent to "look up JIRA Epics for my teams", or "fetch recent content from my 1:1 docs", how does it know what to do?
+Sidekick works best when the agent knows your personal work context: your manager, direct reports, teams, JIRA projects, planning docs, 1:1 docs, Slack channels, and recurring meetings. That information should usually stay local. Do not check it into the repo, and do not bake it into a skill definition.
 
-Create `AGENTS.override.md` in your project root (it's gitignored):
+Use three layers:
+
+1. `AGENTS.override.md` for short, always-loaded personal context. This file lives at the repo root and is ignored by git.
+2. `local/*.md` for longer private indexes. These could be anything! 
+3. `memory/` for generated reports, cached document snapshots, downloaded CSVs, transcripts, and other working data. `memory/` is also ignored by git.
+
+Keep skills reusable. A skill can say "read the user's 1:1 docs from local context" or "use the project map from `local/projects.md`", but it should not contain your actual employees, document links, Slack channel IDs, roadmap issue keys, or corporate URLs. The skill is the recipe; `AGENTS.override.md`, `local/`, and `memory/` are your private ingredients.
+
+### `AGENTS.override.md` Template
+
+Create `AGENTS.override.md` in your project root:
 
 ```markdown
-# AGENTS.override.md 
+## Agent Instructions
+- Use python3 instead of python for running commands.
 
-## My Teams
+# About me
+Email: your.name@example.com
 
-- Platform Team, manager Alice, JIRA Project PLAT
-- Infrastructure Team, manager Bob, JIRA Project INFRA
-- API Team, manager Carol, JIRA Project API
+# My management chain
+- Direct manager: Manager Name manager@example.com
+- Boss's boss: Senior Leader senior.leader@example.com
 
-## 1:1 Documents
+# Direct reports
+- Direct Report One report.one@example.com
+- Direct Report Two report.two@example.com
 
-- [Alice](https://company.atlassian.net/wiki/spaces/ENG/pages/123/MyName+Alice+1+1)
-- [Bob](https://example.com/docs/xyz/MyName-Bob-11)
+# Teams
+- Platform Team, manager Direct Report One, JIRA Project PLAT
+- Infrastructure Team, manager Direct Report Two, JIRA Project INFRA
 
-## Key Projects
+## Meetings Docs
+See [local/meetings.md](local/meetings.md)
 
-- Auth Migration: PLAT-1500, PLAT-1520 - Migrate to OAuth2
-- API Gateway: API-200 - Centralized API routing
+## Slack Channels and DMs
+See [local/slack-channels.md](local/slack-channels.md)
 
 Load [AGENTS.md](AGENTS.md)
 ```
 
-**The last line is very important, that's what tells the agent to also load the main Markdown file, in an agent-neutral way.**
-
-The content here can be in ANY format. It's just additional text content for workflows that need your local context. Now when you ask "Add a topic to my 1:1 with Alice," the agent knows where to look. When you say "Show me all Platform issues," it knows to query `project = PLAT`.
-
-**This is your personal context layer.** It makes responses more relevant without cluttering the shared codebase.
+**The last line is important:** it tells the agent to load the shared repo guidance after your personal override, in an agent-neutral way.
 
 ## Using "Memory" for file-based context 
 
