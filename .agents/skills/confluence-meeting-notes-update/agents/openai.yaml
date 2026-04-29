@@ -1,0 +1,3 @@
+interface:
+  display_name: "Confluence Meeting Notes Update"
+  short_description: "Update targeted Confluence meeting notes"

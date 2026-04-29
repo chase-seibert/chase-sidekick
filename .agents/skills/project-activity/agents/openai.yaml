@@ -1,0 +1,3 @@
+interface:
+  display_name: "Project Activity"
+  short_description: "Summarize project activity from Slack and JIRA"

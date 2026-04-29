@@ -1,0 +1,3 @@
+interface:
+  display_name: "Meeting Prep"
+  short_description: "Prepare meeting briefs from docs"

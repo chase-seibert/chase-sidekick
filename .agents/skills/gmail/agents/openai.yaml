@@ -1,0 +1,3 @@
+interface:
+  display_name: "Gmail"
+  short_description: "Search and manage Gmail messages"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Gcalendar"
+  short_description: "Manage Google Calendar events"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "OmniFocus"
+  short_description: "Manage OmniFocus tasks on macOS"

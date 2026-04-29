@@ -1,0 +1,3 @@
+interface:
+  display_name: "JIRA"
+  short_description: "Query and manage JIRA issues"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Kudos"
+  short_description: "Generate team kudos from notes"

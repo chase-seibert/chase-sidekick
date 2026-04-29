@@ -1,0 +1,3 @@
+interface:
+  display_name: "JIRA Roadmap"
+  short_description: "Explore JIRA roadmap hierarchies"

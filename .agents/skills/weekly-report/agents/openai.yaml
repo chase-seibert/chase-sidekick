@@ -1,0 +1,3 @@
+interface:
+  display_name: "Weekly Report"
+  short_description: "Generate weekly management reports"

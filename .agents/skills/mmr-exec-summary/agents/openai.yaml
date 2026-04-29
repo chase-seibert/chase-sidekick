@@ -1,0 +1,3 @@
+interface:
+  display_name: "MMR Exec Summary"
+  short_description: "Summarize MMR Confluence pages"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Sprint Review"
+  short_description: "Generate sprint review reports"

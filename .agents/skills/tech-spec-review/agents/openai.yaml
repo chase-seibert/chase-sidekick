@@ -1,0 +1,3 @@
+interface:
+  display_name: "Tech Spec Review"
+  short_description: "Summarize tech specs for review"

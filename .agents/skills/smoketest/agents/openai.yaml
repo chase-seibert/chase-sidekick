@@ -1,0 +1,3 @@
+interface:
+  display_name: "Smoketest"
+  short_description: "Check core Sidekick integrations"

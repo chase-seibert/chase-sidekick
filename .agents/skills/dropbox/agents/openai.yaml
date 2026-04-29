@@ -1,0 +1,3 @@
+interface:
+  display_name: "Dropbox"
+  short_description: "Manage Dropbox files and Paper docs"

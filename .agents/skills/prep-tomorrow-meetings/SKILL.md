@@ -1,4 +1,6 @@
 ---
+name: prep-tomorrow-meetings
+description: Open all meeting docs in Chrome for the next business day
 auto-approve: true
 ---
 

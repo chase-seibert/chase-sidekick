@@ -1,0 +1,3 @@
+interface:
+  display_name: "Confluence"
+  short_description: "Manage Confluence pages and edits"

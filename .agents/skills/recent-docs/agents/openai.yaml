@@ -1,0 +1,3 @@
+interface:
+  display_name: "Recent Docs"
+  short_description: "Summarize recent docs from Chrome"

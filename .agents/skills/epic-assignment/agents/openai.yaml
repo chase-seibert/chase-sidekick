@@ -1,0 +1,3 @@
+interface:
+  display_name: "Epic Assignment"
+  short_description: "Assign Epics to roadmap initiatives"

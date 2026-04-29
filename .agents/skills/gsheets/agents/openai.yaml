@@ -1,0 +1,3 @@
+interface:
+  display_name: "Gsheets"
+  short_description: "Manage Google Sheets CSV workflows"

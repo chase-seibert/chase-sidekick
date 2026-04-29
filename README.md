@@ -48,38 +48,38 @@ Current skills in `.agents/skills`:
 - **confluence** - Manage Confluence pages with search, read, and write operations.
 - **confluence-meeting-notes-create-next** - Create the next dated or `Next` section in an existing Confluence meeting notes doc.
 - **confluence-meeting-notes-update** - Safely update Confluence meeting notes within a targeted section, placeholder, or agenda row.
-- **dependency_escalation** - Draft a document for an escalation of a dependency request.
+- **dependency-escalation** - Draft a document for an escalation of a dependency request.
 - **dropbox** - Manage Dropbox files and Paper docs.
-- **epic_assignment** - Assign active Epics to Roadmap Initiatives based on recent activity.
+- **epic-assignment** - Assign active Epics to Roadmap Initiatives based on recent activity.
 - **gcalendar** - Manage Google Calendar events.
 - **gmail** - Search and manage Gmail messages.
 - **gsheets** - Manage Google Sheets: download, upload, and replace sheets with CSV data.
-- **interview_history** - Generate all-time interview count reports from Google Calendar.
+- **interview-history** - Generate all-time interview count reports from Google Calendar.
 - **jira** - Query and manage JIRA issues.
 - **jira-roadmap** - Explore JIRA roadmap hierarchies recursively.
 - **kudos** - Generate kudos for team members from recent 1:1 and meeting notes.
 - **markdown** - Convert Markdown to and from other formats.
 - **meeting-attendance-audit** - Audit recurring meetings for low-response attendees and guide approved removals.
-- **meeting_prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
+- **meeting-prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
 - **memory** - Manage command memory files with prompt metadata and auto-generated filenames.
-- **mmr_exec_summary** - Generate executive summaries from MMR (Monthly Metric Review) Confluence pages.
+- **mmr-exec-summary** - Generate executive summaries from MMR (Monthly Metric Review) Confluence pages.
 - **omnifocus** - Manage OmniFocus tasks on macOS.
-- **oneonone_prep** - Prepare copy/paste 1:1 agendas from 1:1 docs, weekly reports, project activity, Slack context, and management prompts.
-- **oneonone_setup** - Create or migrate 1:1 docs from Paper, or create new Confluence docs with permissions and calendar updates.
+- **oneonone-prep** - Prepare copy/paste 1:1 agendas from 1:1 docs, weekly reports, project activity, Slack context, and management prompts.
+- **oneonone-setup** - Create or migrate 1:1 docs from Paper, or create new Confluence docs with permissions and calendar updates.
 - **prep-tomorrow-meetings** - Open all meeting docs in Chrome for the next business day.
-- **project_activity** - Generate weekly project activity summaries from Slack and JIRA.
-- **project_review** - Generate comprehensive project review reports from PRD and tech spec documents.
-- **pto_block** - Block calendar for PTO and handle conflicting meetings.
-- **recent_docs** - Generate categorized summaries of recent Paper and Confluence docs from Chrome history.
+- **project-activity** - Generate weekly project activity summaries from Slack and JIRA.
+- **project-review** - Generate comprehensive project review reports from PRD and tech spec documents.
+- **pto-block** - Block calendar for PTO and handle conflicting meetings.
+- **recent-docs** - Generate categorized summaries of recent Paper and Confluence docs from Chrome history.
 - **sev-review-prep** - Generate questions to ask during SEV review meetings based on Confluence SEV review documents.
 - **slack** - Read recent messages from Slack channels using Dash MCP.
 - **smoketest** - Check that basic reading of common files is working.
-- **sprint_review** - Generate a sprint review report.
+- **sprint-review** - Generate a sprint review report.
 - **team-group-analysis** - Analyze completed work across multiple JIRA projects with automatic theme categorization.
-- **tech_spec_review** - Read a tech spec doc and write an executive summary.
+- **tech-spec-review** - Read a tech spec doc and write an executive summary.
 - **top-projects-exec-summary** - Generate executive summaries for the user's top five projects from local context, docs, Slack, and JIRA.
 - **transcript** - Save conversation transcripts as structured Markdown in `memory/transcripts`.
-- **weekly_report** - Generate summaries of 1:1 and meeting notes organized by audience.
+- **weekly-report** - Generate summaries of 1:1 and meeting notes organized by audience.
 - **welcome-doc** - Create personalized employee onboarding documents in Confluence.
 
 ## What You'll Build
@@ -164,7 +164,7 @@ You typically won't ***need** to think about how these are chained together, bec
 
 **Why this matters:** You can inspect, modify, and understand every tool. You can see the steps and inspect the intermediate outputs. So can Claude Code and Codex.
 
-**Skills are markdown documentation.** Look at `.agents/skills/project_review/SKILL.md`:
+**Skills are markdown documentation.** Look at `.agents/skills/project-review/SKILL.md`:
 
 ```markdown
 # Project Review Skill
@@ -333,38 +333,38 @@ chase-sidekick/
 │       ├── confluence/
 │       ├── confluence-meeting-notes-create-next/
 │       ├── confluence-meeting-notes-update/
-│       ├── dependency_escalation/
+│       ├── dependency-escalation/
 │       ├── dropbox/
-│       ├── epic_assignment/
+│       ├── epic-assignment/
 │       ├── gcalendar/
 │       ├── gmail/
 │       ├── gsheets/
-│       ├── interview_history/
+│       ├── interview-history/
 │       ├── jira/
 │       ├── jira-roadmap/
 │       ├── kudos/
 │       ├── markdown/
 │       ├── meeting-attendance-audit/
-│       ├── meeting_prep/
+│       ├── meeting-prep/
 │       ├── memory/
-│       ├── mmr_exec_summary/
+│       ├── mmr-exec-summary/
 │       ├── omnifocus/
-│       ├── oneonone_prep/
-│       ├── oneonone_setup/
+│       ├── oneonone-prep/
+│       ├── oneonone-setup/
 │       ├── prep-tomorrow-meetings/
-│       ├── project_activity/
-│       ├── project_review/
-│       ├── pto_block/
-│       ├── recent_docs/
+│       ├── project-activity/
+│       ├── project-review/
+│       ├── pto-block/
+│       ├── recent-docs/
 │       ├── sev-review-prep/
 │       ├── slack/
 │       ├── smoketest/
-│       ├── sprint_review/
+│       ├── sprint-review/
 │       ├── team-group-analysis/
-│       ├── tech_spec_review/
+│       ├── tech-spec-review/
 │       ├── top-projects-exec-summary/
 │       ├── transcript/
-│       ├── weekly_report/
+│       ├── weekly-report/
 │       └── welcome-doc/
 ├── .claude/
 │   ├── settings.json        # Claude-specific permissions/config

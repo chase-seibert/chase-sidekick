@@ -1,0 +1,3 @@
+interface:
+  display_name: "Interview History"
+  short_description: "Report interview counts from Calendar"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Project Review"
+  short_description: "Generate project review reports"

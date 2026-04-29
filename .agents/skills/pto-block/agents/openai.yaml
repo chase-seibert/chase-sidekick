@@ -1,0 +1,3 @@
+interface:
+  display_name: "PTO Block"
+  short_description: "Block calendar for PTO periods"

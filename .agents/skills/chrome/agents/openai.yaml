@@ -1,0 +1,3 @@
+interface:
+  display_name: "Chrome"
+  short_description: "Query Chrome browsing history"

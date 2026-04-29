@@ -1,0 +1,3 @@
+interface:
+  display_name: "Top Projects Exec Summary"
+  short_description: "Summarize top projects for execs"

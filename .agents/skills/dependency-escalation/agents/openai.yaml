@@ -1,0 +1,3 @@
+interface:
+  display_name: "Dependency Escalation"
+  short_description: "Draft dependency escalation documents"

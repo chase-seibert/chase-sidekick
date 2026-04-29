@@ -229,6 +229,6 @@ For team-wide recognition:
 
 ## Related
 
-- See [weekly_report agent](.claude/agents/weekly_report.md) for broader note summaries
+- See the `weekly-report` skill for broader note summaries
 - See [confluence skill](.claude/skills/confluence/SKILL.md) for Confluence operations
 - See [dropbox skill](.claude/skills/dropbox/SKILL.md) for Paper operations

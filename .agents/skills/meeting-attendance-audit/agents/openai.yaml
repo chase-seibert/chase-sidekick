@@ -1,0 +1,3 @@
+interface:
+  display_name: "Meeting Attendance Audit"
+  short_description: "Audit recurring meeting attendance"
