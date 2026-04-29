@@ -9,6 +9,8 @@ Use this skill when asked to update a Confluence meeting notes page, add an item
 
 This skill is intentionally instruction-only. Do not create helper scripts for the workflow. Use the existing Confluence client directly, edit raw Confluence storage HTML, and validate that the full-page update changes only the intended region.
 
+Before identifying meeting sections, date headings, templates, or bullet/table formats, read [meeting-notes-docs.md](references/meeting-notes-docs.md). That reference is the shared source of truth for Confluence meeting notes document shapes.
+
 ## Commands
 
 Use `python3`:
@@ -23,6 +25,7 @@ For best-effort agenda date lookup, use the existing Google Calendar client:
 
 ```bash
 python3 -m sidekick.clients.gcalendar list <time-min> <time-max> <max-results>
+python3 -m sidekick.clients.gcalendar get <event-id>
 ```
 
 Never update from Markdown conversion. Read Markdown only for human orientation if useful; all writes must be based on raw storage HTML from `read-page --html`.
@@ -33,17 +36,10 @@ A valid update must affect exactly one of these regions:
 
 - The body of an existing `Next` H1 section.
 - The body of the top-most dated H1 section.
+- The insertion point for one new dated or `Next` H1 section.
 - A unique `$AI_REPLACE` placeholder.
 - The first empty Confluence Note macro.
 - For table-format agenda updates, one intended table row or one intended table cell inside the chosen section.
-
-Confluence meeting docs use H1 sections. A date heading may be visible text such as `Apr 23, 2026`, or a Confluence date object:
-
-```html
-<h1><time datetime="2026-04-30" /></h1>
-```
-
-When creating a dated section, prefer the Confluence date object form above. If the next meeting date cannot be found confidently, create `Next` instead.
 
 ## Workflow
 
@@ -78,19 +74,13 @@ For "add an item to the agenda", choose the target section in this order:
 3. A new dated section from the next Google Calendar instance, if exactly one confident match is found.
 4. A new `Next` section if Calendar is unavailable or ambiguous.
 
-Calendar matching is best effort. Search the next 60 days and match by supplied meeting title, Confluence page title, or the page URL in the event description. Fail closed to `Next` rather than inventing a date.
+Calendar matching is best effort, with doc-link matching as the strongest signal. Search future events, fetch event details when needed, and first match the meeting doc link in event descriptions. Normalize copied Confluence links where practical. Only fall back to supplied meeting title or Confluence page title matching when no event description contains the doc link. Fail closed to `Next` rather than inventing a date.
 
-When adding a new section, place it before historical dated sections but after any non-meeting preamble only if that preamble is clearly static context. If unsure, place `Next` at the top.
+When adding a new section, use the shared document-shape reference for placement, template handling, date headings, and initial bullet/table structure. Place the new section before historical dated sections and after any clear static preamble or top template. If unsure, place `Next` at the top only when that is safer than editing existing content.
 
 ## Format Detection
 
-Inspect the chosen section in raw HTML:
-
-- If the first meaningful structure is `<table>`, treat it as table format.
-- If the first meaningful structure is `<ul>` or `<ol>`, treat it as bullet format.
-- If the section is empty, default to bullet format unless the user explicitly asks for a table row.
-
-Ignore lists nested inside a table when deciding whether the section itself is table or bullet format.
+Use the shared document-shape reference to classify the chosen section as bullet format, table format, or empty. Do not count lists nested inside a table as the section's top-level list format.
 
 ## Bullet Format
 
@@ -140,6 +130,7 @@ Refuse to update when:
 - Raw storage HTML cannot be fetched.
 - No safe target can be identified.
 - Multiple `Next` sections or placeholders make the target ambiguous.
+- A top template or static preamble is ambiguous and the requested update could modify it by mistake.
 - A table has multiple plausible current-user rows.
 - The proposed diff touches content outside the intended region.
 - Calendar lookup is ambiguous and creating `Next` would conflict with an existing convention.

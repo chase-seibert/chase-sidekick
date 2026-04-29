@@ -17,40 +17,42 @@ When invoked, use the Confluence client to handle the request: $ARGUMENTS
 
 ### Search for Pages
 ```bash
-python -m sidekick.clients.confluence search "query" [--space SPACE] [--limit N]
+python3 -m sidekick.clients.confluence search "query" [--space SPACE] [--limit N]
 ```
 
 ### Get Page Details
 ```bash
-python -m sidekick.clients.confluence get-page PAGE_ID
+python3 -m sidekick.clients.confluence get-page PAGE_ID
 ```
 
 ### Get Page by Title
 ```bash
-python -m sidekick.clients.confluence get-page-by-title "Title" SPACE
+python3 -m sidekick.clients.confluence get-page-by-title "Title" SPACE
 ```
 
 ### Read Page Content
 ```bash
 # Returns Markdown by default
-python -m sidekick.clients.confluence read-page PAGE_ID
+python3 -m sidekick.clients.confluence read-page PAGE_ID
 
 # For raw HTML (content manipulation)
-python -m sidekick.clients.confluence read-page PAGE_ID --html
+python3 -m sidekick.clients.confluence read-page PAGE_ID --html
 ```
 
 ### Create New Page
 ```bash
-python -m sidekick.clients.confluence create-page SPACE "Title" content.html [--parent PARENT_ID]
+python3 -m sidekick.clients.confluence create-page SPACE "Title" content.html [--parent PARENT_ID]
 ```
 
 ### Update Page
 ```bash
-python -m sidekick.clients.confluence update-page PAGE_ID content.html [--title "New Title"]
+python3 -m sidekick.clients.confluence update-page PAGE_ID content.html [--title "New Title"]
 ```
 
 For meeting-note agenda updates, use the `confluence-meeting-notes-update`
 skill. It performs safe raw-storage HTML edits with target-range validation.
+For creating or preparing the next meeting notes section, use the
+`confluence-meeting-notes-create-next` skill.
 
 ## Search Cache
 
@@ -58,8 +60,8 @@ The Confluence client automatically caches search query to page mappings for fas
 
 **Cache Management:**
 ```bash
-python -m sidekick.clients.confluence cache-show
-python -m sidekick.clients.confluence cache-clear
+python3 -m sidekick.clients.confluence cache-show
+python3 -m sidekick.clients.confluence cache-clear
 ```
 
 ## Example Usage
@@ -68,6 +70,7 @@ When the user asks to:
 - "Search for API documentation in Confluence" - Use search command
 - "Read the contents of my 1:1 doc with Bob" - Search for the doc and read it
 - "Add a topic to my 1:1 with Alice" - Use the confluence-meeting-notes-update skill
+- "Create the next section for this meeting doc" - Use the confluence-meeting-notes-create-next skill
 - "Update the team wiki page" - Use update-page command
 
 For full documentation, see the detailed Confluence skill documentation in this folder.
