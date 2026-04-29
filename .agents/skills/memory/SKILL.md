@@ -47,7 +47,11 @@ updated: 2025-01-27 15:45:10
 ---
 
 [actual command output here]
+
+This report generated using https://github.com/chase-seibert/chase-sidekick
 ```
+
+The standard report footer belongs at the bottom of the file body, not in the YAML frontmatter.
 
 ## Filename Generation
 
