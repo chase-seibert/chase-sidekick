@@ -1,4 +1,4 @@
 interface:
   display_name: "Codex Cost Report"
-  short_description: "Report Codex cost and token usage"
-  default_prompt: "Use $codex-cost-report to generate a local Codex cost and token usage report."
+  short_description: "Report Codex cost with charts and annual projections"
+  default_prompt: "Use $codex-cost-report to generate a local Codex cost report with charts, annual projection, and HTML output."

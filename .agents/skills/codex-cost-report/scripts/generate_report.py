@@ -5,10 +5,14 @@ from __future__ import annotations
 
 import json
 import math
+import re
+import shlex
+import shutil
 import sqlite3
+import subprocess
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 FOOTER = "This report generated using https://github.com/chase-seibert/chase-sidekick"
@@ -18,7 +22,7 @@ STATE_DB = CODEX_ROOT / "state_5.sqlite"
 SESSIONS_ROOT = CODEX_ROOT / "sessions"
 REPORT_DIR = REPO_ROOT / "memory"
 GENERATED_AT = datetime.now().astimezone()
-REPORT_PATH = REPORT_DIR / f"codex-cost-report-{GENERATED_AT.date().isoformat()}.md"
+REPORT_PATH = REPORT_DIR / f"codex-cost-report-{GENERATED_AT.date().isoformat()}.qmd"
 
 # USD prices are standard short-context API rates per 1M tokens.
 # Codex credits are token-based credit rates per 1M tokens.
@@ -56,6 +60,24 @@ MODEL_ALIASES = {
 
 USER_SOURCES = {"vscode", "exec"}
 TOKEN_KEYS = ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_output_tokens", "total_tokens")
+PATCH_PATH_RE = re.compile(r"^\*\*\* (?:Add File|Update File|Delete File):\s+(.+)$")
+PATCH_MOVE_RE = re.compile(r"^\*\*\* Move to:\s+(.+)$")
+REDIRECT_RE = re.compile(r"(?:^|\s)(?:\d*)>{1,2}\s*([^\s;&|>]+)")
+TEE_RE = re.compile(r"\btee\s+(?:-[a-zA-Z]+\s+)*([^\s;&|]+)")
+FORMATTER_WRITE_RE = re.compile(r"\b(?:black|prettier|eslint|ruff|rubocop)\b.*(?:--fix|--write|-w)\b")
+PACKAGE_INSTALL_RE = re.compile(r"\b(?:npm|pnpm|yarn|bun)\s+(?:install|add)\b")
+GIT_WRITE_RE = re.compile(r"\bgit\s+(?:add|commit|mv)\b")
+SHELL_FILE_WRITE_RE = re.compile(r"(?:^|[;&|]\s*)(?:touch|mkdir|cp|mv|install)\b")
+NON_REPO_PATH_PREFIXES = (
+    "memory/",
+    "./memory/",
+    "/tmp/",
+    "/private/tmp/",
+    "/var/folders/",
+    "/dev/null",
+    "$TMPDIR/",
+    "${TMPDIR}/",
+)
 
 
 @dataclass
@@ -66,6 +88,8 @@ class SessionUsage:
     created_at: datetime
     updated_at: datetime
     models: dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
+    work_type: str = "cowork"
+    work_type_reason: str = "no local non-memory write signal"
     usd: float = 0.0
     credits: float = 0.0
     unknown_usd_models: set[str] = field(default_factory=set)
@@ -102,6 +126,54 @@ def fmt_percent(numerator: int | float, denominator: int | float) -> str:
     return f"{(numerator / denominator) * 100:.1f}%"
 
 
+def fmt_chart_value(value: float) -> str:
+    if abs(value) < 0.00005:
+        return "0"
+    return f"{value:.4f}".rstrip("0").rstrip(".")
+
+
+def chart_axis_max(values: list[float]) -> float:
+    highest = max(values) if values else 0
+    if highest <= 0:
+        return 1
+    raw = highest * 1.1
+    magnitude = 10 ** math.floor(math.log10(raw))
+    normalized = raw / magnitude
+    for step in (1, 2, 5, 10):
+        if normalized <= step:
+            return step * magnitude
+    return 10 * magnitude
+
+
+def mermaid_list(values: list[str | float]) -> str:
+    encoded = []
+    for value in values:
+        if isinstance(value, str):
+            encoded.append(json.dumps(value))
+        else:
+            encoded.append(fmt_chart_value(value))
+    return "[" + ", ".join(encoded) + "]"
+
+
+def week_label(day) -> str:
+    iso = day.isocalendar()
+    return f"{iso.year}-W{iso.week:02d}"
+
+
+def monday_for_week(day):
+    return day - timedelta(days=day.weekday())
+
+
+def week_labels_between(first_day, last_day) -> list[str]:
+    labels = []
+    cursor = monday_for_week(first_day)
+    end = monday_for_week(last_day)
+    while cursor <= end:
+        labels.append(week_label(cursor))
+        cursor += timedelta(days=7)
+    return labels
+
+
 def compute_amounts(usage: Counter, model: str) -> tuple[float | None, float | None]:
     canonical_model = MODEL_ALIASES.get(model, model)
     rates = MODEL_RATES.get(canonical_model)
@@ -134,6 +206,126 @@ def compute_amounts(usage: Counter, model: str) -> tuple[float | None, float | N
     return usd, credits
 
 
+def clean_path(raw_path: str) -> str:
+    path = raw_path.strip().strip("\"'")
+    while path.startswith("./"):
+        path = path[2:]
+    return path
+
+
+def is_memory_or_temp_path(raw_path: str) -> bool:
+    path = clean_path(raw_path)
+    if not path:
+        return False
+    if path.startswith("&") or path.isdigit():
+        return True
+    return path.startswith(NON_REPO_PATH_PREFIXES)
+
+
+def non_memory_paths(paths: list[str]) -> list[str]:
+    return [clean_path(path) for path in paths if clean_path(path) and not is_memory_or_temp_path(path)]
+
+
+def patch_paths(patch_text: str) -> list[str]:
+    paths = []
+    for line in patch_text.splitlines():
+        path_match = PATCH_PATH_RE.match(line)
+        move_match = PATCH_MOVE_RE.match(line)
+        if path_match:
+            paths.append(path_match.group(1))
+        elif move_match:
+            paths.append(move_match.group(1))
+    return paths
+
+
+def parse_call_arguments(arguments) -> dict:
+    if isinstance(arguments, dict):
+        return arguments
+    if not isinstance(arguments, str):
+        return {}
+    try:
+        parsed = json.loads(arguments)
+    except json.JSONDecodeError:
+        return {"_raw": arguments}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def command_tokens(command: str) -> list[str]:
+    try:
+        return shlex.split(command)
+    except ValueError:
+        return command.split()
+
+
+def path_candidates(command: str) -> list[str]:
+    candidates = []
+    for token in command_tokens(command):
+        if not token or token.startswith("-"):
+            continue
+        if "=" in token and not token.startswith(("=", "./", "/")):
+            token = token.split("=", 1)[1]
+        token = token.rstrip(",")
+        if token in {".", ".."} or "/" in token or "." in token:
+            candidates.append(token)
+    return candidates
+
+
+def shell_write_reason(command: str) -> str | None:
+    if not command:
+        return None
+
+    redirected = non_memory_paths([match.group(1) for match in REDIRECT_RE.finditer(command)])
+    if redirected:
+        return f"shell redirection wrote {redirected[0]}"
+
+    tee_paths = non_memory_paths([match.group(1) for match in TEE_RE.finditer(command)])
+    if tee_paths:
+        return f"tee wrote {tee_paths[0]}"
+
+    command_paths = non_memory_paths(path_candidates(command))
+    if GIT_WRITE_RE.search(command):
+        if command_paths:
+            return f"git write touched {command_paths[0]}"
+        return "git write command"
+
+    if SHELL_FILE_WRITE_RE.search(command) and command_paths:
+        return f"shell file command touched {command_paths[0]}"
+
+    if FORMATTER_WRITE_RE.search(command):
+        return "formatter write command"
+
+    if PACKAGE_INSTALL_RE.search(command):
+        return "package install command"
+
+    return None
+
+
+def coding_reasons_for_record(record: dict) -> list[str]:
+    payload = record.get("payload") or {}
+    if not isinstance(payload, dict):
+        return []
+
+    reasons = []
+    if payload.get("type") == "function_call":
+        name = payload.get("name") or ""
+        args = parse_call_arguments(payload.get("arguments"))
+
+        if "apply_patch" in name:
+            patch_text = args.get("_raw") or args.get("patch") or args.get("cmd") or payload.get("arguments") or ""
+            changed_paths = non_memory_paths(patch_paths(str(patch_text)))
+            if changed_paths:
+                reasons.append(f"apply_patch changed {changed_paths[0]}")
+            elif patch_text:
+                reasons.append("apply_patch changed local files")
+
+        if name.endswith("exec_command") or name in {"exec_command", "shell", "bash"}:
+            reason = shell_write_reason(str(args.get("cmd") or args.get("command") or ""))
+            if reason:
+                reasons.append(reason)
+
+    return reasons
+
+
 def read_threads() -> dict[str, dict]:
     if not STATE_DB.exists():
         raise SystemExit(f"Missing Codex state database: {STATE_DB}")
@@ -149,18 +341,21 @@ def read_threads() -> dict[str, dict]:
     return {row["id"]: dict(row) for row in rows}
 
 
-def read_session_usage(path: Path) -> tuple[str | None, dict[str, Counter], datetime | None, datetime | None]:
+def read_session_usage(path: Path) -> tuple[str | None, dict[str, Counter], datetime | None, datetime | None, list[str]]:
     session_id = None
     current_model = None
     usage_by_model: dict[str, Counter] = defaultdict(Counter)
     first_seen = None
     last_seen = None
+    coding_reasons = []
 
     for line in path.read_text(errors="replace").splitlines():
         try:
             record = json.loads(line)
         except json.JSONDecodeError:
             continue
+
+        coding_reasons.extend(coding_reasons_for_record(record))
 
         timestamp = parse_iso_timestamp(record.get("timestamp"))
         first_seen = first_seen or timestamp
@@ -183,7 +378,7 @@ def read_session_usage(path: Path) -> tuple[str | None, dict[str, Counter], date
                 if isinstance(value, int):
                     usage_by_model[current_model][key] += value
 
-    return session_id, usage_by_model, first_seen, last_seen
+    return session_id, usage_by_model, first_seen, last_seen, coding_reasons
 
 
 def build_sessions() -> tuple[list[SessionUsage], Counter]:
@@ -192,7 +387,7 @@ def build_sessions() -> tuple[list[SessionUsage], Counter]:
     sessions: list[SessionUsage] = []
 
     for path in sorted(SESSIONS_ROOT.glob("**/*.jsonl")):
-        session_id, usage_by_model, first_seen, last_seen = read_session_usage(path)
+        session_id, usage_by_model, first_seen, last_seen, coding_reasons = read_session_usage(path)
         if not session_id:
             counters["missing_session_id"] += 1
             continue
@@ -218,6 +413,8 @@ def build_sessions() -> tuple[list[SessionUsage], Counter]:
             created_at=as_local_datetime(thread.get("created_at_ms")) if thread.get("created_at_ms") else first_seen,
             updated_at=as_local_datetime(thread.get("updated_at_ms")) if thread.get("updated_at_ms") else last_seen,
             models=usage_by_model,
+            work_type="coding" if coding_reasons else "cowork",
+            work_type_reason=coding_reasons[0] if coding_reasons else "no local non-memory write signal",
         )
 
         for model, usage in usage_by_model.items():
@@ -245,6 +442,13 @@ def add_table(lines: list[str], headers: list[str], rows: list[list[str]]) -> No
     lines.append("")
 
 
+def add_mermaid(lines: list[str], chart_lines: list[str]) -> None:
+    lines.append("```{mermaid}")
+    lines.extend(chart_lines)
+    lines.append("```")
+    lines.append("")
+
+
 def report() -> str:
     sessions, counters = build_sessions()
     if not sessions:
@@ -253,8 +457,11 @@ def report() -> str:
     model_usage: dict[str, Counter] = defaultdict(Counter)
     model_sessions = Counter()
     by_day = Counter()
+    by_week = Counter()
     by_month = Counter()
     by_year = Counter()
+    work_type_usd = Counter()
+    work_type_sessions = Counter()
     unknown_usd_models = Counter()
 
     total_usd = 0.0
@@ -263,11 +470,15 @@ def report() -> str:
 
     for session in sessions:
         day = session.created_at.date().isoformat()
+        week = week_label(session.created_at.date())
         month = session.created_at.strftime("%Y-%m")
         year = session.created_at.strftime("%Y")
         by_day[day] += session.usd
+        by_week[week] += session.usd
         by_month[month] += session.usd
         by_year[year] += session.usd
+        work_type_usd[session.work_type] += session.usd
+        work_type_sessions[session.work_type] += 1
         total_usd += session.usd
         total_credits += session.credits
         for model in session.unknown_usd_models:
@@ -285,14 +496,26 @@ def report() -> str:
     projected_monthly_usd = average_daily_usd * 30
     projected_yearly_usd = average_daily_usd * 365
     average_session_usd = total_usd / len(sessions)
+    projected_yearly_credits = (total_credits / covered_days) * 365
+    top_sessions = sorted(sessions, key=lambda item: item.usd, reverse=True)[:10]
+    week_labels = week_labels_between(first_day, last_day)
+    weekly_values = [by_week[label] for label in week_labels]
+    top_session_values = [session.usd for session in top_sessions]
 
     lines = [
         "---",
-        "prompt: Generate Codex cost report for local user-created sessions",
-        "client: codex-cost-report",
-        "command: python3 .agents/skills/codex-cost-report/scripts/generate_report.py",
-        f"created: {GENERATED_AT.strftime('%Y-%m-%d %H:%M:%S %Z')}",
-        f"updated: {GENERATED_AT.strftime('%Y-%m-%d %H:%M:%S %Z')}",
+        f'title: "Codex Cost Report - {GENERATED_AT.date().isoformat()}"',
+        "format:",
+        "  html:",
+        "    embed-resources: true",
+        "    toc: true",
+        "execute:",
+        "  enabled: false",
+        'prompt: "Generate Codex cost report for local user-created sessions"',
+        'client: "codex-cost-report"',
+        'command: "python3 .agents/skills/codex-cost-report/scripts/generate_report.py"',
+        f'created: "{GENERATED_AT.strftime("%Y-%m-%d %H:%M:%S %Z")}"',
+        f'updated: "{GENERATED_AT.strftime("%Y-%m-%d %H:%M:%S %Z")}"',
         "---",
         "",
         f"# Codex Cost Report - {GENERATED_AT.date().isoformat()}",
@@ -307,16 +530,72 @@ def report() -> str:
         f"- Average per included session: {fmt_money(average_session_usd)}",
         f"- Cache hit rate: {fmt_percent(total_usage['cached_input_tokens'], total_usage['input_tokens'])}",
         f"- Projected 30-day run rate: {fmt_money(projected_monthly_usd)}",
-        f"- Projected annual run rate: {fmt_money(projected_yearly_usd)}",
+        f"- Projected full-year cost at current pace: {fmt_money(projected_yearly_usd)}",
+        f"- Projected full-year Codex credits at current pace: {projected_yearly_credits:,.1f}",
         "",
         "## Notes",
         "- Dollar amounts are API-equivalent estimates from local token usage, not invoices.",
         "- Reasoning tokens are shown separately in model tables, but are not added again because they are already included in output tokens.",
         "- Credential material, raw prompts, and transcript content are intentionally omitted.",
         "- Pricing sources checked on 2026-04-30: OpenAI API Pricing and OpenAI Codex rate card.",
+        "- Coding versus cowork is a best-effort classification based on local non-memory write signals in the Codex session log.",
         "",
+        "## Charts",
+        "",
+        "### Top Sessions By Estimated Cost",
+        "",
+        "Bars are labeled by rank; the session details table below maps each rank to title and thread id.",
+        "",
+    ]
+
+    add_mermaid(
+        lines,
+        [
+            "xychart-beta",
+            '  title "Top Sessions by Estimated Cost"',
+            f"  x-axis {mermaid_list([f'S{index}' for index in range(1, len(top_sessions) + 1)])}",
+            f'  y-axis "USD" 0 --> {fmt_chart_value(chart_axis_max(top_session_values))}',
+            f"  bar {mermaid_list(top_session_values)}",
+        ],
+    )
+
+    lines.extend([
+        "### Coding Versus Cowork",
+        "",
+        "This pie chart splits included estimated cost by the coding/cowork heuristic.",
+        "",
+    ])
+    add_mermaid(
+        lines,
+        [
+            "pie showData",
+            '  title "Estimated Cost by Work Type"',
+            f'  "Coding" : {fmt_chart_value(work_type_usd["coding"])}',
+            f'  "Cowork" : {fmt_chart_value(work_type_usd["cowork"])}',
+        ],
+    )
+
+    lines.extend([
+        "### Cost Per Week",
+        "",
+        "The line chart uses ISO weeks over the full analyzed period.",
+        "",
+    ])
+    add_mermaid(
+        lines,
+        [
+            "xychart-beta",
+            '  title "Estimated Cost Per Week"',
+            f"  x-axis {mermaid_list(week_labels)}",
+            f'  y-axis "USD" 0 --> {fmt_chart_value(chart_axis_max(weekly_values))}',
+            f"  line {mermaid_list(weekly_values)}",
+        ],
+    )
+
+    lines.extend([
         "## Cost By Day",
     ]
+    )
 
     add_table(
         lines,
@@ -336,6 +615,21 @@ def report() -> str:
         lines,
         ["Year", "Estimated USD"],
         [[year, fmt_money(by_year[year])] for year in sorted(by_year)],
+    )
+
+    lines.append("## Cost By Work Type")
+    add_table(
+        lines,
+        ["Work Type", "Sessions", "Estimated USD", "Share"],
+        [
+            [
+                work_type.title(),
+                fmt_number(work_type_sessions[work_type]),
+                fmt_money(work_type_usd[work_type]),
+                fmt_percent(work_type_usd[work_type], total_usd),
+            ]
+            for work_type in ("coding", "cowork")
+        ],
     )
 
     lines.append("## Usage By Model")
@@ -361,13 +655,15 @@ def report() -> str:
 
     lines.append("## Top 10 Most Expensive Sessions")
     top_rows = []
-    for session in sorted(sessions, key=lambda item: item.usd, reverse=True)[:10]:
+    for index, session in enumerate(top_sessions, start=1):
         model_list = ", ".join(sorted({MODEL_ALIASES.get(model, model) for model in session.models}))
         total_tokens = sum(usage["total_tokens"] for usage in session.models.values())
         top_rows.append([
+            f"S{index}",
             session.created_at.date().isoformat(),
             session.title.replace("|", "\\|"),
             model_list,
+            session.work_type,
             fmt_money(session.usd),
             f"{session.credits:,.1f}",
             fmt_number(total_tokens),
@@ -375,7 +671,7 @@ def report() -> str:
         ])
     add_table(
         lines,
-        ["Date", "Session", "Model", "Estimated USD", "Codex Credits", "Tokens", "Thread ID"],
+        ["Rank", "Date", "Session", "Model", "Work Type", "Estimated USD", "Codex Credits", "Tokens", "Thread ID"],
         top_rows,
     )
 
@@ -389,14 +685,52 @@ def report() -> str:
         if value and key != "excluded_internal_sessions":
             lines.append(f"- {key.replace('_', ' ').capitalize()}: {value}")
     lines.append("")
+    lines.append("## Methodology Executive Summary")
+    lines.append("")
+    lines.append(
+        "The generator reads thread metadata from `~/.codex/state_5.sqlite` and scans "
+        "`~/.codex/sessions/**/*.jsonl` for session ids, model changes, token-count events, "
+        "and local write signals. It includes user-created Codex Desktop and exec/trigger "
+        "threads (`vscode` and `exec`) and excludes internal subagent or guardian sessions."
+    )
+    lines.append("")
+    lines.append(
+        "For each token-count event, the active model comes from the most recent turn context. "
+        "Estimated USD is calculated as uncached input tokens times the input rate, cached "
+        "input tokens times the cached-input rate, and output tokens times the output rate, "
+        "using the script's short-context pricing table. Reasoning tokens are reported "
+        "separately but not charged a second time because they are included in output tokens. "
+        "The full-year projection multiplies the observed average daily estimated cost by 365."
+    )
+    lines.append("")
     lines.append(FOOTER)
     return "\n".join(lines) + "\n"
+
+
+def render_html(report_path: Path) -> Path:
+    if not shutil.which("quarto"):
+        raise SystemExit(f"Generated {report_path}, but could not render HTML because `quarto` is not installed.")
+
+    result = subprocess.run(
+        ["quarto", "render", str(report_path), "--to", "html"],
+        cwd=REPO_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if result.returncode:
+        raise SystemExit(f"Generated {report_path}, but Quarto HTML render failed:\n{result.stdout}")
+
+    return report_path.with_suffix(".html")
 
 
 def main() -> None:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(report())
+    html_path = render_html(REPORT_PATH)
     print(f"Codex cost report generated: {REPORT_PATH.relative_to(REPO_ROOT)}")
+    print(f"Codex cost report HTML rendered: {html_path.relative_to(REPO_ROOT)}")
 
 
 if __name__ == "__main__":

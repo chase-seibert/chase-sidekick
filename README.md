@@ -49,7 +49,7 @@ Current skills in `.agents/skills`:
 - **confluence** - Manage Confluence pages with search, read, and write operations.
 - **confluence-meeting-notes-create-next** - Create the next dated or `Next` section in an existing Confluence meeting notes doc.
 - **confluence-meeting-notes-update** - Safely update Confluence meeting notes within a targeted section, placeholder, or agenda row.
-- **codex-cost-report** - Generate local Codex cost and token usage reports by day, month, year, model, and session.
+- **codex-cost-report** - Generate local Codex cost reports with charts, annual projections, coding/cowork split, and HTML output.
 - **dependency-escalation** - Draft a document for an escalation of a dependency request.
 - **dropbox** - Manage Dropbox files and Paper docs.
 - **epic-assignment** - Assign active Epics to Roadmap Initiatives based on recent activity.
