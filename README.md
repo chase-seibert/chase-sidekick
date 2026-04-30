@@ -45,6 +45,7 @@ These exact scenarios are not hard coded anywhere; agents can combine existing c
 Current skills in `.agents/skills`:
 
 - **chrome** - Query Chrome browsing history.
+- **codex-time-report** - Estimate human-active and agent-elapsed Codex coding vs cowork time.
 - **confluence** - Manage Confluence pages with search, read, and write operations.
 - **confluence-meeting-notes-create-next** - Create the next dated or `Next` section in an existing Confluence meeting notes doc.
 - **confluence-meeting-notes-update** - Safely update Confluence meeting notes within a targeted section, placeholder, or agenda row.
@@ -330,6 +331,7 @@ chase-sidekick/
 ├── .agents/
 │   └── skills/              # Canonical shared skills for Claude Code and Codex
 │       ├── chrome/
+│       ├── codex-time-report/
 │       ├── confluence/
 │       ├── confluence-meeting-notes-create-next/
 │       ├── confluence-meeting-notes-update/
