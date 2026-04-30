@@ -70,6 +70,7 @@ Current skills in `.agents/skills`:
 - **project-activity** - Generate weekly project activity summaries from Slack and JIRA.
 - **project-review** - Generate comprehensive project review reports from PRD and tech spec documents.
 - **pto-block** - Block calendar for PTO and handle conflicting meetings.
+- **quarto-report** - Write and render Quarto reports with text, tables, diagrams, PDF, HTML, and PowerPoint output.
 - **recent-docs** - Generate categorized summaries of recent Paper and Confluence docs from Chrome history.
 - **sev-review-prep** - Generate questions to ask during SEV review meetings based on Confluence SEV review documents.
 - **slack** - Read recent messages from Slack channels using Dash MCP.
@@ -355,6 +356,7 @@ chase-sidekick/
 │       ├── project-activity/
 │       ├── project-review/
 │       ├── pto-block/
+│       ├── quarto-report/
 │       ├── recent-docs/
 │       ├── sev-review-prep/
 │       ├── slack/
