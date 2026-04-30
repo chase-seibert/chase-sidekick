@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Time Report"
+  short_description: "Estimate human vs agent Codex time"
+  default_prompt: "Use $codex-time-report to estimate my human-active and agent-elapsed Codex time by day, week, and month."
