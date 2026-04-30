@@ -1,0 +1,3 @@
+interface:
+  display_name: "Quarto Report"
+  short_description: "Write and render graphical Quarto reports"
