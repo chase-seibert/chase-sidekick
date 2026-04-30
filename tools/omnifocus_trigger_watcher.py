@@ -8,6 +8,7 @@ task prompt, and appends the output to the task note. It never completes tasks.
 Usage:
     python3 tools/omnifocus_trigger_watcher.py
     python3 tools/omnifocus_trigger_watcher.py --max-tasks 3
+    python3 tools/omnifocus_trigger_watcher.py --no-mark-codex-unread
     python3 tools/omnifocus_trigger_watcher.py --dry-run
 
 Expected task formats:
@@ -96,16 +97,23 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action="store_true",
         help="Preview matching tasks and prompt expansion without mutating or running Codex.",
     )
+    parser.add_argument(
+        "--mark-codex-unread",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Leave Codex Desktop sessions marked unread after trigger runs (default: enabled).",
+    )
     return parser.parse_args(argv)
 
 
-def execute_codex(prompt: str, working_dir: str) -> CodexRunResult:
+def execute_codex(prompt: str, working_dir: str, mark_codex_unread: bool = True) -> CodexRunResult:
     """Execute Codex with the given prompt."""
     log(f"Executing Codex with Desktop-visible app-server runner: {prompt[:100]}...")
     result = execute_codex_with_fallback(
         prompt=prompt,
         working_dir=working_dir,
         timeout=EXECUTION_TIMEOUT,
+        mark_unread=mark_codex_unread,
     )
     if result.thread_id:
         log(f"Codex runner: {result.runner}; thread id: {result.thread_id}")
@@ -397,6 +405,7 @@ def process_task(
     task_summary: dict,
     working_dir: str,
     dry_run: bool = False,
+    mark_codex_unread: bool = True,
 ) -> bool:
     """Process a single OmniFocus trigger task."""
     task_id = task_summary.get("id")
@@ -451,7 +460,11 @@ def process_task(
             raise ValueError("Could not extract prompt from task name or note")
 
         executed_prompt, prompt_kind = expand_prompt(original_prompt)
-        result = execute_codex(executed_prompt, working_dir)
+        result = execute_codex(
+            executed_prompt,
+            working_dir,
+            mark_codex_unread=mark_codex_unread,
+        )
         result_note = format_result_note(
             success=result.success,
             output=result.output,
@@ -495,6 +508,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     log("=== OmniFocus Trigger Watcher Starting ===")
     log(f"Max tasks to process this run: {args.max_tasks}")
     log(f"Scan limit: {args.scan_limit}")
+    log(f"Mark Codex Desktop sessions unread: {args.mark_codex_unread}")
     if args.dry_run:
         log("Dry run enabled: no tasks will be mutated and Codex will not run")
 
@@ -517,7 +531,13 @@ def main(argv: Optional[List[str]] = None) -> None:
         processed_count = 0
         for index, task in enumerate(tasks, 1):
             log(f"\n--- Processing task {index}/{len(tasks)} ---")
-            if process_task(client, task, working_dir, dry_run=args.dry_run):
+            if process_task(
+                client,
+                task,
+                working_dir,
+                dry_run=args.dry_run,
+                mark_codex_unread=args.mark_codex_unread,
+            ):
                 processed_count += 1
 
         log(f"\n=== Completed: {processed_count}/{len(tasks)} task(s) processed successfully ===")

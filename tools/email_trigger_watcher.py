@@ -8,6 +8,7 @@ the results.
 Usage:
     python3 tools/email_trigger_watcher.py
     python3 tools/email_trigger_watcher.py --max-emails 3
+    python3 tools/email_trigger_watcher.py --no-mark-codex-unread
 
 Expected email format:
     Subject: Claude <your prompt here>
@@ -140,6 +141,12 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
             "Maximum trigger emails to process this run, starting with the "
             f"oldest matches (default: {DEFAULT_EMAILS_PER_RUN})."
         ),
+    )
+    parser.add_argument(
+        "--mark-codex-unread",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Leave Codex Desktop sessions marked unread after trigger runs (default: enabled).",
     )
     return parser.parse_args(argv)
 
@@ -398,7 +405,8 @@ def sender_is_allowed(from_addr: str, agent_config: dict) -> bool:
 def execute_agent(
     prompt: str,
     working_dir: str,
-    agent_config: dict
+    agent_config: dict,
+    mark_codex_unread: bool = True,
 ) -> Tuple[bool, str, float, dict]:
     """Execute the configured agent CLI with the given prompt.
 
@@ -419,6 +427,7 @@ def execute_agent(
             prompt=prompt,
             working_dir=working_dir,
             timeout=EXECUTION_TIMEOUT,
+            mark_unread=mark_codex_unread,
         )
         if result.thread_id:
             log(f"{display_name} runner: {result.runner}; thread id: {result.thread_id}")
@@ -568,7 +577,8 @@ def process_trigger_email(
     client: GmailClient,
     message: dict,
     working_dir: str,
-    active_agent_configs: List[dict]
+    active_agent_configs: List[dict],
+    mark_codex_unread: bool = True,
 ) -> bool:
     """Process a single trigger email.
 
@@ -637,6 +647,7 @@ def process_trigger_email(
             execution_prompt,
             working_dir,
             agent_config,
+            mark_codex_unread=mark_codex_unread,
         )
 
         # Format reply
@@ -820,6 +831,7 @@ def main(argv: Optional[List[str]] = None):
     args = parse_args(argv)
     log("=== Email Trigger Watcher Starting ===")
     log(f"Max emails to process this run: {args.max_emails}")
+    log(f"Mark Codex Desktop sessions unread: {args.mark_codex_unread}")
 
     # Load configuration
     try:
@@ -856,7 +868,13 @@ def main(argv: Optional[List[str]] = None):
         processed_count = 0
         for i, message in enumerate(messages, 1):
             log(f"\n--- Processing email {i}/{len(messages)} ---")
-            if process_trigger_email(client, message, working_dir, active_agent_configs):
+            if process_trigger_email(
+                client,
+                message,
+                working_dir,
+                active_agent_configs,
+                mark_codex_unread=args.mark_codex_unread,
+            ):
                 processed_count += 1
 
         log(f"\n=== Completed: {processed_count}/{len(messages)} emails processed successfully ===")
