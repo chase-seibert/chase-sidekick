@@ -201,7 +201,7 @@ If a Slack channel or JIRA issue fails to fetch:
 
 **IMPORTANT**: To preserve context window:
 1. **Extract summary immediately** after fetching each project's data (Slack + JIRA)
-2. **Write to intermediate file** `memory/project_activity/project_summaries.md` (append mode)
+2. **Write to intermediate file** `$TMP_DIR/project_summaries.md` (append mode). Create `$TMP_DIR` with `mktemp -d "${TMPDIR:-/tmp}/project-activity.XXXXXX"` and clean it up with a trap.
 3. **Discard full message/comment content** - only keep the structured summary
 4. **Process projects sequentially** (one at a time)
 5. **For JIRA**: Only fetch issue summary and recent comments, not full issue details
@@ -335,7 +335,7 @@ No Slack or JIRA activity in the last [DAYS] days.
 
 4. **Clean up intermediate files**:
    ```bash
-   rm -f memory/project_activity/project_summaries.md
+   rm -rf "$TMP_DIR"
    ```
 
 ### Step 6: Update local/projects.md with JIRA Status
@@ -604,7 +604,7 @@ Look for forward-looking milestone language:
 ## Output Location
 
 - **Final report**: `memory/project-activity-YYYY-MM-DD.md`
-- **Intermediate file**: `memory/project_activity/project_summaries.md` (deleted after completion)
+- **Intermediate file**: `$TMP_DIR/project_summaries.md` (deleted after completion)
 
 ## Related Agents
 

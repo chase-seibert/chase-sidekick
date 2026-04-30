@@ -16,7 +16,7 @@ REPO_ROOT = Path.cwd()
 CODEX_ROOT = Path.home() / ".codex"
 STATE_DB = CODEX_ROOT / "state_5.sqlite"
 SESSIONS_ROOT = CODEX_ROOT / "sessions"
-REPORT_DIR = REPO_ROOT / "memory" / "codex-cost-report"
+REPORT_DIR = REPO_ROOT / "memory"
 GENERATED_AT = datetime.now().astimezone()
 REPORT_PATH = REPORT_DIR / f"codex-cost-report-{GENERATED_AT.date().isoformat()}.md"
 

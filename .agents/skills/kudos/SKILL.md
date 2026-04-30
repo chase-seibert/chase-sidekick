@@ -27,10 +27,11 @@ This skill helps you:
 
 When invoked with: `/kudos [weeks]`
 
-### Step 1: Create Output Directory
+### Step 1: Create Temporary Directory
 
 ```bash
-mkdir -p memory/kudos
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/kudos.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
 ```
 
 ### Step 2: Fetch Recent Content

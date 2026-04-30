@@ -1,6 +1,5 @@
 """Memory manager - handles storing command output with metadata."""
 
-import os
 import sys
 import re
 from datetime import datetime
@@ -38,8 +37,6 @@ class MemoryManager:
         """
         # Extract key identifiers (issue keys, numbers) before lowercasing
         issue_keys = re.findall(r'\b[A-Z]+-\d+\b', prompt, re.IGNORECASE)
-        numbers = re.findall(r'\b\d+\b', prompt)
-
         # Convert to lowercase
         slug = prompt.lower()
 
@@ -54,7 +51,10 @@ class MemoryManager:
         slug = re.sub(r'\s+', '-', slug)
 
         # Remove common words
-        common_words = ['the', 'in', 'for', 'and', 'or', 'a', 'an', 'to', 'of', 'me', 'my']
+        common_words = [
+            'the', 'in', 'for', 'and', 'or', 'a', 'an', 'to', 'of', 'me', 'my',
+            'find', 'show', 'get', 'all', 'under', 'nested',
+        ]
         parts = slug.split('-')
         parts = [p for p in parts if p not in common_words and len(p) > 1]
 
@@ -81,6 +81,51 @@ class MemoryManager:
         slug = slug.strip('-')
 
         return slug if slug else 'memory'
+
+    def client_prefix(self, client: str) -> str:
+        """Generate the filename prefix for a client name."""
+        prefix = client.lower().replace('_', '-')
+        prefix = re.sub(r'[^a-z0-9\s-]', '', prefix)
+        prefix = re.sub(r'\s+', '-', prefix)
+        prefix = prefix.strip('-')
+        return prefix if prefix else 'memory'
+
+    def normalize_filename(
+        self,
+        prompt: str,
+        client: str,
+        filename: Optional[str],
+        extension: str
+    ) -> str:
+        """Return a root-level, client-prefixed filename."""
+        prefix = self.client_prefix(client)
+
+        if filename is None:
+            slug = self.generate_slug(prompt)
+            if slug.startswith(f"{prefix}-"):
+                return f"{slug}{extension}"
+            return f"{prefix}-{slug}{extension}"
+
+        if Path(filename).name != filename or '/' in filename or '\\' in filename:
+            raise ValueError("Memory filenames must be root-level names, not paths")
+        if filename.startswith('.'):
+            raise ValueError("Memory filenames must include a visible name")
+
+        path = Path(filename)
+        if path.suffix in ['.txt', '.md']:
+            stem = path.stem
+            suffix = path.suffix
+        else:
+            stem = filename
+            suffix = extension
+
+        if not stem.strip(' .'):
+            raise ValueError("Memory filenames must include a non-empty name")
+
+        if not stem.startswith(f"{prefix}-"):
+            stem = f"{prefix}-{stem}"
+
+        return f"{stem}{suffix}"
 
     def format_memory(
         self,
@@ -169,18 +214,9 @@ class MemoryManager:
         Returns:
             Path to the written file
         """
-        # Generate filename if not provided
-        if filename is None:
-            slug = self.generate_slug(prompt)
-            filename = f"{slug}{extension}"
-        elif not (filename.endswith('.txt') or filename.endswith('.md')):
-            filename = f"{filename}{extension}"
-
-        # Create client directory
-        client_dir = self.base_dir / client
-        client_dir.mkdir(parents=True, exist_ok=True)
-
-        file_path = client_dir / filename
+        filename = self.normalize_filename(prompt, client, filename, extension)
+        self.base_dir.mkdir(parents=True, exist_ok=True)
+        file_path = self.base_dir / filename
 
         # If refreshing, try to preserve creation timestamp
         existing_created = None
@@ -212,8 +248,7 @@ class MemoryManager:
         Returns:
             List of file paths matching the search
         """
-        client_dir = self.base_dir / client
-        if not client_dir.exists():
+        if not self.base_dir.exists():
             return []
 
         matches = []
@@ -221,8 +256,10 @@ class MemoryManager:
 
         # Search both .txt and .md files
         for pattern in ['*.txt', '*.md']:
-            for file_path in client_dir.glob(pattern):
+            for file_path in self.base_dir.glob(pattern):
                 metadata = self.parse_metadata(file_path)
+                if metadata.get('client') != client:
+                    continue
                 prompt = metadata.get('prompt', '').lower()
                 if search_lower in prompt:
                     matches.append(file_path)
@@ -238,16 +275,16 @@ class MemoryManager:
         Returns:
             List of tuples (file_path, metadata_dict)
         """
-        client_dir = self.base_dir / client
-        if not client_dir.exists():
+        if not self.base_dir.exists():
             return []
 
         memories = []
         # Collect both .txt and .md files
-        all_files = list(client_dir.glob('*.txt')) + list(client_dir.glob('*.md'))
+        all_files = list(self.base_dir.glob('*.txt')) + list(self.base_dir.glob('*.md'))
         for file_path in sorted(all_files, key=lambda p: p.stat().st_mtime, reverse=True):
             metadata = self.parse_metadata(file_path)
-            memories.append((file_path, metadata))
+            if metadata.get('client') == client:
+                memories.append((file_path, metadata))
 
         return memories
 
@@ -257,28 +294,28 @@ def main():
 
     Usage:
         # Write memory with auto-generated filename
-        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command"
+        echo "content" | python3 -m sidekick.clients.memory write "prompt text" jira "command"
 
         # Write with custom filename
-        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" custom-name
+        echo "content" | python3 -m sidekick.clients.memory write "prompt text" jira "command" custom-name
 
         # Write as Markdown file
-        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" --md
+        echo "content" | python3 -m sidekick.clients.memory write "prompt text" jira "command" --md
 
         # Refresh existing file (preserve creation timestamp)
-        echo "content" | python -m sidekick.clients.memory write "prompt text" jira "command" --refresh
+        echo "content" | python3 -m sidekick.clients.memory write "prompt text" jira "command" --refresh
 
         # List memories for a client
-        python -m sidekick.clients.memory list jira
+        python3 -m sidekick.clients.memory list jira
 
         # Find memories by prompt text
-        python -m sidekick.clients.memory find jira "PROJ-1735"
+        python3 -m sidekick.clients.memory find jira "PROJ-1735"
 
         # Generate slug from prompt (for testing)
-        python -m sidekick.clients.memory slug "Find roadmap items nested under PROJ-1735"
+        python3 -m sidekick.clients.memory slug "Find roadmap items nested under PROJ-1735"
     """
     if len(sys.argv) < 2:
-        print("Usage: python -m sidekick.clients.memory <command> [args...]")
+        print("Usage: python3 -m sidekick.clients.memory <command> [args...]")
         print("\nCommands:")
         print("  write <prompt> <client> <command> [filename] [--refresh] [--md]")
         print("  list <client>")
@@ -319,7 +356,11 @@ def main():
                 refresh=refresh,
                 extension=extension
             )
-            print(f"Memory written to: {file_path}")
+            try:
+                display_path = file_path.relative_to(Path.cwd())
+            except ValueError:
+                display_path = file_path
+            print(f"Memory written to: {display_path}")
 
         elif command == "list":
             client = sys.argv[2]

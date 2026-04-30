@@ -85,7 +85,7 @@ For each document:
 - **Confluence pages**: Uses `confluence get-content-from-link`
 - **Dropbox Paper docs**: Uses `dropbox get-paper-contents-from-link`
 
-Content is saved to `memory/kudos/` for analysis.
+Fetched content is saved to a temporary `$TMP_DIR` for analysis and cleaned up after the final kudos are generated.
 
 ### 3. Kudos Extraction
 
@@ -190,7 +190,7 @@ Look for phrases like:
 ├── SKILL.md          # Skill definition and instructions
 └── README.md         # This file
 
-memory/kudos/         # Generated during execution
+$TMPDIR/kudos.*/      # Temporary during execution
 ├── doc1.html         # Fetched Confluence content
 ├── doc2.md           # Fetched Paper content
 └── ...

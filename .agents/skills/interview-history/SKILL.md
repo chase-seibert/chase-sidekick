@@ -84,7 +84,7 @@ The agent performs the following steps:
 - Generates CSV export with columns:
   - date, time, year, summary, category, status
   - attendee_count, organizer, description_preview, event_id
-- Saves both files to `memory/interview_history/` directory
+- Saves both files to the root `memory/` directory with `interview-history-` prefixes
 
 ### Phase 6: Output Summary
 - Displays quick summary statistics
@@ -93,12 +93,12 @@ The agent performs the following steps:
 ## Output Files
 
 **Markdown Report:**
-- Location: `memory/interview_history/interview-history-{timestamp}.md`
+- Location: `memory/interview-history-{timestamp}.md`
 - Contains: Executive summary, tables, statistics, and insights
 - Format: Markdown with YAML front matter
 
 **CSV Export:**
-- Location: `memory/interview_history/interviews-{start-year}-{end-year}.csv`
+- Location: `memory/interview-history-interviews-{start-year}-{end-year}.csv`
 - Contains: All interview records with detailed metadata
 - Format: CSV with headers
 

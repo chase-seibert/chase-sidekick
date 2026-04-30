@@ -61,7 +61,7 @@ The Confluence client automatically caches search query to page mappings for fas
 1. When you search for a term (e.g., "Bob 1:1"), the first result is automatically cached
 2. Next time you search for the same term, the cached page is returned immediately (no API call)
 
-**Cache file:** `memory/confluence/confluence_search_cache.yaml`
+**Cache file:** `memory/confluence_search_cache.yaml`
 
 **Example workflow:**
 ```bash
@@ -91,7 +91,7 @@ The cache is a simple YAML file that you can manually edit:
 
 ```bash
 # Edit cache file directly
-vi memory/confluence/confluence_search_cache.yaml
+vi memory/confluence_search_cache.yaml
 ```
 
 Example cache file:

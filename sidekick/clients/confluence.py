@@ -17,10 +17,10 @@ class SearchCache:
     def __init__(self, cache_file: Optional[Path] = None):
         """Initialize cache with path to YAML file.
 
-        Default: memory/confluence/confluence_search_cache.yaml
+        Default: memory/confluence_search_cache.yaml
         """
         if cache_file is None:
-            cache_dir = Path(__file__).parent.parent.parent / "memory" / "confluence"
+            cache_dir = Path(__file__).parent.parent.parent / "memory"
             cache_dir.mkdir(parents=True, exist_ok=True)
             cache_file = cache_dir / "confluence_search_cache.yaml"
 

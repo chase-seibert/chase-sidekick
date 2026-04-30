@@ -105,9 +105,9 @@ Agent will:
 2. Follow links to PRDs, technical designs, or status docs
 3. Generate structured report in Markdown format starting with document title and executive summary
 4. Include detailed analysis with wins, risks, and stakeholder perspectives
-5. Save to `memory/meeting-prep/[slug-from-title].md` using:
+5. Save to the root memory directory using a prefixed filename such as `memory/meeting-prep-[slug-from-title].md`:
    ```bash
-   cat report.md | python -m sidekick.clients.memory write "prompt" meeting-prep "meeting-prep" --md
+   cat report.md | python3 -m sidekick.clients.memory write "prompt" meeting-prep "meeting-prep" --md
    ```
 
 ## Tips for Analysis

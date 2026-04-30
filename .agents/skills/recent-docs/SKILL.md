@@ -43,8 +43,8 @@ Get Paper and Confluence URLs visited in the last 7 days:
 
 ```bash
 # Create temporary directory for intermediate files
-TMP_DIR=/tmp/recent_docs_$$
-mkdir -p $TMP_DIR
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/recent-docs.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Fetch Confluence pages
 python3 -m sidekick.clients.chrome list-confluence \
@@ -182,12 +182,11 @@ Date range: YYYY-MM-DD to YYYY-MM-DD
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 # Save report
-mkdir -p memory/recent_docs
-cat > memory/recent_docs/recent-docs-$TIMESTAMP.md << 'EOF'
+cat > memory/recent-docs-$TIMESTAMP.md << 'EOF'
 [Generated report content here]
 EOF
 
-echo "Report saved to: memory/recent_docs/recent-docs-$TIMESTAMP.md"
+echo "Report saved to: memory/recent-docs-$TIMESTAMP.md"
 ```
 
 ### Step 6: Clean Up
@@ -258,8 +257,8 @@ TODAY=$(date +%Y-%m-%d)
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 # Create temp directory
-TMP_DIR=/tmp/recent_docs_$$
-mkdir -p $TMP_DIR
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/recent-docs.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Fetch documents from Chrome history
 echo "Fetching Confluence pages from $START_DATE to $TODAY..."
@@ -274,20 +273,20 @@ python3 -m sidekick.clients.chrome list-paper \
 
 # Analyze output and categorize documents
 # Generate Markdown report with categorized sections
-# Save to memory/recent_docs/recent-docs-$TIMESTAMP.md
+# Save to memory/recent-docs-$TIMESTAMP.md
 
 # Clean up
 rm -rf $TMP_DIR
 
-echo "Report generated: memory/recent_docs/recent-docs-$TIMESTAMP.md"
+echo "Report generated: memory/recent-docs-$TIMESTAMP.md"
 ```
 
 ## Output Structure
 
-Final output is saved to `memory/recent_docs/`:
+Final output is saved to the root `memory/` directory:
 - `recent-docs-YYYYMMDD-HHMMSS.md` - The categorized report
 
-Intermediate artifacts are stored in `/tmp/recent_docs_$$/` during generation:
+Intermediate artifacts are stored in `$TMP_DIR` during generation:
 - `confluence_raw.txt` - Raw Chrome output for Confluence
 - `paper_raw.txt` - Raw Chrome output for Paper
 - `confluence_urls.txt` - Extracted Confluence URLs
@@ -301,7 +300,7 @@ To generate a fresh report with current data:
 
 ```bash
 # Simply run the agent again - it will create a new timestamped file
-# Old reports remain in memory/recent_docs/ for historical reference
+# Old reports remain in memory/ for historical reference
 ```
 
 ## Error Handling

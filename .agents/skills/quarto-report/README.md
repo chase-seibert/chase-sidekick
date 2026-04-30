@@ -29,7 +29,7 @@ quarto install chrome-headless-shell
 Default report source path:
 
 ```text
-memory/quarto-report/<slug>.qmd
+memory/quarto-report-<slug>.qmd
 ```
 
 Reports saved under `memory/` must end with this exact footer:

@@ -1,13 +1,14 @@
 ---
 name: transcript
-description: Save conversation transcripts as structured markdown in memory/transcripts
+description: Save conversation transcripts as structured markdown in memory
 argument-hint: [filename]
 allowed-tools: Write, Bash, Read
 ---
 
 # Transcript Skill
 
-Save conversation transcripts as markdown files in the memory/transcripts folder.
+Save conversation transcripts as markdown files in the root `memory/` folder with
+filenames prefixed by `transcript-`.
 
 When invoked, use the Transcript agent to handle the request: $ARGUMENTS
 
@@ -30,7 +31,7 @@ If no filename is provided, a filename will be auto-generated based on the conve
    - User prompts (verbatim)
    - Assistant responses (truncated to show key actions without verbose output)
    - Clear separation between exchanges
-3. Saves the transcript to `memory/transcripts/[filename].md`
+3. Saves the transcript to `memory/transcript-[filename].md`
 
 ## Examples
 
@@ -42,7 +43,7 @@ Creates a transcript with an auto-generated filename based on the conversation.
 ```
 /transcript confluence-onboarding
 ```
-Creates a transcript saved as `memory/transcripts/confluence-onboarding.md`.
+Creates a transcript saved as `memory/transcript-confluence-onboarding.md`.
 
 ## Output Format
 
@@ -92,7 +93,7 @@ The transcript follows this structure:
   - Links to created resources
   - Decisions and approach taken
 - Verbose content (large data outputs, full file contents) is truncated
-- The transcript is saved in `memory/transcripts/` for future reference
+- The transcript is saved in the root `memory/` directory for future reference
 
 ### Calculating Session Metrics
 

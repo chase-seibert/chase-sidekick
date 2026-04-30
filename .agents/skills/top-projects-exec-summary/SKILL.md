@@ -13,7 +13,7 @@ Generate an executive summary report for the user's top five projects. Use local
 
 - Time window: last 14 days, unless the user passes a numeric day count.
 - Output: `memory/top-projects-exec-summary-YYYY-MM-DD.md`.
-- Temporary files: use `/tmp/top_projects_exec_summary_$$/` and clean it up. Do not leave intermediate files in the repo.
+- Temporary files: create a temp directory with `mktemp -d "${TMPDIR:-/tmp}/top-projects-exec-summary.XXXXXX"` and clean it up. Do not leave intermediate files in the repo.
 - Final chat output: print a short processing summary and the relative report path.
 
 ## Project Selection

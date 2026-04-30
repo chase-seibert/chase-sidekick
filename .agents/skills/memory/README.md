@@ -10,6 +10,7 @@ The Memory Skill provides a systematic way to save command results with:
 - **Auto-generated filenames**: Slugified prompts as filenames
 - **Refresh capability**: Update existing files while preserving creation time
 - **Search**: Find files by prompt text
+- **Flat storage**: Files are written directly under `memory/` with a client prefix
 
 ## Example Prompts
 
@@ -42,18 +43,20 @@ updated: 2025-01-27 15:45:10
 
 Filenames are auto-generated from prompts using slug format:
 
-- `"Find roadmap items nested under PROJ-1735 in the PROJ Project"` → `dbx-1735-roadmap-items.txt`
-- `"Show me the hierarchy for PROJ-500"` → `proj-500-hierarchy.txt`
-- `"Get all Story issues under EPIC-200"` → `epic-200-story-issues.txt`
+- `"Find roadmap items nested under PROJ-1735 in the PROJ Project"` → `jira-proj-1735-roadmap-items.txt`
+- `"Show me the hierarchy for PROJ-500"` → `jira-proj-500-hierarchy.txt`
+- `"Get all Story issues under EPIC-200"` → `jira-epic-200-story-issues.txt`
 - `"Meeting prep for C1 review"` (with --md) → `meeting-prep-c1-review.md`
 
 **Rules:**
 - Lowercase
+- Prefix with the client name, such as `jira-` or `meeting-prep-`
 - Extract issue keys (PROJ-1735, PROJ-500, etc.)
 - Remove common words (the, in, for, and, etc.)
 - Replace spaces with hyphens
 - Limit to ~50 characters
 - Remove special characters
+- Reject custom filenames that include directories or path traversal
 - Default extension is .txt, use --md flag for .md extension
 
 ## Commands
@@ -64,23 +67,23 @@ Save command output with prompt metadata:
 
 ```bash
 # Auto-generated filename
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
+  python3 -m sidekick.clients.memory write \
     "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
     jira \
     "roadmap-hierarchy PROJ-1735 PROJ"
 
 # Custom filename
-python -m sidekick.clients.jira query "project = PROJ" | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira query "project = PROJ" | \
+  python3 -m sidekick.clients.memory write \
     "Query all PROJ issues" \
     jira \
     "query project = PROJ" \
     proj-all-issues
 
 # Refresh existing file (preserves creation timestamp)
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
+  python3 -m sidekick.clients.memory write \
     "Find roadmap items nested under PROJ-1735 in the PROJ Project" \
     jira \
     "roadmap-hierarchy PROJ-1735 PROJ" \
@@ -88,7 +91,7 @@ python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
 
 # Save as Markdown file (for formatted reports)
 cat meeting-prep-report.md | \
-  python -m sidekick.clients.memory write \
+  python3 -m sidekick.clients.memory write \
     "Meeting prep for C1 review" \
     meeting-prep \
     "meeting-prep" \
@@ -108,22 +111,22 @@ cat meeting-prep-report.md | \
 List all saved memories for a client:
 
 ```bash
-python -m sidekick.clients.memory list jira
+python3 -m sidekick.clients.memory list jira
 ```
 
 Output:
 ```
 Memories for jira (3 files):
 
-dbx-1735-roadmap-items.txt
+jira-proj-1735-roadmap-items.txt
   Prompt: Find roadmap items nested under PROJ-1735 in the PROJ Project
   Updated: 2025-01-27 15:45:10
 
-proj-500-hierarchy.txt
+jira-proj-500-hierarchy.txt
   Prompt: Show me the hierarchy for PROJ-500
   Updated: 2025-01-27 14:20:33
 
-epic-200-story-issues.txt
+jira-epic-200-story-issues.txt
   Prompt: Get all Story issues under EPIC-200
   Updated: 2025-01-27 13:15:22
 ```
@@ -133,9 +136,9 @@ epic-200-story-issues.txt
 Find memories by searching prompt text:
 
 ```bash
-python -m sidekick.clients.memory find jira "PROJ-1735"
-python -m sidekick.clients.memory find jira "roadmap"
-python -m sidekick.clients.memory find jira "Story issues"
+python3 -m sidekick.clients.memory find jira "PROJ-1735"
+python3 -m sidekick.clients.memory find jira "roadmap"
+python3 -m sidekick.clients.memory find jira "Story issues"
 ```
 
 ### Generate Slug (for testing)
@@ -143,8 +146,8 @@ python -m sidekick.clients.memory find jira "Story issues"
 Test slug generation from a prompt:
 
 ```bash
-python -m sidekick.clients.memory slug "Find roadmap items nested under PROJ-1735"
-# Output: dbx-1735-roadmap-items
+python3 -m sidekick.clients.memory slug "Find roadmap items nested under PROJ-1735"
+# Output: proj-1735-roadmap-items
 ```
 
 ## Use Cases
@@ -153,37 +156,37 @@ python -m sidekick.clients.memory slug "Find roadmap items nested under PROJ-173
 
 ```bash
 # Initial save
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
+  python3 -m sidekick.clients.memory write \
     "PROJ-1735 roadmap snapshot" \
     jira \
     "roadmap-hierarchy PROJ-1735 PROJ"
 
 # Refresh after changes
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
+  python3 -m sidekick.clients.memory write \
     "PROJ-1735 roadmap snapshot" \
     jira \
     "roadmap-hierarchy PROJ-1735 PROJ" \
     --refresh
 
 # Compare versions
-diff memory/jira/dbx-1735-roadmap-snapshot.txt memory/jira/dbx-1735-roadmap-snapshot.txt.bak
+diff memory/jira-proj-1735-roadmap-snapshot.txt memory/jira-proj-1735-roadmap-snapshot.txt.bak
 ```
 
 ### 2. Save Query Results
 
 ```bash
 # Save open issues
-python -m sidekick.clients.jira query "project = PROJ AND status = Open" | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira query "project = PROJ AND status = Open" | \
+  python3 -m sidekick.clients.memory write \
     "PROJ open issues" \
     jira \
     "query project = PROJ AND status = Open"
 
 # Save backend issues
-python -m sidekick.clients.jira query-by-label backend PROJ | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira query-by-label backend PROJ | \
+  python3 -m sidekick.clients.memory write \
     "PROJ backend issues" \
     jira \
     "query-by-label backend PROJ"
@@ -195,8 +198,8 @@ python -m sidekick.clients.jira query-by-label backend PROJ | \
 # Daily roadmap refresh script
 #!/bin/bash
 TODAY=$(date +%Y-%m-%d)
-python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
-  python -m sidekick.clients.memory write \
+python3 -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
+  python3 -m sidekick.clients.memory write \
     "PROJ-1735 roadmap $TODAY" \
     jira \
     "roadmap-hierarchy PROJ-1735 PROJ"
@@ -206,13 +209,13 @@ python -m sidekick.clients.jira roadmap-hierarchy PROJ-1735 PROJ | \
 
 ```bash
 # Find all memories about a specific issue
-python -m sidekick.clients.memory find jira "PROJ-1735"
+python3 -m sidekick.clients.memory find jira "PROJ-1735"
 
 # List recent memories
-python -m sidekick.clients.memory list jira | head -20
+python3 -m sidekick.clients.memory list jira | head -20
 
 # View specific memory
-cat memory/jira/dbx-1735-roadmap-items.txt
+cat memory/jira-proj-1735-roadmap-items.txt
 ```
 
 ## Python Usage
@@ -253,7 +256,7 @@ for file_path in matches:
 
 # Generate slug
 slug = manager.generate_slug("Find roadmap items nested under PROJ-1735")
-print(f"Slug: {slug}")  # dbx-1735-roadmap-items
+print(f"Slug: {slug}")  # proj-1735-roadmap-items
 ```
 
 ## Shell Helpers
@@ -266,8 +269,8 @@ jira-save() {
     local prompt="$1"
     local cmd="$2"
     shift 2
-    python -m sidekick.clients.jira $cmd "$@" | \
-      python -m sidekick.clients.memory write "$prompt" jira "$cmd $*"
+    python3 -m sidekick.clients.jira $cmd "$@" | \
+      python3 -m sidekick.clients.memory write "$prompt" jira "$cmd $*"
 }
 
 # Refresh JIRA memory
@@ -275,8 +278,8 @@ jira-refresh() {
     local prompt="$1"
     local cmd="$2"
     shift 2
-    python -m sidekick.clients.jira $cmd "$@" | \
-      python -m sidekick.clients.memory write "$prompt" jira "$cmd $*" --refresh
+    python3 -m sidekick.clients.jira $cmd "$@" | \
+      python3 -m sidekick.clients.memory write "$prompt" jira "$cmd $*" --refresh
 }
 
 # Usage:
@@ -288,13 +291,11 @@ jira-refresh() {
 
 ```
 memory/
-├── jira/
-│   ├── dbx-1735-roadmap-items.txt
-│   ├── proj-500-hierarchy.txt
-│   ├── epic-200-story-issues.txt
-│   └── proj-open-issues.txt
-├── slack/        # Future
-└── github/       # Future
+├── jira-proj-1735-roadmap-items.txt
+├── jira-proj-500-hierarchy.txt
+├── jira-epic-200-story-issues.txt
+├── jira-proj-open-issues.txt
+└── meeting-prep-c1-review.md
 ```
 
 ## Benefits

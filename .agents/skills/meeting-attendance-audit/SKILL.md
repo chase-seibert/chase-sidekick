@@ -15,7 +15,7 @@ Use this skill when asked to audit recurring Google Calendar meetings for attend
 python3 -m sidekick.clients.gcalendar attendance-audit audit
 ```
 
-2. Write the Markdown report yourself under `memory/meeting-attendance-audit/meeting-attendance-audit-YYYYMMDD-HHMM.md`. The report is the only durable workflow state. Include:
+2. Write the Markdown report yourself under `memory/meeting-attendance-audit-YYYYMMDD-HHMM.md`. The report is the only durable workflow state. Include:
    - YAML frontmatter with prompt, client `gcalendar`, command `attendance-audit audit`, created, and updated.
    - `## Summary` from the JSON `summary` and `settings`.
    - `## Actual Changes` with `- No calendar changes have been applied yet.`

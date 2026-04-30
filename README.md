@@ -81,7 +81,7 @@ Current skills in `.agents/skills`:
 - **team-group-analysis** - Analyze completed work across multiple JIRA projects with automatic theme categorization.
 - **tech-spec-review** - Read a tech spec doc and write an executive summary.
 - **top-projects-exec-summary** - Generate executive summaries for the user's top five projects from local context, docs, Slack, and JIRA.
-- **transcript** - Save conversation transcripts as structured Markdown in `memory/transcripts`.
+- **transcript** - Save conversation transcripts as structured Markdown in `memory/`.
 - **weekly-report** - Generate summaries of 1:1 and meeting notes organized by audience.
 - **welcome-doc** - Create personalized employee onboarding documents in Confluence.
 
@@ -102,7 +102,7 @@ Look through the document and any linked docs (PRD, design, tech spec). Pull out
 - Questions to ask during tech review
 - Kudos for people who contributed
 
-Keep the whole thing under 1500 words. Save it as memory/project_review/[project-name-slug]-review.md
+Keep the whole thing under 1500 words. Save it as memory/project-review-[project-name-slug].md
 
 Use the original estimate units from the doc (hours, weeks, whatever they used). Get DRI names from JIRA issues if they're not in the docs. Clean up any temp files when done - only the final report should be in memory.
 
@@ -180,7 +180,7 @@ Generate comprehensive project status reports from JIRA data.
 2. Analyze recent completions (last 30 days)
 3. Identify blocked items
 4. Generate structured report
-5. Save to memory/project-review/
+5. Save to a prefixed file in memory/
 
 ## Example prompts:
 - "Generate a project review for PLATFORM-100"
@@ -239,7 +239,7 @@ Load [AGENTS.md](AGENTS.md)
 
 ## Using "Memory" for file-based context 
 
-Sidekick includes a Skill called "memory". This can read and write the results of any prompt in a local directory structure at `./memory`. The folder structure is namespaced by skill. The entire folder is ignored by git; meaning that it's OK to have secrets or personal/work data in there. 
+Sidekick includes a Skill called "memory". This can read and write the results of any prompt into the flat `./memory` directory, using skill/client-prefixed filenames for organization. The entire folder is ignored by git; meaning that it's OK to have secrets or personal/work data in there.
 
 You can ask the agent to "download the spreadsheet at link X and save as CSV in memory". It will handle naming it, etc. Now, at any point in the future you can at-mention this file in your prompts to reload that context.
 
@@ -394,11 +394,11 @@ chase-sidekick/
 │       ├── markdown_pdf.py  # Markdown to PDF rendering
 │       ├── memory.py        # Local memory file management
 │       └── omnifocus.py     # OmniFocus task management
-├── memory/                  # Saved command outputs (gitignored)
-│   ├── jira/               # JIRA query results
-│   ├── confluence/         # Confluence search results
-│   ├── weekly_report/      # Weekly report outputs
-│   └── project_review/     # Project review outputs
+├── memory/                  # Flat saved command outputs and reports (gitignored)
+│   ├── jira-proj-123-roadmap.txt
+│   ├── confluence_search_cache.yaml
+│   ├── weekly_report.md
+│   └── project-review-example.md
 ├── .env                     # Your credentials (gitignored)
 ├── AGENTS.md                # Codex guidance
 ├── CLAUDE.md                # Claude Code guidance

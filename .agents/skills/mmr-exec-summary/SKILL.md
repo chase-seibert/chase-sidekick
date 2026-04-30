@@ -40,7 +40,7 @@ The agent will:
 1. Fetch the Confluence page as Markdown
 2. Extract and enrich JIRA issues
 3. Generate a structured executive summary
-4. Save to `memory/mmr_exec_summary/[slug].md`
+4. Save to `memory/mmr-exec-summary-[slug].md`
 
 **Note**: This agent runs with `auto-approve: true`, meaning all commands execute without user confirmation for streamlined processing.
 
@@ -50,11 +50,10 @@ The agent will:
 
 ```bash
 # Create temporary working directory
-TMP_DIR=/tmp/mmr_exec_summary_$$
-mkdir -p $TMP_DIR
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/mmr-exec-summary.XXXXXX")"
 
 # Set up cleanup trap
-trap "rm -rf $TMP_DIR" EXIT
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Extract Confluence URL from user argument
 CONFLUENCE_URL="$1"
@@ -404,9 +403,6 @@ echo "✓ Generated executive summary"
 ### Phase 5: Save and Cleanup
 
 ```bash
-# Create output directory
-mkdir -p memory/mmr_exec_summary
-
 # Generate filename slug from page title (extract first heading from markdown)
 TITLE=$(head -20 $TMP_DIR/mmr.md | grep -m1 '^# ' | sed 's/^# //' | sed 's/ - Confluence$//' | sed 's/ - [A-Za-z]* Confluence$//')
 
@@ -415,10 +411,10 @@ SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 
 
 # Default to timestamp if slug generation fails
 if [ -z "$SLUG" ] || [ "$SLUG" = "-" ]; then
-  SLUG="mmr-exec-summary-$(date +%Y%m%d-%H%M%S)"
+  SLUG="$(date +%Y%m%d-%H%M%S)"
 fi
 
-OUTPUT_FILE="memory/mmr_exec_summary/${SLUG}.md"
+OUTPUT_FILE="memory/mmr-exec-summary-${SLUG}.md"
 
 # Copy summary to output location
 cp $TMP_DIR/summary.md "$OUTPUT_FILE"
@@ -510,9 +506,9 @@ Common issues and mitigations:
 
 ## Tips
 
-- **Temp files**: All intermediate artifacts saved to `/tmp/mmr_exec_summary_$$`
+- **Temp files**: All intermediate artifacts saved to `$TMP_DIR`
   - Automatically cleaned up by trap on exit
-  - Only final summary remains in `memory/mmr_exec_summary/`
+  - Only final summary remains in the root `memory/` directory
 
 - **JIRA enrichment**: Parallel fetching (max 5 concurrent) speeds up execution
   - Typical MMR has 10-30 JIRA issues
@@ -549,7 +545,7 @@ Found 15 unique JIRA issues in MMR document
 ✓ Extracted Key Concerns (68 lines)
 ✓ Parsed MMR structure
 ✓ Generated executive summary
-✓ Executive summary saved to: memory/mmr_exec_summary/team-alpha-mmr-2026-jan.md
+✓ Executive summary saved to: memory/mmr-exec-summary-team-alpha-mmr-2026-jan.md
 
 Summary contains:
   - Severity incidents: SEV 0/1 (0) and SEV 2/3 (0)
@@ -609,10 +605,10 @@ High level voice over -- X/Y are marked done
 
 Any other interesting work for findings for this MMR. Give kudos to people if you can.
 
-Final output saved to `memory/mmr_exec_summary/`:
-- `[page-slug].md` - The executive summary (only file in directory)
+Final output saved to the root `memory/` directory:
+- `mmr-exec-summary-[page-slug].md` - The executive summary
 
-Intermediate artifacts in `/tmp/mmr_exec_summary_$$/` (auto-cleaned):
+Intermediate artifacts in `$TMP_DIR` (auto-cleaned):
 - `mmr.md` - Markdown from Confluence (7000+ lines)
 - `summary_section.txt` - Extracted Summary section
 - `key_improvements.txt` - Key Improvements bullet points

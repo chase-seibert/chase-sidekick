@@ -17,7 +17,7 @@ This skill is Codex-only. Do not claim that it analyzes Claude Code sessions.
   `~/.codex/sessions/**/rollout-*.jsonl`.
 - If the user gives a date range, filter sessions by first prompt time in that
   range.
-- Default output: `memory/codex-time/codex-time-YYYY-MM-DD.md`.
+- Default output: `memory/codex-time-YYYY-MM-DD.md`.
 
 ## Source Data
 
@@ -104,7 +104,7 @@ Cowork signals:
 - Remote service reads or writes, such as Confluence/Jira/Gmail/Calendar/Slack
   operations, when they do not change this local repository.
 - Writes only under `memory/`, including generated reports, cached context,
-  transcripts, and intermediate report files.
+  and transcripts. Temporary and intermediate report files belong in `$TMPDIR`.
 
 If a command looks like it may have written files but the changed path cannot be
 determined, list the session under "Ambiguous Sessions" and explain the signal.
@@ -144,7 +144,7 @@ For each session:
 
 ## Report Format
 
-Write a Markdown report to `memory/codex-time/codex-time-YYYY-MM-DD.md` unless
+Write a Markdown report to `memory/codex-time-YYYY-MM-DD.md` unless
 the user requested a different `memory/` path.
 
 Include:
@@ -174,7 +174,7 @@ This report generated using https://github.com/chase-seibert/chase-sidekick
 
 After writing the report:
 
-- Confirm the output path is under `memory/codex-time/` unless the user requested
+- Confirm the output path is `memory/codex-time-YYYY-MM-DD.md` unless the user requested
   another `memory/` path.
 - Confirm the final line is the required Sidekick footer.
 - Confirm human-active totals are lower than or equal to agent-elapsed totals.

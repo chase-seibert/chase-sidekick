@@ -37,23 +37,24 @@ The user provides one or more links to project documents. Your job is to:
 
 Create temporary directory for intermediate artifacts:
 ```bash
-mkdir -p /tmp/project_review_$$
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/project-review.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
 ```
 
 **For Confluence pages:**
 ```bash
-python -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > /tmp/project_review_$$/doc_name.md
+python3 -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > "$TMP_DIR/doc_name.md"
 ```
 
 **For Dropbox Paper docs:**
 ```bash
-python -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > /tmp/project_review_$$/doc_name.md
+python3 -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > "$TMP_DIR/doc_name.md"
 ```
 
 **For Figma files:**
 Currently not supported - note this in the report as "Link provided but content not accessible"
 
-**Important**: All intermediate artifacts (fetched documents, JIRA outputs) should be saved to `/tmp/project-review_$$/` and cleaned up after the report is generated. Only the final report should remain in `memory/project_review/`.
+**Important**: All intermediate artifacts (fetched documents, JIRA outputs) should be saved to `$TMP_DIR` and cleaned up after the report is generated. Only the final report should remain in the root `memory/` directory.
 
 ### Step 3: Fetch JIRA Issues
 
@@ -61,10 +62,10 @@ If JIRA issue IDs are found in the documents, fetch them to get additional conte
 
 ```bash
 # For the Epic
-python -m sidekick.clients.jira get-issue TFM-713 > /tmp/project_review_$$/jira-epic.txt
+python3 -m sidekick.clients.jira get-issue PROJ-123 > "$TMP_DIR/jira-epic.txt"
 
 # For any related issues in the roadmap
-python -m sidekick.clients.jira roadmap-hierarchy TFM-713 TFM > /tmp/project_review_$$/jira-hierarchy.txt
+python3 -m sidekick.clients.jira roadmap-hierarchy PROJ-123 PROJ > "$TMP_DIR/jira-hierarchy.txt"
 ```
 
 JIRA issues may contain:
@@ -231,22 +232,21 @@ The filename should be a slug version of the project title:
 - Convert project name to lowercase
 - Replace spaces with hyphens
 - Remove special characters
-- Append `-review.md`
+- Prefix with `project-review-` and use the `.md` extension
 
 ```bash
-# Example: "Basic Gating" -> basic-gating-review.md
-# Example: "Team Formation: Converting Basic Free" -> team-formation-converting-basic-free-review.md
-mkdir -p memory/project_review
-memory/project_review/[project-name-slug]-review.md
+# Example: "Basic Gating" -> memory/project-review-basic-gating.md
+# Example: "Team Formation: Converting Basic Free" -> memory/project-review-team-formation-converting-basic-free.md
+memory/project-review-[project-name-slug].md
 ```
 
 **After generating the report, clean up temporary files:**
 
 ```bash
-rm -rf /tmp/project_review_$$
+rm -rf "$TMP_DIR"
 ```
 
-This ensures only the final report remains in `memory/project_review/`, with no intermediate artifacts.
+This ensures only the final report remains in `memory/`, with no intermediate artifacts.
 
 ### Step 6: Refreshing Reports
 
@@ -358,7 +358,7 @@ Be specific about what each person did well.
 
 ## Tips
 
-- **Intermediate Files**: Always save fetched documents, JIRA outputs, and other artifacts to `/tmp/project-review_$$/` (not `memory/project_review/`). Clean up the temp directory with `rm -rf /tmp/project-review_$$` after generating the report. Only the final report should exist in `memory/project_review/`.
+- **Intermediate Files**: Always save fetched documents, JIRA outputs, and other artifacts to `$TMP_DIR` (not `memory/`). Clean up the temp directory with `rm -rf "$TMP_DIR"` after generating the report. Only the final report should exist in `memory/`.
 - **JIRA Issue IDs**: Look for JIRA issue keys (e.g., DBX-1234, TEXP-567) in:
   - Document titles or headers
   - Links to JIRA (e.g., "https://company.atlassian.net/browse/DBX-1234")
@@ -394,29 +394,26 @@ Be specific about what each person did well.
 
 ```bash
 # Create temporary directory for intermediate files
-TMP_DIR=/tmp/project_review_$$
-mkdir -p $TMP_DIR
-
-# Create output directory for final report
-mkdir -p memory/project_review
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/project-review.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # User provides links
 # Link 1: https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/
 # Link 2: https://example.com/docs/project-brief
 
 # Fetch Confluence page
-python -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > $TMP_DIR/tech_spec.md
+python3 -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > "$TMP_DIR/tech_spec.md"
 
 # Fetch Paper doc
-python -m sidekick.clients.dropbox get-paper-contents-from-link "https://example.com/docs/project-brief" > $TMP_DIR/prd.md
+python3 -m sidekick.clients.dropbox get-paper-contents-from-link "https://example.com/docs/project-brief" > "$TMP_DIR/prd.md"
 
 # Fetch JIRA epic
-python -m sidekick.clients.jira get-issue DBX-1234 > $TMP_DIR/jira-epic.txt
+python3 -m sidekick.clients.jira get-issue PROJ-123 > "$TMP_DIR/jira-epic.txt"
 
-# Analyze documents and generate report at memory/project_review/project-name-review.md
+# Analyze documents and generate report at memory/project-review-project-name.md
 
 # Clean up temporary files
-rm -rf $TMP_DIR
+rm -rf "$TMP_DIR"
 ```
 
 ## Refreshing a Report
@@ -425,19 +422,19 @@ rm -rf $TMP_DIR
 # User: "Refresh the Basic Gating project review"
 
 # Create temporary directory
-TMP_DIR=/tmp/project_review_$$
-mkdir -p $TMP_DIR
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/project-review.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Read existing report to get links
-cat memory/project_review/basic-gating-review.md
+cat memory/project-review-basic-gating.md
 
 # Extract links from front matter:
 # prd_link: "https://..."
 # tech_spec_link: "https://..."
 
 # Re-fetch documents
-python -m sidekick.clients.dropbox get-paper-contents-from-link "$PRD_LINK" > $TMP_DIR/prd-new.md
-python -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > $TMP_DIR/tech-spec-new.md
+python3 -m sidekick.clients.dropbox get-paper-contents-from-link "$PRD_LINK" > "$TMP_DIR/prd-new.md"
+python3 -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > "$TMP_DIR/tech-spec-new.md"
 
 # Compare with previous versions
 # Update report sections that changed
@@ -445,7 +442,7 @@ python -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > 
 # Add changelog entry
 
 # Clean up temporary files
-rm -rf $TMP_DIR
+rm -rf "$TMP_DIR"
 ```
 
 ## Error Handling
@@ -457,10 +454,10 @@ rm -rf $TMP_DIR
 
 ## Output Structure
 
-Final output is saved to `memory/project_review/`:
-- `[project-slug]-review.md` - The main report (only file in output directory)
+Final output is saved to the root `memory/` directory:
+- `project-review-[project-slug].md` - The main report
 
-Intermediate artifacts are stored in `/tmp/project_review_$$/` during generation:
+Intermediate artifacts are stored in `$TMP_DIR` during generation:
 - `[doc-name].html` or `[doc-name].md` - Fetched source documents
 - `jira-epic.txt` - JIRA issue details
 - `jira-hierarchy.txt` - Roadmap hierarchy
@@ -468,6 +465,6 @@ Intermediate artifacts are stored in `/tmp/project_review_$$/` during generation
 These temporary files are deleted after the report is generated.
 
 This approach:
-- Keeps output directory clean with only final reports
+- Keeps the memory root limited to final reports
 - Prevents clutter from intermediate artifacts
 - Reports can be refreshed by re-fetching documents from source URLs

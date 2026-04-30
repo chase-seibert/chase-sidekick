@@ -8,6 +8,9 @@ allowed-tools: Bash, Read, Write
 # Memory Skill
 
 Manage command memory files with prompt metadata and auto-generated filenames.
+Write every memory file directly under the root `memory/` directory. Do not create
+client or skill subdirectories; the memory manager prefixes filenames with the
+client name instead.
 
 When invoked, use the Memory manager to handle the request: $ARGUMENTS
 
@@ -15,22 +18,22 @@ When invoked, use the Memory manager to handle the request: $ARGUMENTS
 
 ### Write Output (with pipe)
 ```bash
-command | python -m sidekick.clients.memory write "prompt text" CLIENT "command" [filename] [--refresh]
+command | python3 -m sidekick.clients.memory write "prompt text" CLIENT "command" [filename] [--refresh]
 ```
 
 ### List Outputs
 ```bash
-python -m sidekick.clients.memory list CLIENT
+python3 -m sidekick.clients.memory list CLIENT
 ```
 
 ### Find Outputs
 ```bash
-python -m sidekick.clients.memory find CLIENT "search term"
+python3 -m sidekick.clients.memory find CLIENT "search term"
 ```
 
 ### Generate Slug (for testing)
 ```bash
-python -m sidekick.clients.memory slug "prompt text"
+python3 -m sidekick.clients.memory slug "prompt text"
 ```
 
 ## Output File Format
@@ -56,6 +59,7 @@ The standard report footer belongs at the bottom of the file body, not in the YA
 ## Filename Generation
 
 Filenames are auto-generated from prompts using slug format:
+- Prefix with the client name, for example `jira-proj-1735-roadmap-items.txt`
 - Lowercase
 - Extract issue keys
 - Remove common words

@@ -11,7 +11,7 @@ Generate a private Markdown report from local Codex session state. Use this when
 
 - Data sources: `~/.codex/state_5.sqlite` and `~/.codex/sessions/**/*.jsonl`.
 - Scope: user-created sessions only, meaning Desktop sessions and trigger/exec sessions. Exclude internal subagent/guardian sessions and report the excluded count.
-- Output: `memory/codex-cost-report/codex-cost-report-YYYY-MM-DD.md`.
+- Output: `memory/codex-cost-report-YYYY-MM-DD.md`.
 - Cost basis: API-equivalent USD estimate from local token logs. This is not an invoice.
 - Pricing checked: 2026-04-30 from [OpenAI API Pricing](https://openai.com/api/pricing/) and [OpenAI Codex rate card](https://help.openai.com/en/articles/20001106-codex-rate-card).
 - Privacy: do not include auth data, API keys, refresh/access tokens, raw transcript content, or full prompts. Thread titles are acceptable in the private `memory/` report.
@@ -51,8 +51,8 @@ After editing this skill or generating a report, run:
 ```bash
 python3 /Users/cseibert/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/codex-cost-report
 python3 .agents/skills/codex-cost-report/scripts/generate_report.py
-tail -n 1 memory/codex-cost-report/codex-cost-report-YYYY-MM-DD.md
-rg -n "auth.json|access_token|refresh_token|OPENAI_API_KEY|API key|id_token" memory/codex-cost-report/
+tail -n 1 memory/codex-cost-report-YYYY-MM-DD.md
+rg -n "auth.json|access_token|refresh_token|OPENAI_API_KEY|API key|id_token" memory/codex-cost-report-*.md
 git diff --check
 ```
 

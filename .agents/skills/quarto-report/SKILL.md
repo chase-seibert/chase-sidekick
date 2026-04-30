@@ -15,7 +15,7 @@ Use this skill when the user asks for a report with charts, diagrams, relationsh
 
 1. Gather the source data using the relevant Sidekick skills or clients.
 2. Write the report source as Quarto Markdown.
-3. Save the source to `memory/quarto-report/<slug>.qmd` unless the user requests another path.
+3. Save the source to `memory/quarto-report-<slug>.qmd` unless the user requests another path.
 4. If the report is saved under `memory/`, end it with this exact footer:
 
 ```text

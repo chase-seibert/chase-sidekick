@@ -62,7 +62,7 @@ Find the person's 1:1 doc from `local/one-on-ones.md`. Use the appropriate reade
 
 - Confluence links: use the `confluence` skill/client.
 - Paper links: prefer Dash MCP over `/dropbox` when reading Paper docs by link.
-- Cached local copies under `memory/weekly_report/` are acceptable when they are recent enough.
+- The cached local report at `memory/weekly_report.md` is acceptable when it is recent enough.
 
 From the 1:1 doc, extract only the most recent conversation section and any unresolved older follow-ups that are explicitly carried forward. Look for:
 

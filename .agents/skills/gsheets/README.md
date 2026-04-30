@@ -384,12 +384,14 @@ BACKUP_DIR="backups/$(date +%Y%m%d)"
 mkdir -p "$BACKUP_DIR"
 
 # Get sheet names (requires jq)
-python -m sidekick.clients.gsheets get "$SPREADSHEET_ID" | grep "  -" | cut -d' ' -f4 > /tmp/sheets.txt
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/gsheets.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
+python -m sidekick.clients.gsheets get "$SPREADSHEET_ID" | grep "  -" | cut -d' ' -f4 > "$TMP_DIR/sheets.txt"
 
 # Download each sheet
 while IFS= read -r sheet; do
     python -m sidekick.clients.gsheets download "$SPREADSHEET_ID" "$sheet" "$BACKUP_DIR/$sheet.csv"
-done < /tmp/sheets.txt
+done < "$TMP_DIR/sheets.txt"
 ```
 
 ## Limitations

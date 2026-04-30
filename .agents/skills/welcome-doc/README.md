@@ -216,7 +216,7 @@ You'll need:
 
 ## Output Location
 
-Documents are created directly in Confluence at the location you specify. A temporary HTML file is created at `/tmp/welcome-doc-[name].html` during generation but is cleaned up afterward.
+Documents are created directly in Confluence at the location you specify. Temporary HTML files are created under a `mktemp -d "${TMPDIR:-/tmp}/welcome-doc.XXXXXX"` directory during generation and cleaned up afterward.
 
 ## Customization
 

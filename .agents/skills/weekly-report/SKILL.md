@@ -37,7 +37,7 @@ Process all documents in batches of 12-15 documents at a time. For each batch:
 1. **Fetch documents** for this batch (continue on errors - see Error Handling below)
 2. **Immediately extract notes** from recent time period (last 7 days by default)
 3. **Categorize extracted notes** into the 4 categories (see Category Definitions below)
-4. **Append categorized notes** to `memory/weekly_report/notes_batch_N.md` (where N is batch number)
+4. **Append categorized notes** to `$TMP_DIR/notes_batch_N.md` (where N is batch number). Create `$TMP_DIR` with `mktemp -d "${TMPDIR:-/tmp}/weekly-report.XXXXXX"` and clean it up with a trap.
 5. **Discard full document content** from context (only keep extracted notes file)
 
 **Document batching strategy:**
@@ -96,7 +96,7 @@ Other errors:
 
 After processing all batches:
 
-1. **Read all batch notes files** (`memory/weekly_report/notes_batch_*.md`)
+1. **Read all batch notes files** (`$TMP_DIR/notes_batch_*.md`)
 2. **Merge notes by category** (combine all "Leadership" items, all "Direct Reports" items, etc.)
 3. **Deduplicate similar notes** across batches:
    - If same topic appears in multiple docs, consolidate into ONE note
@@ -196,5 +196,4 @@ Thank yous for specific people:
 - **Deduplication**: Same topic might appear in multiple docs - consolidate but keep all references
 - **Prioritization**: Within each category, order by importance/urgency
 - **Context Management**: Discard full document content after extracting notes from each batch to preserve context window
-- **Batch Files**: `notes_batch_*.md` files are intermediate artifacts - the final consolidated report goes in `weekly_report.md`
-
+- **Batch Files**: `notes_batch_*.md` files are intermediate artifacts in `$TMP_DIR`; the final consolidated report goes in `weekly_report.md`

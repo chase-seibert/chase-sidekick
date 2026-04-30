@@ -64,8 +64,8 @@ Automates the creation or migration of 1:1 meeting documents from Dropbox Paper 
    - For each matching event:
      - Get event details: `python3 -m sidekick.clients.gcalendar get [EVENT_ID]`
      - Update description to replace Paper link or add Confluence link
-     - Save updated description to temp file
-     - Update event: `python3 -m sidekick.clients.gcalendar update [EVENT_ID] description "$(cat /tmp/description.txt)"`
+     - Save updated description to a file under a `mktemp -d "${TMPDIR:-/tmp}/oneonone-setup.XXXXXX"` directory
+     - Update event: `python3 -m sidekick.clients.gcalendar update [EVENT_ID] description "$(cat "$TMP_DIR/description.txt")"`
 
 5. **Report Results**
    - Confluence page URL

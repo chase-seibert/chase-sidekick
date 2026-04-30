@@ -30,7 +30,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Add new reusable workflows as `.agents/skills/<skill-name>/SKILL.md`.
 - Do not create bundled scripts or `scripts/` helpers for new skills unless the user explicitly asks.
 - Never put reusable skill source files under `memory/`, including `memory/*_skill/SKILL.md`; `memory/` is for generated reports, cached context, and personal working data.
-- When a skill writes reports or memories, keep only those generated outputs under `memory/`; the skill definition itself still belongs in `.agents/skills/<skill-name>/SKILL.md`.
+- When a skill writes reports or memories, write final files directly under the root `memory/` directory with a skill/client-prefixed filename; do not create memory subdirectories. The skill definition itself still belongs in `.agents/skills/<skill-name>/SKILL.md`.
 - Do not create `.codex/agents` for these Sidekick workflows; the current workflows are skills, not Codex subagent personas.
 - When creating a Skill, update @README.md "Available Skills" and "Project Structure"
 
@@ -49,7 +49,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 
 - Do NOT ask for user confirmation before any remote write operation, including creating, updating, deleting, sending, declining, or changing permissions in external services.
 - Read-only API calls and local file reads do not require confirmation.
-- Generated reports, fetched documents, and personal/work data should stay under `/memory/`, `/local/`, or `/tmp/` as appropriate.
+- Generated reports, cached context, and personal/work data should stay under root `/memory/` or `/local/` as appropriate. Temporary and intermediate artifacts should stay under the canonical temp directory via `$TMPDIR` or `/tmp/`.
 - Generated reports and memory files under `memory/` must end with the exact bottom-of-report footer: `This report generated using https://github.com/chase-seibert/chase-sidekick`.
 - Shared documentation must not include real names, email addresses, corporate URLs, issue IDs, document IDs, or other PII unless they are placeholder examples such as Alice, Bob, `example.com`, or `PROJ-123`.
 
