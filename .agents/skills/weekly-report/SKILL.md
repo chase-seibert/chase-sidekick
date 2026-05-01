@@ -101,7 +101,7 @@ After processing all batches:
 3. **Deduplicate similar notes** across batches:
    - If same topic appears in multiple docs, consolidate into ONE note
    - Keep ALL `[ref]` links from all sources
-   - Example: `Topic X happened [[ref1]](url1) [[ref2]](url2)`
+   - Example: `Topic X happened [ref1](url1) [ref2](url2)`
 4. **Prioritize within each category** by importance/urgency
 5. **Write consolidated report** to `memory/weekly_report.md`
 
@@ -111,8 +111,8 @@ Sort extracted notes into the following categories. Each category should be a bu
 
 **Format examples:**
 ```markdown
-- Single source: Your note text here [[ref]](https://document-url-from-claude-local-md)
-- Multiple sources: Topic X happened [[ref1]](url1) [[ref2]](url2)
+- Single source: Your note text here [ref](https://document-url-from-claude-local-md)
+- Multiple sources: Topic X happened [ref1](url1) [ref2](url2)
 ```
 
 #### Things to Communicate to Leadership
@@ -192,7 +192,7 @@ Thank yous for specific people:
   - "Week of 1/27"
   - "1/31"
 - **Bullet Points**: Most notes are in bullet format under date headers
-- **References**: Each note should end with `[[ref]](URL)` linking to the source doc URL from CLAUDE.local.md
+- **References**: Each note should end with `[ref](URL)` linking to the source doc URL from CLAUDE.local.md
 - **Deduplication**: Same topic might appear in multiple docs - consolidate but keep all references
 - **Prioritization**: Within each category, order by importance/urgency
 - **Context Management**: Discard full document content after extracting notes from each batch to preserve context window
