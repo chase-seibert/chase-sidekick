@@ -12,7 +12,6 @@ from pathlib import Path
 CONTEXT_PATHS = (
     ".env",
     "AGENTS.override.md",
-    "CLAUDE.local.md",
     "settings.local.json",
     "local",
     "memory",

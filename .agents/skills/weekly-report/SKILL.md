@@ -18,14 +18,14 @@ This agent helps you:
 
 ## Prerequisites
 
-- `CLAUDE.local.md` file with your 1:1 docs, meeting docs, and Slack channels
+- `@AGENTS.override.md` file with your 1:1 docs, meeting docs, and Slack channels
 - Configured Dropbox and Atlassian credentials in `.env`
 
 ## Usage Pattern
 
 ### Step 1: List Your Documents
 
-Get all 1:1 docs, meeting docs, and Slack channels and Slack DMs from `CLAUDE.local.md`
+Get all 1:1 docs, meeting docs, and Slack channels and Slack DMs from `@AGENTS.override.md`
 These may be Confluence pages or Dropbox Paper docs
 
 ### Step 2: Process Documents in Batches
@@ -107,7 +107,7 @@ After processing all batches:
 
 ### Step 4: Category Definitions
 
-Sort extracted notes into the following categories. Each category should be a bullet list of notes. Each note should include a `[ref]` link to the source document URL from CLAUDE.local.md. 
+Sort extracted notes into the following categories. Each category should be a bullet list of notes. Each note should include a `[ref]` link to the source document URL from @AGENTS.override.md.
 
 **Format examples:**
 ```markdown
@@ -192,7 +192,7 @@ Thank yous for specific people:
   - "Week of 1/27"
   - "1/31"
 - **Bullet Points**: Most notes are in bullet format under date headers
-- **References**: Each note should end with `[ref](URL)` linking to the source doc URL from CLAUDE.local.md
+- **References**: Each note should end with `[ref](URL)` linking to the source doc URL from @AGENTS.override.md
 - **Deduplication**: Same topic might appear in multiple docs - consolidate but keep all references
 - **Prioritization**: Within each category, order by importance/urgency
 - **Context Management**: Discard full document content after extracting notes from each batch to preserve context window

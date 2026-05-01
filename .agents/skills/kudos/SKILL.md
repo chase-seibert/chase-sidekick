@@ -19,7 +19,7 @@ This skill helps you:
 
 ## Prerequisites
 
-- `CLAUDE.local.md` file with your 1:1 and meeting doc links
+- `@AGENTS.override.md` file with your 1:1 and meeting doc links
 - Configured Dropbox and Atlassian credentials in `.env`
 - `memory/people.json` file for email to Slack username mapping
 
@@ -36,7 +36,7 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 ### Step 2: Fetch Recent Content
 
-For each 1:1 document in `CLAUDE.local.md`, fetch the content
+For each 1:1 document in `@AGENTS.override.md`, fetch the content
 Also look in recent Slack channels and DMs
 Keep track of docs that error out to report at the end
 
@@ -56,7 +56,7 @@ Look for recent mentions of:
 For each kudos item:
 1. Identify the person(s) involved
 2. Look up their Slack username:
-   - Extract email from context or CLAUDE.local.md
+   - Extract email from context or @AGENTS.override.md
    - Slack username = first part of email before @example.com
    - Format as: `@username`
 3. Format kudos with:

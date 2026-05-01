@@ -12,7 +12,7 @@ Given a Google Sheet of notes about a recent sprint, create an executive summary
 # Steps
 1. User will provide a URL to a Google Sheet, if not prompt the user
 2. Make sure you can access the sheet with /gsheets. If not, stop and prompt the user to copy/paste content into the chat. 
-3. Look at the first tab with results (should be the tab specified in the URL) just the rows for the teams that report to me. This context should be in  CLAUDE.local.md. 
+3. Look at the first tab with results (should be the tab specified in the URL) just the rows for the teams that report to me. This context should be in @AGENTS.override.md.
 4. For any projects mentioned, look at recent memories to see if there are upcoming milestones or launch updates. Especially the weekly report. 
 5. If there are linked Sprint Retro docs, read them as well for context
 

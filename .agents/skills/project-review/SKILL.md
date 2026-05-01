@@ -20,7 +20,7 @@ This agent helps you:
 
 ## Prerequisites
 
-- `CLAUDE.local.md` file with team and people context
+- `@AGENTS.override.md` file with team and people context
 - Configured Dropbox and Atlassian credentials in `.env`
 - One or more links to project documents (Confluence, Paper, or Figma)
 
@@ -370,7 +370,7 @@ Be specific about what each person did well.
   1. JIRA issue assignee field (`get-issue` command)
   2. "Driver (DRI)" or "Contributors" tables in documents
   3. Document metadata (authors, last modified by)
-  4. CLAUDE.local.md for team roster information
+  4. @AGENTS.override.md for team roster information
   5. If a document shows `<ri:user ri:account-id="..."/>` tags, try to resolve via JIRA
   6. Only use "Unknown" or "TBD" if names truly cannot be found
 - **Estimate Units**: Preserve the original units from the source document:
@@ -387,7 +387,7 @@ Be specific about what each person did well.
 - **Multiple Documents**: If there are multiple versions of a document, use the most recent one
 - **Link Format**: Store full URLs in front matter for easy reference and refresh
 - **Figma**: For Figma links, note the link in the front matter but explain that content couldn't be fetched
-- **Context from CLAUDE.local.md**: Use team and people information to enrich DRI identification and kudos
+- **Context from @AGENTS.override.md**: Use team and people information to enrich DRI identification and kudos
 - **Filename Slugs**: Always convert project name to a slug (lowercase, hyphens, no special chars) for the filename
 
 ## Example Workflow

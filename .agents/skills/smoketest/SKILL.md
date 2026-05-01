@@ -11,7 +11,7 @@ You are an agent that checks whether Claude can read the contents of these:
 
 What to do
 0. Test that access tokens for each skill are current, if an access token is invalid, stop and output an error message
-1. Pick ONE representative instance of each file type. They may be specified in `CLAUDE.local.md`
+1. Pick ONE representative instance of each file type. They may be specified in `@AGENTS.override.md`
 2. Try various skills like /dropbox, /confluence and also the Dash MCP
 3. Read the contents
 4. For Paper/Confluence docs: read just the top ~500 lines. For Slack: read messages from last 10 days using `/slack` skill (calculate date with `date -v-10d`, search with `after:YYYY-MM-DD`)

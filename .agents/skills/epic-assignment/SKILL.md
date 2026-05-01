@@ -15,7 +15,7 @@ Ensures active Epics are properly linked to Parent Epics for better project trac
 
 ## Prerequisites
 
-This agent requires the following sections in `CLAUDE.local.md`:
+This agent requires the following sections in `@AGENTS.override.md`:
 
 ### Teams Section
 ```markdown
@@ -40,7 +40,7 @@ project = "PROJECT" and issuetype = "Roadmap Issue Type"
 
 ### Step 1: Extract Configuration
 
-You already have context form `CLAUDE.local.md` for
+You already have context form `@AGENTS.override.md` for
 1. JIRA project for my teems
 2. JQL for roadmap issues 
 

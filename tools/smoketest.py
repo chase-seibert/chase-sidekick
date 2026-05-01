@@ -14,7 +14,7 @@ Usage:
 Or:
     ./tools/smoketest.py
 
-The tool will test access to the files specified in CLAUDE.local.md under
+The tool will test access to the files specified in @AGENTS.override.md under
 "Smoketest files" and report success/failure for each type.
 
 Note: Slack testing requires the Dash MCP server or /slack skill which are
@@ -184,7 +184,7 @@ def format_result(name: str, result: dict) -> str:
 
 def main():
     """Run smoketest on all configured sources."""
-    # Test files from CLAUDE.local.md (can be overridden via command line)
+    # Test files from @AGENTS.override.md (can be overridden via command line)
     paper_url = sys.argv[1] if len(sys.argv) > 1 else "https://www.dropbox.com/scl/fi/ydtb7jfymn82lbiuyrezm/Chase-Agentic-Scratch.paper?rlkey=sqm8vwef8f93stm1ih9t1papb&st=k430v6w2&dl=0"
     confluence_url = sys.argv[2] if len(sys.argv) > 2 else "https://dropbox.atlassian.net/wiki/spaces/TNC/pages/3247802141/Chase+Nandan+1+1"
     slack_channel = sys.argv[3] if len(sys.argv) > 3 else "#core-eng-lt"

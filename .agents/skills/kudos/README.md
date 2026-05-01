@@ -19,7 +19,7 @@ The Kudos skill helps engineering managers recognize team accomplishments by aut
 
 ### Required Files
 
-1. **CLAUDE.local.md** - Must contain links to your 1:1 and meeting docs:
+1. **@AGENTS.override.md** - Must contain links to your 1:1 and meeting docs:
    ```markdown
    ## 1:1 Docs
    - [Alice](https://company.atlassian.net/wiki/spaces/...)
@@ -77,7 +77,7 @@ Generates kudos from the past 2 weeks.
 
 ### 1. Document Discovery
 
-The skill reads `CLAUDE.local.md` to find all your 1:1 and meeting document links.
+The skill reads `@AGENTS.override.md` to find all your 1:1 and meeting document links.
 
 ### 2. Content Fetching
 
@@ -174,7 +174,7 @@ Look for phrases like:
 ### "Document fetch failed"
 
 - Verify credentials in `.env`
-- Check that URLs in `CLAUDE.local.md` are correct
+- Check that URLs in `@AGENTS.override.md` are correct
 - Ensure you have access to the documents
 
 ### "Wrong Slack username"

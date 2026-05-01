@@ -402,7 +402,7 @@ chase-sidekick/
 ├── .env                     # Your credentials (gitignored)
 ├── AGENTS.md                # Codex guidance
 ├── CLAUDE.md                # Claude Code guidance
-└── CLAUDE.local.md          # Your personal context (optional, gitignored)
+└── AGENTS.override.md       # Your personal context (optional, gitignored)
 ```
 
 ## Configuration
@@ -453,7 +453,7 @@ It also has connectors for Jira and Confluence; which has long-lived authenticat
    "Find my recent Zoom meetings and summarize the transcripts"
    ```
 
-Try adding your most important Slack channels to `CLAUDE.local.md` for quick context.
+Try adding your most important Slack channels to `@AGENTS.override.md` for quick context.
 
 ## Phone to Desktop: Email Triggers
 

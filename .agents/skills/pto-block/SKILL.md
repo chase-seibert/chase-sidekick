@@ -79,7 +79,7 @@ By default, this agent uses the `--no-notify` flag when declining meetings and d
    - Include only Mon-Fri
    - Store list for later block creation
 
-4. **Load user context from CLAUDE.local.md**:
+4. **Load user context from @AGENTS.override.md**:
    - Get current user
    - Get current users's boss and their boss
 

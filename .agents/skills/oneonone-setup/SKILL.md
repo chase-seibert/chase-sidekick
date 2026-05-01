@@ -30,7 +30,7 @@ Automates the creation or migration of 1:1 meeting documents from Dropbox Paper 
 1. **Gather Information**
    - Person's name (from user request)
    - Look up person's email from:
-     - `CLAUDE.local.md` (check Direct reports or People sections)
+     - `@AGENTS.override.md` (check Direct reports or People sections)
      - Ask user if not found
    - User's name and email automatically loaded from `.env` (USER_NAME, USER_EMAIL)
 
@@ -74,7 +74,7 @@ Automates the creation or migration of 1:1 meeting documents from Dropbox Paper 
 
 ## Configuration
 
-### Required in CLAUDE.local.md or .env
+### Required in @AGENTS.override.md or .env
 
 ```
 USER_EMAIL=foo@example.com
@@ -82,7 +82,7 @@ USER_EMAIL=foo@example.com
 
 ### Default Confluence Parent Page
 
-From `CLAUDE.local.md`:
+From `@AGENTS.override.md`:
 ```
 Default Confluence parent ID for 1:1 docs is XXXXXX
 ```
