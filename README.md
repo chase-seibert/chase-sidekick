@@ -60,6 +60,7 @@ Current skills in `.agents/skills`:
 - **jira** - Query and manage JIRA issues.
 - **jira-roadmap** - Explore JIRA roadmap hierarchies recursively.
 - **kudos** - Generate kudos for team members from recent 1:1 and meeting notes.
+- **lint-meetings** - Lint calendar meetings for Zoom links, agenda docs, and date-specific agenda sections.
 - **markdown** - Convert Markdown to and from other formats.
 - **meeting-attendance-audit** - Audit recurring meetings for low-response attendees and guide approved removals.
 - **meeting-prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
@@ -348,6 +349,7 @@ chase-sidekick/
 │       ├── jira/
 │       ├── jira-roadmap/
 │       ├── kudos/
+│       ├── lint-meetings/
 │       ├── markdown/
 │       ├── meeting-attendance-audit/
 │       ├── meeting-prep/

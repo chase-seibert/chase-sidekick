@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lint Meetings"
+  short_description: "Check meeting docs and Zoom hygiene"
+  default_prompt: "Use $lint-meetings to check tomorrow's real meetings for Zoom links, agenda docs, and date-specific agenda sections."
