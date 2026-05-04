@@ -1,0 +1,40 @@
+# Copy this file to local/sidekick_schedule.toml and edit it for your own schedule.
+#
+# The cron entry should run at these three times every day. This file decides
+# whether any Codex work should actually start at each slot.
+#
+# Slot times are PST.
+# Valid day values are: mon, tue, wed, thu, fri, sat, sun, weekday, weekend, all.
+# Use slot = "morning" for one slot or slots = ["morning", "evening"] for several.
+
+[slots]
+morning = "08:00"
+midday = "13:00"
+evening = "17:00"
+
+[[tasks]]
+name = "Weekly report"
+enabled = true
+days = ["fri"]
+slot = "morning"
+skill = "weekly-report"
+prompt = """
+Generate my weekly report for this week.
+Save the final report under memory/.
+"""
+
+[[tasks]]
+name = "Prep tomorrow meetings"
+enabled = true
+days = ["mon", "tue", "wed", "thu", "sun"]
+slot = "evening"
+skill = "prep-tomorrow-meetings"
+
+[[tasks]]
+name = "Daily meeting link check"
+enabled = false
+days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+slot = "midday"
+prompt = """
+Find meetings that need docs or links and prepare whatever is missing.
+"""
