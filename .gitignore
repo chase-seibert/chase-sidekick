@@ -1,5 +1,5 @@
 /AGENTS.override.md
-/local/
+local
 settings.local.json
 /.claude/scheduled_tasks.json
 
