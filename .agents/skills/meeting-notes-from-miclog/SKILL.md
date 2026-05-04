@@ -1,0 +1,55 @@
+---
+name: meeting-notes-from-miclog
+description: Summarize the most recent concluded or final-minutes calendar meeting from memory/miclog.txt. Use when Codex needs copy/paste-ready meeting notes from a microphone transcript plus Google Calendar metadata, attendees, event descriptions, and linked meeting docs.
+---
+
+# Miclog Meeting Notes
+
+Generate copy/paste-ready meeting notes from `memory/miclog.txt` and nearby calendar context. This skill is usually launched by `tools/miclog_meeting_notes_watcher.py`, but it can also be used manually.
+
+## Inputs
+
+Use whatever the prompt provides:
+
+- Calendar event title, start/end time, attendees, description, and links.
+- A bounded miclog excerpt from `memory/miclog.txt`, or enough timing information to read the right slice.
+- Any event-linked docs that may explain agenda, project names, attendees, or decisions.
+
+If the prompt does not include a transcript excerpt, read `memory/miclog.txt` and select lines inside the meeting window, with a small buffer before start and after end. Miclog timestamps are local time and look like `[YYYY-MM-DD HH:MM:SS]`.
+
+## Context Gathering
+
+1. Read the calendar event metadata first. Use the event title, description, attendees, and links to understand the meeting purpose.
+2. Read linked docs that look relevant to the agenda or decisions. Prefer the Confluence skill/client for Confluence links. Prefer Dash MCP or the Dropbox/Paper workflow for Dropbox Paper links, following the repository and user instructions.
+3. Use linked docs as context, not as a replacement for the transcript. If docs conflict with the transcript, treat the transcript as what was actually discussed.
+4. Infer speaker names only when there is strong evidence from the transcript text, attendee list, event owner, or linked docs. If confidence is low, write generic notes without speaker attribution.
+
+## Output
+
+Return only Markdown notes suitable for pasting into Confluence, email, or Slack. Do not write files, post messages, send email, or update Confluence unless the user explicitly asks.
+
+Use this structure:
+
+```markdown
+# [Meeting title] - [YYYY-MM-DD]
+
+## Executive Summary
+[2-4 sentences covering the meeting purpose, most important outcomes, and any material risk or decision.]
+
+## Discussion
+- [Concrete topic, update, decision, or concern.]
+- [Another discussion bullet.]
+- [Include who owns or raised something only when high-confidence.]
+
+## Action Items
+- [ ] @Name - [specific next step, when the owner is high-confidence]
+- [ ] Follow up - [specific next step, when the owner is unclear]
+```
+
+## Quality Bar
+
+- Be concise but specific. Prefer useful nouns, project names, dates, metrics, and decisions over generic summaries.
+- Preserve uncertainty when the transcript is unclear. Use phrases like "The group discussed..." or "A follow-up was suggested..." instead of guessing speakers.
+- Use Confluence-style `@Name` notation for action item owners only when the owner is high-confidence from calendar attendees, the transcript, or linked docs. If the owner is unclear, use `Follow up` instead of guessing.
+- Do not include raw transcript dumps.
+- Keep the notes practical: someone should be able to paste them directly into a meeting notes doc, email, or Slack thread with minimal cleanup.

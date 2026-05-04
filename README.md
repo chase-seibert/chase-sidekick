@@ -63,6 +63,7 @@ Current skills in `.agents/skills`:
 - **lint-meetings** - Lint calendar meetings for Zoom links, agenda docs, and date-specific agenda sections.
 - **markdown** - Convert Markdown to and from other formats.
 - **meeting-attendance-audit** - Audit recurring meetings for low-response attendees and guide approved removals.
+- **meeting-notes-from-miclog** - Draft meeting notes from recent calendar events and `memory/miclog.txt`.
 - **meeting-prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
 - **memory** - Manage command memory files with prompt metadata and auto-generated filenames.
 - **mmr-exec-summary** - Generate executive summaries from MMR (Monthly Metric Review) Confluence pages.
@@ -352,6 +353,7 @@ chase-sidekick/
 │       ├── lint-meetings/
 │       ├── markdown/
 │       ├── meeting-attendance-audit/
+│       ├── meeting-notes-from-miclog/
 │       ├── meeting-prep/
 │       ├── memory/
 │       ├── mmr-exec-summary/
@@ -379,6 +381,7 @@ chase-sidekick/
 │   └── skills -> ../.agents/skills
 ├── tools/
 │   ├── email_trigger_watcher.py  # Phone-to-desktop Claude/Codex email triggers
+│   ├── miclog_meeting_notes_watcher.py # Calendar/miclog meeting-note drafts
 │   ├── omnifocus_trigger_watcher.py # OmniFocus Inbox Codex triggers
 │   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
 │   └── smoketest.py              # Test access to Paper, Confluence, Slack
@@ -511,6 +514,17 @@ Codex triggers run through a headless Codex app-server session first so the resu
    Preview OmniFocus trigger matching without mutating tasks or running Codex:
    ```bash
    python3 tools/omnifocus_trigger_watcher.py --dry-run
+   ```
+
+   To automatically draft meeting notes from recent calendar meetings and new
+   `memory/miclog.txt` activity, add a weekday business-hours watcher:
+   ```cron
+   */30 9-17 * * 1-5 cd /Users/cseibert/projects/chase-sidekick && /usr/local/bin/python3 tools/miclog_meeting_notes_watcher.py >> /tmp/miclog_meeting_notes_watcher.log 2>&1
+   ```
+
+   Preview the meeting-note watcher without launching Codex or updating state:
+   ```bash
+   python3 tools/miclog_meeting_notes_watcher.py --dry-run
    ```
 
 ## Adding New Skills
