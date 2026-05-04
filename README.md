@@ -379,7 +379,10 @@ chase-sidekick/
 │   ├── email_trigger_watcher.py  # Phone-to-desktop Claude/Codex email triggers
 │   ├── omnifocus_trigger_watcher.py # OmniFocus Inbox Codex triggers
 │   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
+│   ├── sidekick_scheduler.py     # TOML-driven scheduled Sidekick tasks
 │   └── smoketest.py              # Test access to Paper, Confluence, Slack
+├── examples/
+│   └── sidekick_schedule.toml    # Example private scheduler config
 ├── sidekick/
 │   ├── config.py            # Load from .env
 │   └── clients/             # Single-file service clients
@@ -510,6 +513,55 @@ Codex triggers run through a headless Codex app-server session first so the resu
    ```bash
    python3 tools/omnifocus_trigger_watcher.py --dry-run
    ```
+
+## Scheduled Sidekick Tasks
+
+You can run recurring reports and other Sidekick workflows from one human-readable TOML file. Cron calls the scheduler three times per day, every day; the scheduler only starts Codex when an enabled task is due for that day and slot.
+
+Create your private schedule from the example:
+
+```bash
+cp examples/sidekick_schedule.toml local/sidekick_schedule.toml
+```
+
+The schedule uses three named slots by default. Slot times are PST:
+
+```toml
+# Valid day values are: mon, tue, wed, thu, fri, sat, sun, weekday, weekend, all.
+
+[slots]
+morning = "08:00"
+midday = "13:00"
+evening = "17:00"
+
+[[tasks]]
+name = "Weekly report"
+enabled = true
+days = ["fri"]
+slot = "morning"
+skill = "weekly-report"
+prompt = """
+Generate my weekly report for this week.
+Save the final report under memory/.
+"""
+```
+
+Each task can use `skill`, `skills`, `prompt`, or a combination. Use `slot = "morning"` for one slot or `slots = ["morning", "evening"]` for multiple slots.
+
+Preview matching work without starting Codex:
+
+```bash
+python3 tools/sidekick_scheduler.py --dry-run --slot morning
+python3 tools/sidekick_scheduler.py --list
+```
+
+Add one cron entry to check all three daily slots:
+
+```cron
+0 8,13,17 * * * cd chase-sidekick && /usr/bin/env python3 tools/sidekick_scheduler.py >> /tmp/sidekick_scheduler.log 2>&1
+```
+
+The scheduler does not keep a state file. If cron calls it during a configured slot and the TOML has matching work, it will launch that work.
 
 ## Adding New Skills
 
