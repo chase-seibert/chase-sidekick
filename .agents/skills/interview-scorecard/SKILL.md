@@ -1,0 +1,74 @@
+---
+name: interview-scorecard
+description: Draft concise interview scorecards from pasted long-form interview notes, nearby Google Calendar interview context, and memory/miclog.txt excerpts. Use when writing hiring feedback, interview scorecards, spikes/troughs, or candidate evaluation summaries.
+---
+
+# Interview Scorecard
+
+Draft a concise interview scorecard from pasted interview notes, nearby calendar context, and `memory/miclog.txt`.
+
+## Required Inputs
+
+The user should paste long-form notes from their interview. If they do not provide notes, ask for them before drafting.
+
+If the user does not provide all three of these exact inputs, ask for the missing items before drafting:
+
+- `My high level summary is`
+- `I want to flag that`
+- `I recommend that we`
+
+Do not draft the scorecard until the interview notes and all three user-provided framing inputs are available.
+
+## Context Gathering
+
+1. Look at the user's calendar for the event that is just ending, in the closing minutes, or most recently ended.
+2. Prefer an interview-like event if multiple recent events match. Interview-like signals include titles or descriptions containing `interview`, `candidate`, `hiring`, `screen`, `onsite`, `phone screen`, or `debrief`.
+3. If using the local Sidekick client, list nearby events around now:
+
+```bash
+python3 -m sidekick.clients.gcalendar list <time-min> <time-max> 20
+```
+
+Use a narrow window such as the last 2 hours through the next 15 minutes. Fetch full event details when useful:
+
+```bash
+python3 -m sidekick.clients.gcalendar get <event-id>
+```
+
+4. Read `memory/miclog.txt` and select lines overlapping the event window, with a small buffer before the event start and after the event end. Miclog timestamps are local and look like `[YYYY-MM-DD HH:MM:SS]`.
+5. Use pasted notes as the primary source. Use calendar and miclog context only to recover meeting context and useful quoted phrases.
+6. If calendar or miclog context is unavailable, continue from the pasted notes and do not invent missing evidence.
+7. Track the selected calendar item title and the number of miclog lines used so they can be reported with the result.
+
+## Drafting Rules
+
+- Return only the context-used line and scorecard text. Do not write files, update calendar, send email, post to Slack, or create external drafts unless the user explicitly asks.
+- Keep the scorecard body at or under 200 words. Do not count the context-used line toward this limit.
+- Use past tense.
+- Refer to the candidate only as `C`.
+- Use an informal, straightforward, highly pragmatic style.
+- Keep every sentence concise.
+- Include short quoted phrases from the interview notes or miclog.
+- Do not use the candidate's name, interviewer names, or unnecessary calendar metadata in the scorecard body.
+- Do not include raw transcript dumps.
+- Do not include caveats about missing calendar or miclog context in the final scorecard.
+
+## Output Format
+
+Use exactly this structure:
+
+```markdown
+Context used: Calendar item: [matched calendar item title, or "not found"]; Miclog lines: [number]
+
+[One high-level summary paragraph.]
+
+Spikes
+- [Spike with evidence and a short quote.]
+- [Optional additional spike.]
+
+Troughs
+- [Trough with evidence and a short quote.]
+- [Optional additional trough.]
+```
+
+Use 1-3 bullets in each section. If the notes are thin, prefer one strong bullet over padded feedback.

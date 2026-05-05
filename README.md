@@ -58,6 +58,7 @@ Current skills in `.agents/skills`:
 - **gmail** - Search and manage Gmail messages.
 - **gsheets** - Manage Google Sheets: download, upload, and replace sheets with CSV data.
 - **interview-history** - Generate all-time interview count reports from Google Calendar.
+- **interview-scorecard** - Draft concise interview scorecards from notes, calendar context, and miclog.
 - **jira** - Query and manage JIRA issues.
 - **jira-roadmap** - Explore JIRA roadmap hierarchies recursively.
 - **kudos** - Generate kudos for team members from recent 1:1 and meeting notes.
@@ -349,6 +350,7 @@ chase-sidekick/
 │       ├── gmail/
 │       ├── gsheets/
 │       ├── interview-history/
+│       ├── interview-scorecard/
 │       ├── jira/
 │       ├── jira-roadmap/
 │       ├── kudos/

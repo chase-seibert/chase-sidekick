@@ -1,0 +1,4 @@
+interface:
+  display_name: "Interview Scorecard"
+  short_description: "Draft concise interview scorecards"
+  default_prompt: "Use $interview-scorecard to draft a concise interview scorecard from my interview notes, calendar context, and miclog."
