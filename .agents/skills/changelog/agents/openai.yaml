@@ -1,0 +1,4 @@
+interface:
+  display_name: "Changelog"
+  short_description: "Summarize recent Sidekick git commits."
+  default_prompt: "Generate a changelog for the last 30 days of chase-sidekick commits."
