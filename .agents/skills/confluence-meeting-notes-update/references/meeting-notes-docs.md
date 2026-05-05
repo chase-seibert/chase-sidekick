@@ -14,6 +14,7 @@ Read this reference when working with Confluence 1:1 or recurring meeting notes.
 
 - When creating a dated section, prefer the Confluence date object form. If the next meeting date cannot be found confidently, use `Next`.
 - Static preamble content can appear before meeting sections. Do not treat obvious owner/context/link/setup content as a meeting instance.
+- In bullet-format sections, an image or embedded media block on the page does not end the section. Treat it as part of the same section, and continue scanning after it because bullets may resume below the image.
 - If the section order is ambiguous, prefer the smallest safe edit and refuse rather than moving unrelated content.
 
 ## Top Templates
