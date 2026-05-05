@@ -64,7 +64,7 @@ Find the person's 1:1 doc from `local/one-on-ones.md`. Use the appropriate reade
 - Paper links: prefer Dash MCP over `/dropbox` when reading Paper docs by link.
 - The cached local report at `memory/weekly_report.md` is acceptable when it is recent enough.
 
-From the 1:1 doc, extract only the most recent conversation section and any unresolved older follow-ups that are explicitly carried forward. Look for:
+From the 1:1 doc, extract only the most recent completed conversation section and any unresolved older follow-ups that are explicitly carried forward. Do not brainstorm from existing content in the next/upcoming 1:1 instance, including sections named `Next`, `Upcoming`, `Next time`, or the next dated instance; those topics are already on the agenda. Use the next/upcoming section only to avoid duplicating bullets or to preserve explicit carried-forward commitments that originated in older sections. Look for:
 
 - Open follow-ups.
 - Decisions and pending decisions.
