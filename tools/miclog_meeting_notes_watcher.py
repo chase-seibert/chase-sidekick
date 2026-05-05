@@ -31,7 +31,7 @@ DEFAULT_ENDED_WINDOW_MINUTES = 30
 DEFAULT_ENDING_WINDOW_MINUTES = 5
 DEFAULT_MICLOG_BUFFER_MINUTES = 5
 DEFAULT_MAX_MICLOG_CHARS = 60000
-DEFAULT_EXECUTION_TIMEOUT = 900
+DEFAULT_EXECUTION_TIMEOUT = 1800
 DEFAULT_CALENDAR_LOOKBACK_HOURS = 12
 
 MICLOG_LINE_RE = re.compile(r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s*(.*)")
@@ -102,6 +102,12 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Leave Codex Desktop sessions marked unread after trigger runs.",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=positive_int,
+        default=DEFAULT_EXECUTION_TIMEOUT,
+        help=f"Codex execution timeout in seconds (default: {DEFAULT_EXECUTION_TIMEOUT}).",
     )
     parser.add_argument(
         "--now",
@@ -492,7 +498,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     result = execute_codex_with_fallback(
         prompt=prompt,
         working_dir=str(REPO_ROOT),
-        timeout=DEFAULT_EXECUTION_TIMEOUT,
+        timeout=args.timeout,
         thread_name=f"Meeting notes: {event.get('summary') or 'recent meeting'}",
         mark_unread=args.mark_codex_unread,
     )

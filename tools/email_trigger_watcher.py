@@ -57,7 +57,7 @@ from sidekick.clients.gmail import GmailClient
 # Configuration
 DEFAULT_EMAILS_PER_RUN = 1
 SEARCH_PAGE_SIZE = 100
-EXECUTION_TIMEOUT = 300  # 5 minutes timeout for agent execution
+DEFAULT_EXECUTION_TIMEOUT = 1800  # 30 minutes timeout for agent execution
 MAX_HOURLY_EXECUTIONS = 20  # Rate limit
 
 ONE_ON_ONE_DOCS_PATH = REPO_ROOT / "local" / "one-on-ones.md"
@@ -147,6 +147,12 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Leave Codex Desktop sessions marked unread after trigger runs (default: enabled).",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=positive_int,
+        default=DEFAULT_EXECUTION_TIMEOUT,
+        help=f"Agent execution timeout in seconds (default: {DEFAULT_EXECUTION_TIMEOUT}).",
     )
     return parser.parse_args(argv)
 
@@ -407,6 +413,7 @@ def execute_agent(
     working_dir: str,
     agent_config: dict,
     mark_codex_unread: bool = True,
+    timeout: int = DEFAULT_EXECUTION_TIMEOUT,
 ) -> Tuple[bool, str, float, dict]:
     """Execute the configured agent CLI with the given prompt.
 
@@ -426,7 +433,7 @@ def execute_agent(
         result: CodexRunResult = execute_codex_with_fallback(
             prompt=prompt,
             working_dir=working_dir,
-            timeout=EXECUTION_TIMEOUT,
+            timeout=timeout,
             mark_unread=mark_codex_unread,
         )
         if result.thread_id:
@@ -460,7 +467,7 @@ def execute_agent(
             cwd=working_dir,
             capture_output=True,
             text=True,
-            timeout=EXECUTION_TIMEOUT
+            timeout=timeout
         )
 
         duration = time.time() - start_time
@@ -484,7 +491,7 @@ def execute_agent(
     except subprocess.TimeoutExpired:
         duration = time.time() - start_time
         log(f"{display_name} timed out after {duration:.1f}s")
-        return False, f"Execution timed out after {EXECUTION_TIMEOUT} seconds", duration, {
+        return False, f"Execution timed out after {timeout} seconds", duration, {
             "runner": "subprocess",
             "thread_id": None,
             "exit_code": None,
@@ -579,6 +586,7 @@ def process_trigger_email(
     working_dir: str,
     active_agent_configs: List[dict],
     mark_codex_unread: bool = True,
+    timeout: int = DEFAULT_EXECUTION_TIMEOUT,
 ) -> bool:
     """Process a single trigger email.
 
@@ -648,6 +656,7 @@ def process_trigger_email(
             working_dir,
             agent_config,
             mark_codex_unread=mark_codex_unread,
+            timeout=timeout,
         )
 
         # Format reply
@@ -831,6 +840,7 @@ def main(argv: Optional[List[str]] = None):
     args = parse_args(argv)
     log("=== Email Trigger Watcher Starting ===")
     log(f"Max emails to process this run: {args.max_emails}")
+    log(f"Execution timeout: {args.timeout}s")
     log(f"Mark Codex Desktop sessions unread: {args.mark_codex_unread}")
 
     # Load configuration
@@ -874,6 +884,7 @@ def main(argv: Optional[List[str]] = None):
                 working_dir,
                 active_agent_configs,
                 mark_codex_unread=args.mark_codex_unread,
+                timeout=args.timeout,
             ):
                 processed_count += 1
 

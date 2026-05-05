@@ -42,7 +42,7 @@ from sidekick.clients.omnifocus import OmniFocusClient
 
 DEFAULT_TASKS_PER_RUN = 1
 DEFAULT_SCAN_LIMIT = 200
-EXECUTION_TIMEOUT = 300
+DEFAULT_EXECUTION_TIMEOUT = 1800
 PROCESSED_TAG = "processed"
 TRIGGER_WORD = "Codex"
 
@@ -103,16 +103,27 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         default=True,
         help="Leave Codex Desktop sessions marked unread after trigger runs (default: enabled).",
     )
+    parser.add_argument(
+        "--timeout",
+        type=positive_int,
+        default=DEFAULT_EXECUTION_TIMEOUT,
+        help=f"Codex execution timeout in seconds (default: {DEFAULT_EXECUTION_TIMEOUT}).",
+    )
     return parser.parse_args(argv)
 
 
-def execute_codex(prompt: str, working_dir: str, mark_codex_unread: bool = True) -> CodexRunResult:
+def execute_codex(
+    prompt: str,
+    working_dir: str,
+    mark_codex_unread: bool = True,
+    timeout: int = DEFAULT_EXECUTION_TIMEOUT,
+) -> CodexRunResult:
     """Execute Codex with the given prompt."""
     log(f"Executing Codex with Desktop-visible app-server runner: {prompt[:100]}...")
     result = execute_codex_with_fallback(
         prompt=prompt,
         working_dir=working_dir,
-        timeout=EXECUTION_TIMEOUT,
+        timeout=timeout,
         mark_unread=mark_codex_unread,
     )
     if result.thread_id:
@@ -406,6 +417,7 @@ def process_task(
     working_dir: str,
     dry_run: bool = False,
     mark_codex_unread: bool = True,
+    timeout: int = DEFAULT_EXECUTION_TIMEOUT,
 ) -> bool:
     """Process a single OmniFocus trigger task."""
     task_id = task_summary.get("id")
@@ -464,6 +476,7 @@ def process_task(
             executed_prompt,
             working_dir,
             mark_codex_unread=mark_codex_unread,
+            timeout=timeout,
         )
         result_note = format_result_note(
             success=result.success,
@@ -508,6 +521,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     log("=== OmniFocus Trigger Watcher Starting ===")
     log(f"Max tasks to process this run: {args.max_tasks}")
     log(f"Scan limit: {args.scan_limit}")
+    log(f"Execution timeout: {args.timeout}s")
     log(f"Mark Codex Desktop sessions unread: {args.mark_codex_unread}")
     if args.dry_run:
         log("Dry run enabled: no tasks will be mutated and Codex will not run")
@@ -537,6 +551,7 @@ def main(argv: Optional[List[str]] = None) -> None:
                 working_dir,
                 dry_run=args.dry_run,
                 mark_codex_unread=args.mark_codex_unread,
+                timeout=args.timeout,
             ):
                 processed_count += 1
 

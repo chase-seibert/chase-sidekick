@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
-DEFAULT_TIMEOUT = 300
+DEFAULT_TIMEOUT = 1800
 STDERR_LIMIT = 40
 SIDEKICK_AUTOMATION_ID = "sidekick-trigger-tools"
 SIDEKICK_AUTOMATION_NAME = "Sidekick trigger tools"
@@ -748,6 +748,17 @@ Fallback output:
 """
 
 
+def positive_float(value: str) -> float:
+    """Parse a positive float argument."""
+    try:
+        parsed = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("must be a number")
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be greater than 0")
+    return parsed
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     """CLI entry point for manual smoke testing."""
     parser = argparse.ArgumentParser(description="Run a Codex trigger through app-server.")
@@ -759,7 +770,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     parser.add_argument(
         "--timeout",
-        type=float,
+        type=positive_float,
         default=DEFAULT_TIMEOUT,
         help=f"Execution timeout in seconds (default: {DEFAULT_TIMEOUT}).",
     )

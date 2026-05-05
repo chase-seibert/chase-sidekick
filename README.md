@@ -514,6 +514,12 @@ Codex triggers run through a headless Codex app-server session first so the resu
    */5 * * * * cd chase-sidekick && /usr/local/bin/python3 tools/omnifocus_trigger_watcher.py >> /tmp/omnifocus_trigger_watcher.log 2>&1
    ```
 
+   Codex trigger jobs default to a 30-minute timeout. Override it with
+   `--timeout <seconds>` on `tools/email_trigger_watcher.py`,
+   `tools/omnifocus_trigger_watcher.py`, `tools/miclog_meeting_notes_watcher.py`,
+   `tools/sidekick_scheduler.py`, or `tools/codex_app_runner.py`. The value is
+   a positive number of seconds; for example, use `--timeout 3600` for one hour.
+
    Preview OmniFocus trigger matching without mutating tasks or running Codex:
    ```bash
    python3 tools/omnifocus_trigger_watcher.py --dry-run
