@@ -68,7 +68,7 @@ Current skills in `.agents/skills`:
 - **meeting-notes-from-miclog** - Draft meeting notes from recent calendar events and `memory/miclog.txt`.
 - **meeting-prep** - Analyze meeting documents and generate prep reports with wins, risks, and questions.
 - **memory** - Manage command memory files with prompt metadata and auto-generated filenames.
-- **mmr-exec-summary** - Generate executive summaries from MMR (Monthly Metric Review) Confluence pages.
+- **mmr-exec-summary** - Generate Core Eng Ops style Quarto reports from one or more MMR Confluence pages.
 - **omnifocus** - Manage OmniFocus tasks on macOS.
 - **oneonone-prep** - Prepare copy/paste 1:1 agendas from 1:1 docs, weekly reports, project activity, Slack context, and management prompts.
 - **oneonone-setup** - Create or migrate 1:1 docs from Paper, or create new Confluence docs with permissions and calendar updates.

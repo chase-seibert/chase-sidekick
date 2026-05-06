@@ -1,622 +1,217 @@
 ---
 name: mmr-exec-summary
-description: Generate executive summary from MMR (Monthly Metric Review) Confluence pages
-argument-hint: <confluence-page-url>
+description: Generate a Quarto executive summary report from one or more MMR (Monthly Metric Review) Confluence pages in the Teams & Sharing Core Eng Ops Review format.
+argument-hint: <confluence-page-url> [more urls...] [additional context or questions]
 auto-approve: true
 ---
 
-# MMR Executive Summary Agent
+# MMR Executive Summary
 
-Generate structured executive summaries from Monthly Metric Review (MMR) Confluence pages.
+Generate an executive Quarto report from one or more Monthly Metric Review (MMR) Confluence pages. The default output format is the Teams & Sharing Core Eng Ops Review style: yearly SEV framing, MMR action-item throughput, time investment, top themes, the five most interesting recent MMR AIs, next steps, kudos, and a feedback table.
 
-## Purpose
+Use this skill for leadership-ready summaries of MMR pages, especially when the user wants themes, risks, incidents, action-item progress, or a cross-team/monthly rollup.
 
-Monthly Metric Reviews (MMRs) are comprehensive Confluence documents (often 7000+ lines) that track operational metrics, severity incidents, and action items for engineering teams. These documents contain detailed tables and extensive data, making it time-consuming to extract executive-level insights.
+## Inputs
 
-This agent automates the generation of concise executive summaries by:
-- Extracting severity incident counts (SEV 0/1 and SEV 2/3)
-- Identifying completed action items from the MMR AIs section
-- Analyzing critical metrics from Key Concerns with JIRA context
-- Recognizing team contributions from Key Improvements
-- Enriching JIRA issues with status and resolution details
+Accept:
+- One or more Confluence page URLs.
+- Optional user-provided context, emphasis, or questions to answer in the report.
+- Optional output preference. Default to an embedded HTML report if the user does not specify a format.
+- Also query JIRA for any related SEVs, SEV AIs, and MMR Action Items 
 
-The output follows a consistent template format suitable for executive communication.
+If no URL is provided, ask for the MMR Confluence URL or URLs. If the prompt includes non-URL context, preserve it as report guidance and use it to shape the narrative.
 
-## Prerequisites
+## Required Outputs
 
-- **Configured credentials** in `.env` file:
-  - `ATLASSIAN_EMAIL` and `ATLASSIAN_API_TOKEN` for Confluence and JIRA access
-- Valid Confluence URL to an MMR page
+Create a Quarto source report in the root memory directory using a name like memory/mmr-exec-summary-page-or-month-slug.qmd.
 
-## Usage
+Render the report with Quarto, defaulting to HTML. If the user asks for another format, render that target too when available.
 
-The agent is invoked through Claude Code by providing an MMR Confluence URL:
+When reporting completion, show relative paths only, for example:
 
-```
-"Create an executive summary for the MMR at https://company.atlassian.net/wiki/spaces/Core/pages/..."
-```
+- memory/mmr-exec-summary-example.qmd
+- memory/mmr-exec-summary-example.html
 
-The agent will:
-1. Fetch the Confluence page as Markdown
-2. Extract and enrich JIRA issues
-3. Generate a structured executive summary
-4. Save to `memory/mmr-exec-summary-[slug].md`
+All reports written under memory must end with the exact footer:
 
-**Note**: This agent runs with `auto-approve: true`, meaning all commands execute without user confirmation for streamlined processing.
+This report generated using https://github.com/chase-seibert/chase-sidekick
 
 ## Workflow
 
-### Phase 1: Setup and Fetch Confluence Content
-
-```bash
-# Create temporary working directory
-TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/mmr-exec-summary.XXXXXX")"
-
-# Set up cleanup trap
-trap 'rm -rf "$TMP_DIR"' EXIT
-
-# Extract Confluence URL from user argument
-CONFLUENCE_URL="$1"
-if [ -z "$CONFLUENCE_URL" ]; then
-  echo "Error: Confluence URL required" >&2
-  echo "Usage: Generate executive summary from <confluence-url>" >&2
-  exit 1
-fi
-
-echo "Fetching MMR document from Confluence..."
-
-# Fetch Confluence content as Markdown (default)
-python3 -m sidekick.clients.confluence get-content-from-link "$CONFLUENCE_URL" > $TMP_DIR/mmr.md 2>&1
-if [ $? -ne 0 ]; then
-  echo "Error: Failed to fetch Confluence page" >&2
-  cat $TMP_DIR/mmr.md >&2
-  exit 1
-fi
-
-echo "✓ Fetched and converted to $(wc -l < $TMP_DIR/mmr.md | tr -d ' ') lines of markdown"
-```
-
-### Phase 2: Extract and Fetch JIRA Issues
-
-```bash
-# Extract all JIRA issue keys using pattern: PROJECT-NUMBER
-# Common patterns: PROJ-1234, ENG-5678, TEAM-123, WORK-456
-# Note: Confluence HTML embeds extra characters (UUIDs), limit to 1-4 digits to catch most real issues
-# Use word boundary \b to stop at non-word characters
-grep -Eo '\b[A-Z][A-Z0-9]+-[0-9]{1,4}\b' $TMP_DIR/mmr.md | sort -u > $TMP_DIR/jira_keys.txt
-
-ISSUE_COUNT=$(wc -l < $TMP_DIR/jira_keys.txt | tr -d ' ')
-echo "Found $ISSUE_COUNT unique JIRA issues in MMR document"
-
-# Fetch each JIRA issue sequentially
-# If a fetch fails (404), try removing the last digit and retry
-# Continue on individual failures - some issues may not exist
-if [ -s $TMP_DIR/jira_keys.txt ]; then
-  echo "Fetching JIRA issue details..."
-
-  FETCH_SUCCESS=0
-  FETCH_FAILED=0
-
-  while IFS= read -r issue_key; do
-    # Try fetching the issue as-is first
-    if python3 -m sidekick.clients.jira get-issue "$issue_key" > "$TMP_DIR/jira_${issue_key}.json" 2>/dev/null; then
-      FETCH_SUCCESS=$((FETCH_SUCCESS + 1))
-      continue
-    fi
-
-    # If that failed and the issue has more than 1 digit, try removing the last digit
-    project=$(echo "$issue_key" | cut -d"-" -f1)
-    number=$(echo "$issue_key" | cut -d"-" -f2)
-
-    if [ ${#number} -gt 1 ]; then
-      shorter_number=${number%?}
-      retry_key="${project}-${shorter_number}"
-      if python3 -m sidekick.clients.jira get-issue "$retry_key" > "$TMP_DIR/jira_${retry_key}.json" 2>/dev/null; then
-        echo "  Retried: $issue_key → $retry_key (success)"
-        FETCH_SUCCESS=$((FETCH_SUCCESS + 1))
-        continue
-      fi
-    fi
-
-    echo "  Warning: Could not fetch $issue_key"
-    FETCH_FAILED=$((FETCH_FAILED + 1))
-  done < $TMP_DIR/jira_keys.txt
-
-  echo "✓ Successfully fetched $FETCH_SUCCESS JIRA issues ($FETCH_FAILED failed)"
-fi
-```
-
-### Phase 3: Parse MMR Content Structure
-
-```bash
-echo "Parsing MMR sections..."
-
-# Extract Summary section (between "# Summary" and next "# " header)
-# This contains Key Improvements and Key Concerns - the executive view
-sed -n '/^# Summary/,/^# [A-Z]/p' $TMP_DIR/mmr.md | head -n -1 > $TMP_DIR/summary_section.txt
-
-if [ ! -s $TMP_DIR/summary_section.txt ]; then
-  echo "Warning: Could not find Summary section in MMR" >&2
-fi
-
-# Extract Key Improvements subsection
-sed -n '/### Key Improvements/,/### Key Concerns/p' $TMP_DIR/summary_section.txt 2>/dev/null | head -n -1 > $TMP_DIR/key_improvements.txt
-
-# Extract Key Concerns subsection
-sed -n '/### Key Concerns/,/^summary$/p' $TMP_DIR/summary_section.txt 2>/dev/null | head -n -1 > $TMP_DIR/key_concerns.txt
-
-# If the above pattern doesn't work, try extracting until the table starts
-if [ ! -s $TMP_DIR/key_concerns.txt ]; then
-  sed -n '/### Key Concerns/,/^\*\*Quality Dimension\*\*/p' $TMP_DIR/summary_section.txt 2>/dev/null | head -n -1 > $TMP_DIR/key_concerns.txt
-fi
-
-echo "✓ Extracted Key Improvements ($(wc -l < $TMP_DIR/key_improvements.txt | tr -d ' ') lines)"
-echo "✓ Extracted Key Concerns ($(wc -l < $TMP_DIR/key_concerns.txt | tr -d ' ') lines)"
-
-# Extract SEV counts from summary table
-# Look for "SEV 0/1" or "SEV 2/3" followed by count values with color styling
-grep -A 20 "^\*\*SEVs\*\*" $TMP_DIR/summary_section.txt | grep -E "SEV 0/1|SEV 2/3|style=\"color:" > $TMP_DIR/sev_section.txt 2>/dev/null
-
-# Extract MMR AIs section
-# This contains the list of MMR action items
-sed -n '/^# MMR AIs/,/^# [A-Z]/p' $TMP_DIR/mmr.md 2>/dev/null | head -n -1 > $TMP_DIR/mmr_ais_section.txt
-
-echo "✓ Parsed MMR structure"
-```
-
-### Phase 4: Generate Executive Summary
-
-```bash
-echo "Generating executive summary..."
-
-# Get JIRA base URL for links
-JIRA_BASE_URL=$(python3 -c "from sidekick.config import load_jira_config; cfg=load_jira_config(); print(cfg['base_url'])" 2>/dev/null || echo "https://company.atlassian.net")
-
-# Helper function to get JIRA field from JSON
-get_jira_field() {
-  local issue_key=$1
-  local field_path=$2
-  local json_file="$TMP_DIR/jira_${issue_key}.json"
-
-  if [ ! -f "$json_file" ]; then
-    echo "N/A"
-    return
-  fi
-
-  python3 -c "
-import json
-import sys
-try:
-    with open('$json_file') as f:
-        data = json.load(f)
-    result = data$field_path
-    print(result if result else 'N/A')
-except:
-    print('N/A')
-" 2>/dev/null
-}
-
-# Helper function to format JIRA link
-jira_link() {
-  echo "[$1]($JIRA_BASE_URL/browse/$1)"
-}
-
-# Start building the summary
-cat > $TMP_DIR/summary.md << 'EOF_HEADER'
-# Exec Summary
-
-EOF_HEADER
-
-# Section 1: Severity Incidents
-echo "### **Severity Incidents:**" >> $TMP_DIR/summary.md
-echo "" >> $TMP_DIR/summary.md
-
-# Parse SEV counts from the extracted section
-# Look for the Jan (current) column which should have the current counts
-# Format: [0]{style="color: rgb(54,179,126);"} for green (no incidents)
-SEV01_COUNT=$(grep -A 3 "SEV 0/1" $TMP_DIR/sev_section.txt 2>/dev/null | grep -Eo '\[[0-9]+\]' | tail -1 | tr -d '[]' || echo "0")
-SEV23_COUNT=$(grep -A 3 "SEV 2/3" $TMP_DIR/sev_section.txt 2>/dev/null | grep -Eo '\[[0-9]+\]' | tail -1 | tr -d '[]' || echo "0")
-
-# Get details from SEVs section if there were incidents
-SEV_DETAILS=""
-if [ "$SEV01_COUNT" != "0" ]; then
-  # Extract brief description from SEVs section
-  SEV_DETAILS=$(sed -n '/^# SEVs/,/^# [A-Z]/p' $TMP_DIR/mmr.md 2>/dev/null | head -50 | grep -A 2 "SEV-" | head -5 | sed 's/^/    /')
-fi
-
-if [ "$SEV01_COUNT" != "0" ] && [ -n "$SEV_DETAILS" ]; then
-  echo "- **SEV 0/1**: $SEV01_COUNT incident(s)" >> $TMP_DIR/summary.md
-else
-  echo "- **SEV 0/1**: $SEV01_COUNT incidents" >> $TMP_DIR/summary.md
-fi
-
-echo "" >> $TMP_DIR/summary.md
-echo "- **SEV 2/3**: $SEV23_COUNT incidents" >> $TMP_DIR/summary.md
-echo "" >> $TMP_DIR/summary.md
-
-# Section 2: Completed MMR AIs
-echo "### **Completed MMR AIs:**" >> $TMP_DIR/summary.md
-echo "" >> $TMP_DIR/summary.md
-
-# Extract JIRA keys from MMR AIs section
-MMR_AI_KEYS=$(grep -Eo '\b[A-Z][A-Z0-9]+-[0-9]{1,4}\b' $TMP_DIR/mmr_ais_section.txt 2>/dev/null | sort -u)
-
-if [ -n "$MMR_AI_KEYS" ]; then
-  # Check status of each MMR AI
-  for issue_key in $MMR_AI_KEYS; do
-    status=$(get_jira_field "$issue_key" "['fields']['status']['name']")
-    if [ "$status" = "Done" ] || [ "$status" = "Resolved" ] || [ "$status" = "Closed" ]; then
-      echo "- $(jira_link $issue_key)" >> $TMP_DIR/summary.md
-    fi
-  done
-else
-  echo "- None found in MMR AIs section" >> $TMP_DIR/summary.md
-fi
-
-echo "" >> $TMP_DIR/summary.md
-
-# Section 3: Critical Metrics (Key Concerns)
-echo "### **Critical Metrics (Red items with non-zero counts):**" >> $TMP_DIR/summary.md
-echo "" >> $TMP_DIR/summary.md
-
-# Extract JIRA keys from Key Concerns section
-CONCERN_KEYS=$(grep -Eo '\b[A-Z][A-Z0-9]+-[0-9]{1,4}\b' $TMP_DIR/key_concerns.txt 2>/dev/null | sort -u)
-
-# Count done vs total
-TOTAL_CONCERNS=0
-DONE_CONCERNS=0
-
-if [ -n "$CONCERN_KEYS" ]; then
-  for issue_key in $CONCERN_KEYS; do
-    status=$(get_jira_field "$issue_key" "['fields']['status']['name']")
-    if [ "$status" != "N/A" ]; then
-      TOTAL_CONCERNS=$((TOTAL_CONCERNS + 1))
-      if [ "$status" = "Done" ] || [ "$status" = "Resolved" ] || [ "$status" = "Closed" ]; then
-        DONE_CONCERNS=$((DONE_CONCERNS + 1))
-      fi
-    fi
-  done
-
-  echo "Issues identified in Key Concerns section -- $DONE_CONCERNS/$TOTAL_CONCERNS are marked done" >> $TMP_DIR/summary.md
-  echo "" >> $TMP_DIR/summary.md
-
-  # Detail each concern issue
-  ISSUE_NUM=1
-  for issue_key in $CONCERN_KEYS; do
-    json_file="$TMP_DIR/jira_${issue_key}.json"
-    if [ ! -f "$json_file" ]; then
-      continue
-    fi
-
-    summary=$(get_jira_field "$issue_key" "['fields']['summary']")
-    status=$(get_jira_field "$issue_key" "['fields']['status']['name']")
-    description=$(get_jira_field "$issue_key" "['fields']['description']")
-
-    echo "#### Issue $ISSUE_NUM: $(jira_link $issue_key)" >> $TMP_DIR/summary.md
-    echo "" >> $TMP_DIR/summary.md
-
-    # Extract the concern description from Key Concerns section
-    concern_text=$(grep -A 5 "$issue_key" $TMP_DIR/key_concerns.txt 2>/dev/null | head -10)
-
-    if [ -n "$concern_text" ]; then
-      # Extract metric/issue description (first line of concern)
-      metric_desc=$(echo "$concern_text" | head -1 | sed 's/^[*-] //' | sed 's/\*\*//g')
-      echo "- **Context**: $metric_desc" >> $TMP_DIR/summary.md
-    fi
-
-    # Extract findings from JIRA description
-    echo "- **Findings**:" >> $TMP_DIR/summary.md
-    if [ "$description" != "N/A" ] && [ -n "$description" ]; then
-      # Try to extract numbered or bulleted list items
-      echo "$description" | grep -E '^\s*[-*•]|^[0-9]+\.' | head -3 | sed 's/^/  /' >> $TMP_DIR/summary.md
-      if [ $(echo "$description" | grep -E '^\s*[-*•]|^[0-9]+\.' | wc -l) -eq 0 ]; then
-        # No list found, just show first line of description
-        echo "$description" | head -1 | sed 's/^/  - /' >> $TMP_DIR/summary.md
-      fi
-    else
-      echo "  - See JIRA issue for details" >> $TMP_DIR/summary.md
-    fi
-
-    # Show fix status
-    echo "- **Status**: $status" >> $TMP_DIR/summary.md
-    echo "" >> $TMP_DIR/summary.md
-
-    ISSUE_NUM=$((ISSUE_NUM + 1))
-  done
-else
-  echo "No critical metric issues found in Key Concerns" >> $TMP_DIR/summary.md
-  echo "" >> $TMP_DIR/summary.md
-fi
-
-# Section 4: Other JIRA Issues
-echo "### **Other JIRA issues created:**" >> $TMP_DIR/summary.md
-echo "" >> $TMP_DIR/summary.md
-
-# Find issues not already mentioned
-OTHER_ISSUES=""
-for issue_key in $(cat $TMP_DIR/jira_keys.txt); do
-  # Skip if already in concerns or MMR AIs
-  if echo "$CONCERN_KEYS" | grep -q "$issue_key"; then
-    continue
-  fi
-  if echo "$MMR_AI_KEYS" | grep -q "$issue_key"; then
-    continue
-  fi
-
-  json_file="$TMP_DIR/jira_${issue_key}.json"
-  if [ ! -f "$json_file" ]; then
-    continue
-  fi
-
-  summary=$(get_jira_field "$issue_key" "['fields']['summary']")
-  status=$(get_jira_field "$issue_key" "['fields']['status']['name']")
-
-  if [ "$summary" != "N/A" ]; then
-    echo "- $(jira_link $issue_key): $summary [$status]" >> $TMP_DIR/summary.md
-    OTHER_ISSUES="yes"
-  fi
-done
-
-if [ -z "$OTHER_ISSUES" ]; then
-  echo "- None" >> $TMP_DIR/summary.md
-fi
-
-echo "" >> $TMP_DIR/summary.md
-
-# Section 5: Other Notes (Key Improvements + Kudos)
-echo "## Other Notes" >> $TMP_DIR/summary.md
-echo "" >> $TMP_DIR/summary.md
-
-if [ -s $TMP_DIR/key_improvements.txt ]; then
-  echo "### Key Improvements" >> $TMP_DIR/summary.md
-  echo "" >> $TMP_DIR/summary.md
-  # Extract the bullet points from Key Improvements
-  cat $TMP_DIR/key_improvements.txt | grep -E '^- ' | head -10 >> $TMP_DIR/summary.md
-  echo "" >> $TMP_DIR/summary.md
-fi
-
-# Extract assignees from completed issues for kudos
-echo "### Kudos" >> $TMP_DIR/summary.md
-echo "" >> $TMP_DIR/summary.md
-
-KUDOS_FOUND=""
-for issue_key in $(cat $TMP_DIR/jira_keys.txt); do
-  status=$(get_jira_field "$issue_key" "['fields']['status']['name']")
-  if [ "$status" = "Done" ] || [ "$status" = "Resolved" ]; then
-    assignee=$(get_jira_field "$issue_key" "['fields']['assignee']['displayName']")
-    if [ "$assignee" != "N/A" ] && [ -n "$assignee" ]; then
-      summary=$(get_jira_field "$issue_key" "['fields']['summary']")
-      echo "- **$assignee**: Completed $(jira_link $issue_key) - $summary" >> $TMP_DIR/summary.md
-      KUDOS_FOUND="yes"
-    fi
-  fi
-done
-
-if [ -z "$KUDOS_FOUND" ]; then
-  echo "- Team continues to make progress on operational excellence" >> $TMP_DIR/summary.md
-fi
-
-echo "" >> $TMP_DIR/summary.md
-echo "✓ Generated executive summary"
-```
-
-### Phase 5: Save and Cleanup
-
-```bash
-# Generate filename slug from page title (extract first heading from markdown)
-TITLE=$(head -20 $TMP_DIR/mmr.md | grep -m1 '^# ' | sed 's/^# //' | sed 's/ - Confluence$//' | sed 's/ - [A-Za-z]* Confluence$//')
-
-# Convert to slug: lowercase, spaces to hyphens, remove special chars
-SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//')
-
-# Default to timestamp if slug generation fails
-if [ -z "$SLUG" ] || [ "$SLUG" = "-" ]; then
-  SLUG="$(date +%Y%m%d-%H%M%S)"
-fi
-
-OUTPUT_FILE="memory/mmr-exec-summary-${SLUG}.md"
-
-# Copy summary to output location
-cp $TMP_DIR/summary.md "$OUTPUT_FILE"
-
-# Clean up temporary files (trap will handle this)
-# rm -rf $TMP_DIR
-
-# Report completion
-echo ""
-echo "✓ Executive summary saved to: $OUTPUT_FILE"
-echo ""
-echo "Summary contains:"
-echo "  - Severity incidents: SEV 0/1 ($SEV01_COUNT) and SEV 2/3 ($SEV23_COUNT)"
-echo "  - Critical metrics: $TOTAL_CONCERNS issues identified, $DONE_CONCERNS completed"
-echo "  - Other improvements and team contributions"
-```
-
-## Parsing Strategy
-
-### MMR Document Structure
-
-MMRs follow a consistent structure validated with real documents:
-
-1. **Legend** (line 1) - Threshold definitions, skip this
-2. **Summary** (line 32-547):
-   - **Key Improvements** - Team achievements with kudos
-   - **Key Concerns** - Critical issues with embedded JIRA keys
-   - **Summary table** - High-level metric counts across 3 months
-3. **Detailed sections** (line 548+):
-   - Code Coverage, SEVs, CX Escalations, Quarantined Tests
-   - MMR AIs, Open Bugs
-   - Service Availability, Service Latency
-   - Edison Page metrics (Availability, TTVC, LCP)
-
-### Key Parsing Insights
-
-- **Focus on Summary section**: Contains the executive view already
-- **JIRA key extraction**: Use pattern `\b[A-Z][A-Z0-9]+-[0-9]{1,4}\b` to extract clean issue keys
-  - Confluence embeds extra characters like: "PROJ-123d6fe18a-c84e-31b0-943c-6e5ccea56518System Jira"
-  - Word boundaries `\b` prevent UUID digits from being captured
-  - Limit to 1-4 digits (e.g., TEXP-2863 not TEXP-28635) to avoid false matches
-  - If a JIRA fetch fails (404), the agent retries by removing the last digit
-- **Status colors**: Metrics use inline styling (not table columns)
-  - Green (OK): `style="color: rgb(54,179,126);"`
-  - Yellow (Warning): `style="color: rgb(255,153,31);"`
-  - Red (Critical): `style="color: rgb(191,38,0);"`
-- **SEV counts**: Extract from summary table, look for current month column
-- **MMR AIs**: Dedicated section for action items
-
-### Section Extraction
-
-```bash
-# Summary section (most important)
-sed -n '/^# Summary/,/^# [A-Z]/p' FILE | head -n -1
-
-# Key Improvements
-sed -n '/### Key Improvements/,/### Key Concerns/p' FILE | head -n -1
-
-# Key Concerns
-sed -n '/### Key Concerns/,/^summary$/p' FILE | head -n -1
-
-# MMR AIs
-sed -n '/^# MMR AIs/,/^# [A-Z]/p' FILE | head -n -1
-```
+1. Load the quarto-report skill before writing the final report.
+2. Fetch each Confluence page as Markdown. Prefer the Confluence client or Confluence skill for Confluence links.
+3. Keep a temporary working directory under the system temp directory for fetched Markdown, extracted sections, and issue metadata.
+4. Parse each MMR for title, covered month, Summary, Key Improvements, Key Concerns, SEVs, MMR AIs, SEV AIs, and any detailed metric sections referenced by Summary.
+5. Query JIRA for MMR AIs, SEVs, SEV AIs, issue status, issue estimates, assignees/reporters, linked issues, labels, resolution dates, and comments when needed to explain investigation outcomes.
+6. Determine the reporting year and the most recent full calendar month relative to the current date. For example, if the current date is in May, the most recent full month is April 1 through May 1 exclusive.
+7. Generate a Quarto report in the required Core Eng Ops Review structure below. Preserve the user's additional context or questions in the narrative, next steps, or feedback response.
+8. Render the report and verify the output file exists.
+
+Use python3 for any local scripting. Prefer structured parsing through Python or service clients over brittle ad hoc text manipulation when the Markdown structure is irregular.
+
+## Analysis Requirements
+
+The report must synthesize across all supplied MMR URLs. De-duplicate repeated issues and call out when pages disagree or when a source section is missing.
+
+Answer any user-provided context or questions directly in the report, preferably in the TL;DR, Top Themes, Next Steps, or Feedback sections depending on fit.
+
+Avoid copying large tables from the MMR. Summarize the signal executives need: what changed, why it matters, where risk remains, and what should happen next.
+
+Do not include private project names, real employee names, real email addresses, internal document IDs, or raw issue IDs in examples inside this skill. In generated reports, include only the details needed for the user's work and avoid unnecessary personal data.
+
+## Required Report Structure
+
+Use this structure by default. Keep headings close to these names so the report is easy to scan and compare month over month.
+
+1. **TL;DR**: One bold/italic opening paragraph that says this is an executive summary of the relevant group/team MMR reviews for the year through the latest available month. Link to the source MMR pages when useful.
+2. **Table of Contents**: Keep this section, even if the rendered format already has a TOC. Use `none` if no manual TOC is needed.
+3. **SEVs in YYYY**: Summarize real, non-false-positive SEVs for the reporting year. Include the count, a link to the JIRA query or source, and one subsection per notable real SEV with plain-English cause, impact, remediation, and continuing process change. Include a **Discussion** subsection with:
+   - how many false-positive SEVs are being seen
+   - whether threshold work is reducing false positives
+   Add a **False-Positive SEV Graph** after Discussion. Insert a pie chart of false-positive SEVs vs non false positives. 
+4. **MMR Deep Dive**: Link the latest team MMR reports and summarize whether the local MMR process is reliably producing and burning down MMR AIs.
+5. **MMR Action Items**: Include a month-by-month table for the reporting year with columns `Month`, `Resolved`, `Unresolved`, and `Total`. Use full months plus the current partial month when available, labeling partial months clearly. Add a short interpretation of average monthly added/resolved throughput. Immediately after the table, include the stacked resolved/unresolved chart described in **MMR Action-Item Movement**.
+6. **Time Investment**: Include a team table with `Team`, `Avg MMR AIs / sprint`, and `Avg original estimate / sprint` when estimates are available. If estimates are missing, infer from original estimate fields only when present and state the caveat. Put this table immediately under the Time Investment heading before any explanatory prose.
+7. **Top Themes**: Categorize MMR AIs into executive themes. Include a table with `Theme`, `Issue Count`, and `Status Mix`. Add observations about what the distribution means, especially whether performance/reliability work is staying open longer than instrumentation or threshold work. Put the table first, followed by a concise paragraph and optional per-theme issue/action detail.
+8. **Top Issues from Most Recent MMR**: Pick the five most interesting MMR AIs from the most recent full month or latest MMR cycle. For each issue, link the JIRA issue and provide an executive summary of:
+   - the metric movement that triggered the flag,
+   - what the team observed during investigation,
+   - what the team is doing next or why no more work is needed.
+9. **Next Steps**: Write crisp action items with enough specificity to become owner-trackable work. Prefer allocation, review-process, training, roadmap, or escalation actions over generic "monitor" actions.
+10. **Kudos**: Recognize engineering ICs who led meaningful MMR investigations, SLO cleanup, reliability fixes, or process improvements. Prefer named engineers from JIRA assignees/reporters and MMR callouts; avoid inventing names.
+11. **Feedback**: End with an empty or partially-filled feedback table with columns `From`, `Feedback Or Question`, and `Response`. Include blocking/non-blocking language when the source report or user asks for review feedback.
+12. **Source Notes**: Include source page titles/links, query caveats, and data limitations.
+
+## Required Analyses
+
+### MMR Action-Item Movement
+
+Compute monthly MMR AI throughput for the reporting year:
+
+- MMR AIs are JIRA issues listed in the MMR AIs section or clearly labeled as MMR follow-up action items.
+- Also compute monthly created and monthly resolved counts separately for the prose throughput sentence. The default sentence should be like: "For any given full month in YYYY so far, the teams are resolving about X action items and adding about Y action items." Use full months only for this average unless the user explicitly asks for MTD.
+
+#### MMR Action-Item Chart
+
+Generate a stacked resolved/unresolved chart from the same monthly snapshot table and place it immediately after the MMR Action Items table. The chart should make the inventory shape obvious, not introduce a second data definition.
+
+- Use the same issue set, month rows, and counts as the `Month`, `Resolved`, `Unresolved`, `Total` table.
+- Use a stacked area or stacked line chart. Label the key exactly as `Unresolved` and `Resolved`. 
+- If generating the chart manually as SVG, write it under `memory/` next to the report and reference it from the Quarto file. Also write the chart data CSV under `memory/` when useful for auditability.
+- If using Quarto-native charting, prepare data before writing the report rather than using executable chunks unless the user asks for live code chunks.
+- Title the chart plainly, for example `MMR AIs: Unresolved and Resolved by Month`.
+- Add one caveat sentence below the chart when the current month is partial or when Jira `resolutiondate` is missing for otherwise terminal statuses.
+
+### Time Investment by Team
+
+Generate the Time Investment table from Jira sprint membership and original estimates:
+
+- Use the same Teams & Sharing MMR AI JQL scope as the MMR Action Items section.
+- Fetch fields: `key`, `summary`, `created`, `resolutiondate`, `project`,`timeoriginalestimate`, `timeestimate`, and Sprint (may be a custom field).
+- Map teams by JIRA Project 
+- Assign each MMR AI to its latest started sprint on its own team's board. This avoids double-counting carryover issues that appear in multiple sprints.
+- The default table columns are `Team`, `Avg MMR AIs / sprint`, and `Avg original estimate / sprint`. Add `Sprints included`, `Sprints with MMR AIs`, or `Not in started sprint` only when they help explain the numbers.
+- Place this table in **Time Investment**, immediately under the heading. Follow it with a caveat if Jira logged time is missing or if many issues are unsprinted/backlog.
+
+### SEV and SEV AI Analysis
+
+Query SEVs for the reporting year using the relevant group/team labels, service/team fields embedded in the MMR pages, or explicit JQL links in the source. Separate:
+
+- real SEVs,
+- false positives,
+- duplicates/cancelled issues,
+- downgraded alerts,
+- open SEV AIs.
+
+Only present the detailed SEV subsections for the real/non-false-positive incidents that matter for executive review. Keep false positives in aggregate discussion unless one explains an important alert-quality theme.
+
+#### False-Positive SEV Graph
+
+Generate a false-positive versus non-false-positive SEV pie chart and place it in **SEVs in YYYY**, immediately after the **Discussion** subsection.
+
+- Use the same SEV issue set discussed in the section.
+- Classify each SEV as `False positive / cancelled / duplicate / downgraded` or `Real SEV` based on issue status, resolution, labels, MMR notes, and Jira comments.
+- If the MMR narrative says the ticket stream contains false positives or AutoSEV noise, preserve that distinction in the chart caption so executives do not confuse alert volume with incident volume.
+- Write the chart asset under `memory/` next to the report, preferably as SVG or PNG, and reference it from the Quarto report. If using a CSV for the chart, write it under `memory/` and reference it in Source Notes.
+- Include the source JQL or source page links under the chart or in Source Notes.
+
+### Top Themes
+
+Classify MMR AIs into five to seven themes. Good default buckets are:
+
+- MMR instrumentation, thresholds, and reporting quality.
+- Performance latency, TTVC, and LCP.
+- Reliability, availability, and error rates.
+- Ownership, component, and backlog hygiene.
+- Code coverage and test quality.
+- SEV/incident prevention and operational process.
+
+Use JIRA summaries, labels, MMR sections, and issue comments to classify. Include status mix counts such as `Done: 24, Open: 2`. The observations below the table should explain the management implication.
+
+Theme counts should be multi-label: one MMR AI can count in more than one theme when it spans both a metric symptom and a measurement/process fix. Do not count generic mentions of "MMR report" or dashboard links as instrumentation unless the issue is actually about thresholds, rollups, queries, service flags, or metric correctness.
+
+For each theme, use Jira comments to summarize what action was taken. Good action-summary patterns include:
+
+- root cause documented,
+- follow-up remediation ticket created,
+- metric recovered and issue closed with monitoring,
+- low-traffic/not-yet-live route triaged as low impact,
+- route/component deprecated or migrated,
+- SLA/SLO/threshold/reporting config updated,
+- coverage improved or coverage-tooling issue identified,
+- deferred pending broader Core or platform alignment.
+
+In the final report, place the top-level theme table in **Top Themes** with columns `Theme`, `Issue Count`, and `Status Mix`. If space allows, add a compact detail table under the observations with `Theme`, `Representative Issues`, and `Executive Summary Of Actions`; otherwise link to a separate `memory/mmr-ai-top-themes-YYYY.csv` audit file in Source Notes.
+
+### Top Issues From Most Recent MMR
+
+Select the five most interesting MMR AIs, not necessarily the newest five. Prefer issues with:
+
+- a large red/yellow metric movement,
+- a surprising investigation result,
+- cross-team dependency,
+- clear executive risk,
+- meaningful process learning,
+- completed work that changed future MMR interpretation.
+
+Each issue summary must link the JIRA issue and include three pieces in prose: metric trigger, investigation observation, and current action/disposition.
+
+### Kudos
+
+Generate a short kudos list for engineering ICs leading the work. Use JIRA assignee/reporter data, source MMR callouts, and investigation comments. Tie each kudos item to a concrete operational outcome.
+
+## Quarto Guidance
+
+The Quarto source should be readable as Markdown before rendering. Use YAML frontmatter with an informative title and HTML embedding enabled by default.
+
+Use tables for MMR action-item throughput, time investment, top themes, and feedback. Use charts only when the user asks for them or when they materially improve the Core Eng Ops Review narrative; the reference format is primarily prose and tables.
+
+Do not add Python, R, Julia, Observable, or other executable report chunks unless the user explicitly asks for computed charts or runtime analysis inside the report. Do data preparation before writing the Quarto source.
+
+## Data Extraction Notes
+
+MMR pages commonly contain:
+
+- Summary.
+- Key Improvements.
+- Key Concerns.
+- SEVs.
+- MMR AIs.
+- SEV AIs.
+- Detailed metric sections such as bugs, availability, latency, tests, escalations, and page performance.
+
+Use the Summary section as the primary executive source, then verify details against specific sections when a concern or action item needs context.
+
+For issue keys, use a generic JIRA key pattern and then validate each candidate through JIRA before treating it as real. Some Confluence exports may glue issue keys to HTML or UUID-like text, so validation matters.
+
+For terminal status, treat Done, Resolved, Closed, Canceled, and equivalent workflow statuses as terminal. If a status is unfamiliar, infer conservatively and mention the ambiguity if it affects counts.
 
 ## Error Handling
 
-Common issues and mitigations:
+If a Confluence page cannot be read, continue with other supplied pages and report the failed URL in Source Notes.
 
-1. **Confluence page not accessible**:
-   - Verify authentication credentials in `.env`
-   - Check URL format and permissions
-   - Error message shows HTTP status details
+If JIRA enrichment fails for some issues, still produce the report from MMR evidence and mark those issues as unenriched in caveats.
 
-2. **JIRA issues not found**:
-   - Some issues may be placeholders or drafts
-   - Agent continues processing, shows warning
-   - Uses `|| true` to prevent stopping on individual failures
+If a required section is absent, do not invent data. Write a short caveat and continue with the sections that exist.
 
-3. **Missing MMR sections**:
-   - Checks for empty sections and warns user
-   - Continues with available data
-   - Generates summary with "N/A" for missing sections
-
-4. **Malformed markdown**:
-   - Uses flexible sed patterns
-   - Tries multiple patterns for section extraction
-   - Falls back to basic extraction if specific patterns fail
-
-## Tips
-
-- **Temp files**: All intermediate artifacts saved to `$TMP_DIR`
-  - Automatically cleaned up by trap on exit
-  - Only final summary remains in the root `memory/` directory
-
-- **JIRA enrichment**: Parallel fetching (max 5 concurrent) speeds up execution
-  - Typical MMR has 10-30 JIRA issues
-  - Fetching takes 5-10 seconds total
-
-- **Summary section is key**: Don't parse entire 7000+ line document
-  - Key Concerns already summarizes critical issues
-  - Key Improvements contains team achievements
-  - This approach is faster and more reliable
-
-- **Slug generation**: Creates readable filenames from page titles
-  - Example: "Team Alpha MMR 2026 Jan" → "team-alpha-mmr-2026-jan.md"
-  - Falls back to timestamp if title extraction fails
-
-- **JIRA links**: Uses configured JIRA base URL from `.env`
-  - Format: `[PROJ-123](https://company.atlassian.net/browse/PROJ-123)`
-  - Makes issues clickable in markdown viewers
-
-- **Status checking**: Only counts issues with successful JIRA API fetch
-  - Avoids false counts from placeholder issues
-  - Shows realistic progress (X/Y done)
-
-## Example Invocation
-
-```
-User: "Create an executive summary for the January MMR"
-      "URL: https://company.atlassian.net/wiki/spaces/ENG/pages/1234567890"
-
-Agent execution:
-✓ Fetched and converted to 7333 lines of markdown
-Found 15 unique JIRA issues in MMR document
-✓ Successfully fetched 12 JIRA issues
-✓ Extracted Key Improvements (42 lines)
-✓ Extracted Key Concerns (68 lines)
-✓ Parsed MMR structure
-✓ Generated executive summary
-✓ Executive summary saved to: memory/mmr-exec-summary-team-alpha-mmr-2026-jan.md
-
-Summary contains:
-  - Severity incidents: SEV 0/1 (0) and SEV 2/3 (0)
-  - Critical metrics: 5 issues identified, 0 completed
-  - Other improvements and team contributions
-```
-
-## Output Structure
-
-Use format: 
-# Exec Summary
-
-### **Severity Incidents:** 
-
-- **SEV 0/1**: X incidents - recap of each one 
-
-- **SEV 2/3**: 0 incidents
-
-### **Completed MMR AIs:** 
-
-- SHARE-7407
-- SHARE-7573
-- SHARE-7574
-
-### **Critical Metrics (Red items with non-zero counts):**
-
-High level voice over -- X/Y are marked done
-
-#### Issue 1: SHARE-7769
-
-- metric that's read and the values
-
-- Findings:
-
-  1.  Finding 1
-  1.  Finding 2
-
-- Fix was XXX
-
-#### Issue 2: SHARE-7770
-
-- metric that's read and the values
-
-- Findings:
-
-  1.  Finding 1
-  1.  Finding 2
-
-- Fix was XXX
-
-### **Other JIRA issues created:** 
-
-- SHARE-7647 description and resolution 
-- SHARE-7650 description and resolution 
-
-## Other Notes
-
-Any other interesting work for findings for this MMR. Give kudos to people if you can.
-
-Final output saved to the root `memory/` directory:
-- `mmr-exec-summary-[page-slug].md` - The executive summary
-
-Intermediate artifacts in `$TMP_DIR` (auto-cleaned):
-- `mmr.md` - Markdown from Confluence (7000+ lines)
-- `summary_section.txt` - Extracted Summary section
-- `key_improvements.txt` - Key Improvements bullet points
-- `key_concerns.txt` - Key Concerns bullet points
-- `sev_section.txt` - SEV counts and details
-- `mmr_ais_section.txt` - MMR AIs section
-- `jira_keys.txt` - List of all JIRA issue keys
-- `jira_PROJ-123.json` - JIRA API responses (one per issue)
-- `summary.md` - Generated executive summary
-
-The temp directory is automatically removed by the trap, keeping only the final summary in memory.
+If the Quarto render fails, leave the .qmd report in memory, explain the render failure briefly, and report the relative .qmd path.
