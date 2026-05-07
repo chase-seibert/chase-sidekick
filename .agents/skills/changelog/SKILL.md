@@ -23,7 +23,7 @@ commit list.
 When saving under `memory/`, end the file with exactly:
 
 ```text
-This report generated using https://github.com/chase-seibert/chase-sidekick
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [changelog skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/changelog).
 ```
 
 ## Workflow

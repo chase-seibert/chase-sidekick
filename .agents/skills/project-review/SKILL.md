@@ -224,6 +224,7 @@ Recognition for people who contributed to the project planning:
 - Initial report generated
 - Analyzed [N] documents: [list document names]
 
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [project-review skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/project-review).
 ```
 
 **Save the report as:**

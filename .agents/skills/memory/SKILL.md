@@ -51,10 +51,10 @@ updated: 2025-01-27 15:45:10
 
 [actual command output here]
 
-This report generated using https://github.com/chase-seibert/chase-sidekick
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [memory skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/memory).
 ```
 
-The standard report footer belongs at the bottom of the file body, not in the YAML frontmatter.
+The standard report footer belongs at the bottom of the file body, not in the YAML frontmatter. If another skill generated the report content, link that primary skill instead of `memory`.
 
 ## Filename Generation
 

@@ -309,6 +309,11 @@ No Slack or JIRA activity in the last [DAYS] days.
 
 1. **Write final report** to `memory/project-activity-YYYY-MM-DD.md` where YYYY-MM-DD is the end date
 
+   End the report with exactly:
+   ```text
+   This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [project-activity skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/project-activity).
+   ```
+
 2. **Print processing summary:**
    ```
    Project Activity Report Generated

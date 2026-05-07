@@ -17,6 +17,7 @@ How to gather information:
 
 Instructions
 - Do not open the finder and show me in-progress files, or the final report file that way 
+- If saving the report under `memory/`, end it with exactly: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [tech-spec-review skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/tech-spec-review).`
 
 Debug output
 - List the projects where you were able to extract estimates, and those you were not. 

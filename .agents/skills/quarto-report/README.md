@@ -35,7 +35,7 @@ memory/quarto-report-<slug>.qmd
 Reports saved under `memory/` must end with this exact footer:
 
 ```text
-This report generated using https://github.com/chase-seibert/chase-sidekick
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [quarto-report skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/quarto-report).
 ```
 
 Recommended frontmatter:

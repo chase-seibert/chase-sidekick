@@ -173,6 +173,8 @@ Date range: YYYY-MM-DD to YYYY-MM-DD
 - **Planning**: N
 - **Technical**: N
 - **Other**: N
+
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [recent-docs skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/recent-docs).
 ```
 
 **Save the report as:**

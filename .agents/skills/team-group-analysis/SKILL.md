@@ -47,6 +47,12 @@ Use an analysis script to categorize work into themes. The skill provides a fram
 python3 analyze_themes.py
 ```
 
+If saving a generated report under `memory/`, end it with exactly:
+
+```text
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [team-group-analysis skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/team-group-analysis).
+```
+
 ## Common Theme Categories
 
 1. **Feature Work** - New functionality and enhancements

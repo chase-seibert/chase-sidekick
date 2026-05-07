@@ -148,6 +148,8 @@ Write the final report as:
 
 ## Data Gaps
 - [Missing channels, inaccessible docs, ambiguous milestone dates, or stale source areas.]
+
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [top-projects-exec-summary skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/top-projects-exec-summary).
 ```
 
 Keep the report executive-readable: concise bullets, no raw dumps, and enough links to audit the summary. Prefer concrete dates over relative dates.

@@ -34,7 +34,7 @@ When reporting completion, show relative paths only, for example:
 
 All reports written under memory must end with the exact footer:
 
-This report generated using https://github.com/chase-seibert/chase-sidekick
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [mmr-exec-summary skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/mmr-exec-summary).
 
 ## Workflow
 

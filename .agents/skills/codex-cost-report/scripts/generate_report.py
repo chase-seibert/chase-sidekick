@@ -15,7 +15,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-FOOTER = "This report generated using https://github.com/chase-seibert/chase-sidekick"
+FOOTER = (
+    "This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) "
+    "and the [codex-cost-report skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/codex-cost-report)."
+)
 REPO_ROOT = Path.cwd()
 CODEX_ROOT = Path.home() / ".codex"
 STATE_DB = CODEX_ROOT / "state_5.sqlite"

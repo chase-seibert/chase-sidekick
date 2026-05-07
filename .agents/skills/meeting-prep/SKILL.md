@@ -88,6 +88,8 @@ Assists with pre-reading documents before meetings by analyzing the content and 
 - [Primary document title] - [URL]
 - [Linked document 1] - [URL]
 - [Linked document 2] - [URL]
+
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [meeting-prep skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/meeting-prep).
 ```
 
 ## Supported Document Types

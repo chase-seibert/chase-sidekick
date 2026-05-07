@@ -21,6 +21,7 @@ python3 -m sidekick.clients.gcalendar attendance-audit audit
    - `## Actual Changes` with `- No calendar changes have been applied yet.`
    - `## Meetings Reviewed` as a simple bullet list from `meetings_reviewed`.
    - `## Recommended Removals`, grouped by owner with meetings owned by the current user first, using `recommended_removals`.
+   - The exact footer: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [meeting-attendance-audit skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/meeting-attendance-audit).`
 
 3. Tell the user the relative report path. The report contains only meetings with recommendations in `## Recommended Removals`, while `## Meetings Reviewed` lists all recurring meetings that were inspected.
 

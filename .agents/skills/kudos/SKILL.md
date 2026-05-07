@@ -83,6 +83,8 @@ Create a markdown file with:
 
 [[ref]](source-doc-url)
 
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [kudos skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/kudos).
+
 ---
 ```
 

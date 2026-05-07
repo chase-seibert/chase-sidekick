@@ -247,6 +247,12 @@ All reports are saved to the `memory/` directory:
 - **epic_assignment_recommendations.md** - Matching recommendations with confidence levels
 - **epic_assignment_changelog.md** - Log of updates made (created only after execution)
 
+Each report must end with exactly:
+
+```text
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [epic-assignment skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/epic-assignment).
+```
+
 ## Edge Cases
 
 1. **Epic already has parent**: Appears in "Epics with parents" section only

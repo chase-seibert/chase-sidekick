@@ -43,7 +43,7 @@ The report includes:
 - Top 10 most expensive sessions with date, title, model, estimated USD, Codex credits, token count, and thread ID.
 - Data gaps for unknown model rates, missing thread metadata, or sessions without usable token records.
 - Bottom methodology executive summary explaining how local Codex metadata and JSONL logs are queried and how token costs and full-year projections are calculated.
-- The exact footer at the bottom: `This report generated using https://github.com/chase-seibert/chase-sidekick`.
+- The exact footer at the bottom: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [codex-cost-report skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/codex-cost-report).`.
 
 ## Pricing Notes
 
@@ -70,5 +70,5 @@ git diff --check
 The `tail` output must be exactly:
 
 ```text
-This report generated using https://github.com/chase-seibert/chase-sidekick
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [codex-cost-report skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/codex-cost-report).
 ```

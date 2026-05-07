@@ -179,6 +179,8 @@ Thank yous for specific people:
 
 ## Kudos
 - Person X for Y [[ref]](url)
+
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [weekly-report skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/weekly-report).
 ```
 
 

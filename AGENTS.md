@@ -50,7 +50,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Do NOT ask for user confirmation before any remote write operation, including creating, updating, deleting, sending, declining, or changing permissions in external services.
 - Read-only API calls and local file reads do not require confirmation.
 - Generated reports, cached context, and personal/work data should stay under root `/memory/` or `/local/` as appropriate. Temporary and intermediate artifacts should stay under the canonical temp directory via `$TMPDIR` or `/tmp/`.
-- Generated reports and memory files under `memory/` must end with the exact bottom-of-report footer: `This report generated using https://github.com/chase-seibert/chase-sidekick`.
+- Generated reports and memory files under `memory/` must end with an exact bottom-of-report footer that names and links the primary skill used to generate the report: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [<skill-name> skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/<skill-name>).`.
 - Shared documentation must not include real names, email addresses, corporate URLs, issue IDs, document IDs, or other PII unless they are placeholder examples such as Alice, Bob, `example.com`, or `PROJ-123`.
 
 ## Documentation

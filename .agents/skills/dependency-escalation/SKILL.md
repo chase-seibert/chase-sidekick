@@ -26,4 +26,5 @@ auto-approve: true
 - What is the holistic current roadmap for the team that the dependency is being requested from? 
 - What is the holistic set of all dependencies being asked from the same source team and to the same dependent team, and how does the source team stack rank them? 
 - What are some possible options or tradeoffs. Give 2–3 paths with tradeoffs (cost/time/risk). Make your recommendation clear. One option might be self-funding the work -- is this acceptable? Another option might be reducing scope / work arounds. 
-- Placeholder for discussion notes with both parties 
+- Placeholder for discussion notes with both parties
+- If saving the report under `memory/`, end it with exactly: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [dependency-escalation skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/dependency-escalation).`

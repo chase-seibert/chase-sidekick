@@ -81,6 +81,7 @@ The agent performs the following steps:
   - Interview type distribution
   - Recent interviews list with status indicators
   - Insights section highlighting busiest periods and rates
+  - Exact footer: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [interview-history skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/interview-history).`
 - Generates CSV export with columns:
   - date, time, year, summary, category, status
   - attendee_count, organizer, description_preview, event_id

@@ -320,6 +320,8 @@ memory/pto-block-summary-{start_date}-to-{end_date}.md
 **Note**: No email notifications will be sent to meeting organizers or attendees. Your calendar will show declined status, but people won't receive emails about it.
 
 Run without `--dry-run` flag to execute these changes.
+
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [pto-block skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/pto-block).
 ```
 
 ### Live Run Summary Report
@@ -366,6 +368,8 @@ Run without `--dry-run` flag to execute these changes.
 - **No email notifications sent** - all operations used `--no-notify` flag
 - Your calendar shows declined status, but organizers/attendees were not notified
 - Consider setting an out-of-office auto-reply to handle meeting requests
+
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [pto-block skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/pto-block).
 ```
 
 ## Edge Cases

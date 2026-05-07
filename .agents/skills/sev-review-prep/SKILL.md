@@ -96,6 +96,11 @@ Use the SEV name from the document (lowercase, hyphens) and today's date.
 ## Output Format
 
 The questions document should be formatted as Markdown with clear sections and bullet points for easy scanning during the review meeting.
+End the document with exactly:
+
+```text
+This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [sev-review-prep skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/sev-review-prep).
+```
 
 **Document Structure:**
 ```markdown
