@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Audit"
+  short_description: "Audit Sidekick skills by usage and update freshness."
+  default_prompt: "Audit my Sidekick skills and create a Markdown report with stale usage, stale updates, and most-used skills."

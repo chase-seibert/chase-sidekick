@@ -79,6 +79,7 @@ Current skills in `.agents/skills`:
 - **quarto-report** - Write and render Quarto reports with text, tables, diagrams, PDF, HTML, and PowerPoint output.
 - **recent-docs** - Generate categorized summaries of recent Paper and Confluence docs from Chrome history.
 - **sev-review-prep** - Generate questions to ask during SEV review meetings based on Confluence SEV review documents.
+- **skill-audit** - Audit Sidekick skills by usage and update freshness.
 - **slack** - Read recent messages from Slack channels using Dash MCP.
 - **smoketest** - Check that basic reading of common files is working.
 - **sprint-review** - Generate a sprint review report.
@@ -371,6 +372,7 @@ chase-sidekick/
 │       ├── quarto-report/
 │       ├── recent-docs/
 │       ├── sev-review-prep/
+│       ├── skill-audit/
 │       ├── slack/
 │       ├── smoketest/
 │       ├── sprint-review/
