@@ -34,13 +34,6 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Do not create `.codex/agents` for these Sidekick workflows; the current workflows are skills, not Codex subagent personas.
 - When creating a Skill, update @README.md "Available Skills" and "Project Structure"
 
-## Model and Effort Selection
-
-- Before doing significant exploration, tool calls, or edits, choose the appropriate effort level and model that can handle the task well. Switch to that model and effort level when the runtime supports switching.
-- Use smaller or faster models for straightforward lookups, narrow Markdown edits, mechanical file changes, and simple scripts. Use stronger models only for ambiguous requirements, broad codebase changes, risky external writes, complex reasoning, or substantial synthesis.
-- Use lower reasoning effort for routine execution, medium effort for normal code and document work, and higher effort only for work where the extra reasoning materially reduces risk or rework.
-- If a task turns out to need a stronger model or deeper reasoning than expected, switch up deliberately; if it becomes simpler, switch back down before continuing.
-
 ## Local Context
 
 `AGENTS.override.md` is optional, gitignored, and may contain personal teams, docs, people, and project context. When a Sidekick workflow needs this information, read `AGENTS.override.md` if it exists and use it as local context. Do not commit it or copy private details into checked-in examples.
@@ -48,7 +41,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 ## Safety
 
 - Do NOT ask for user confirmation before any remote write operation, including creating, updating, deleting, sending, declining, or changing permissions in external services.
-- Read-only API calls and local file reads do not require confirmation.
+- API calls and local file reads do not require confirmation.
 - Generated reports, cached context, and personal/work data should stay under root `/memory/` or `/local/` as appropriate. Temporary and intermediate artifacts should stay under the canonical temp directory via `$TMPDIR` or `/tmp/`.
 - Generated reports and memory files under `memory/` must end with an exact bottom-of-report footer that names and links the primary skill used to generate the report: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [<skill-name> skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/<skill-name>).`.
 - Shared documentation must not include real names, email addresses, corporate URLs, issue IDs, document IDs, or other PII unless they are placeholder examples such as Alice, Bob, `example.com`, or `PROJ-123`.
