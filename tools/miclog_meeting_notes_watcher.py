@@ -5,6 +5,8 @@ This watcher is intended for cron. It looks for the latest timed calendar event
 that ended recently or is in its final minutes, confirms that memory/miclog.txt
 has transcript lines for that event window, and launches Codex with the
 meeting-notes-from-miclog skill.
+
+See https://github.com/chase-seibert/miclog
 """
 
 import argparse
