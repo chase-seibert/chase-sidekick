@@ -28,7 +28,7 @@ Never update from Markdown conversion. Read Markdown only for human orientation 
 ## Workflow
 
 1. Resolve the page ID from the Confluence link if needed, then fetch page details and raw storage HTML.
-2. Read the shared document-shape reference and identify H1 section boundaries, static preamble, top template, existing `Next`, dated sections, and the most recent prior meeting instance.
+2. Read the shared document-shape reference and identify real top-level meeting section boundaries, static preamble, top template, existing `Next`, dated sections, and the most recent prior meeting instance. Ignore static H1 preamble headings and H1s nested inside Confluence macros, ADF panels, note/info blocks, fallback renderings, tables, or other containers.
 3. If `Next` already exists, stop without writing.
 4. Find the next calendar instance. Search the next 60 days, fetch event details as needed, and first match the Confluence meeting doc link in event descriptions. If one or more events contain the doc link, choose the earliest future start date.
 5. Only if no event description contains the doc link, fall back to supplied meeting title, Confluence page title, or an exact title-like match. If matching is not confident, use `Next`.
@@ -38,9 +38,10 @@ Never update from Markdown conversion. Read Markdown only for human orientation 
    - No confident date: `<h1>Next</h1>`.
 8. Build the new section body from the first applicable source:
    - Clear top template: copy the template body without copying the template heading.
+   - Clear top Confluence note/info template: copy reusable children from the macro body or ADF `<ac:adf-content>` only. Do not copy the note/info wrapper, ADF panel wrapper, fallback rendering, or create a new note block.
    - Non-template table doc: clone the most recent prior meeting table shape, preserving headers, row count, row order, and people/name cells while emptying other content cells.
    - Otherwise: create a bullet section with one empty bullet.
-9. Insert the new section before historical dated sections and after clear static preamble or template content. If the insertion point is ambiguous, refuse.
+9. Insert the new section before historical dated sections and after clear static preamble or template content. When a clear agenda/template note block follows static preamble and precedes the first real meeting section, insert immediately after the whole note block and immediately before the first real meeting section. If the insertion point is ambiguous, refuse.
 10. Before writing, compare before and after HTML and verify every changed byte is within the intended insertion range.
 11. Immediately before writing, fetch raw storage HTML again. If the page changed outside the intended insertion range, stop and re-plan against the latest content.
 12. Write the entire after-HTML with `update-page`.
@@ -61,6 +62,14 @@ Doc-link matching is the authoritative signal for the next meeting date.
 ## Body Creation Rules
 
 For template docs, copy the template body as storage HTML. Do not copy explanatory template labels that are outside the reusable body.
+
+For top templates stored in Confluence note/info blocks:
+
+- Treat ADF panels such as `<ac:adf-extension>` with a note/info `panel-type` as possible top templates when they clearly label themselves as an agenda, template, format guide, or copyable section.
+- Copy reusable children from `<ac:adf-content>` only. Do not copy `ac:adf-extension`, `ac:adf-node`, `ac:adf-fallback`, rendered fallback HTML, or any panel wrapper into the new section.
+- For legacy note/info macros, copy reusable children from the macro body only. Do not copy the macro wrapper.
+- If the panel/macro body starts with an H1 that is just the template label, such as `Agenda` or `Agenda (30 min)`, omit that heading from the new section. Never insert an extra top-level H1 inside the new meeting section; if a non-template H1 appears necessary to preserve meaning, refuse rather than breaking section boundaries.
+- Static H1 headings above the note/info template, such as goals or quick-reference sections, are preamble. Ignore them for meeting-section detection and place the new section after the whole template block, not above it.
 
 For bullet docs without a template, use:
 

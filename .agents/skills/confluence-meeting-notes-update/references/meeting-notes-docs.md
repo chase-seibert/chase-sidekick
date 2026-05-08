@@ -4,7 +4,8 @@ Read this reference when working with Confluence 1:1 or recurring meeting notes.
 
 ## Sections
 
-- Meeting docs use top-level H1 sections. A section starts after its `<h1>` and ends before the next top-level `<h1>` or the end of the document.
+- Meeting docs use real top-level H1 meeting sections. A section starts after its meeting-section `<h1>` and ends before the next real top-level meeting-section `<h1>` or the end of the document.
+- Ignore H1s nested inside Confluence macros, ADF panels, note/info blocks, fallback renderings, tables, or other non-top-level containers when identifying meeting-section boundaries.
 - The future agenda section may be named `Next`.
 - Dated sections may use visible text such as `Apr 23, 2026`, or a Confluence date object:
 
@@ -13,7 +14,7 @@ Read this reference when working with Confluence 1:1 or recurring meeting notes.
 ```
 
 - When creating a dated section, prefer the Confluence date object form. If the next meeting date cannot be found confidently, use `Next`.
-- Static preamble content can appear before meeting sections. Do not treat obvious owner/context/link/setup content as a meeting instance.
+- Static preamble content can appear before meeting sections, and it may itself use H1 headings such as goals, context, quick references, links, or setup material. Do not treat those H1s as meeting instances unless the heading is `Next` or a recognizable meeting date.
 - In bullet-format sections, an image or embedded media block on the page does not end the section. Treat it as part of the same section, and continue scanning after it because bullets may resume below the image.
 - If the section order is ambiguous, prefer the smallest safe edit and refuse rather than moving unrelated content.
 
@@ -22,9 +23,13 @@ Read this reference when working with Confluence 1:1 or recurring meeting notes.
 Some meeting docs have a template at the top that defines the format of each new meeting section.
 
 - Treat a top template as present only when the top content clearly labels itself as a template, format guide, agenda template, or "copy this" section/block.
-- A template may be an H1 section, a paragraph/list/table block before the first dated or `Next` section, or a Confluence macro whose purpose is clearly to describe new-section format.
+- A template may be an H1 section, a paragraph/list/table block before the first dated or `Next` section, or a Confluence macro/panel whose purpose is clearly to describe new-section format.
+- Confluence note/info panels can be standing agenda templates when they appear after static preamble content and before the first real meeting section, and their body clearly labels itself as an agenda/template/copyable format.
 - The template is static context, not a meeting instance. Do not update it as the current meeting section.
 - When creating a new meeting section and a clear template exists, copy the template body into the new section exactly enough to preserve its structure. Do not copy the template heading itself into the new dated or `Next` section.
+- For an ADF panel such as `<ac:adf-extension>` with a note/info `panel-type`, copy reusable children from `<ac:adf-content>` only. Do not copy the surrounding panel extension, `ac:adf-node`, `ac:adf-fallback`, rendered fallback HTML, or create a new note/info block.
+- For a legacy note/info macro, copy reusable children from the macro body only. Do not copy the macro wrapper.
+- If the copied panel/macro body starts with an H1 that is just the template label, such as `Agenda` or `Agenda (30 min)`, treat that first H1 as the template heading and omit it from the new section. Never insert an extra top-level H1 inside the new meeting section; if a non-template H1 appears necessary to preserve meaning, refuse instead of breaking section boundaries.
 - If top content could be either a template or real notes, do not silently treat it as a template.
 
 ## Calendar Matching
@@ -71,4 +76,6 @@ New meeting sections should appear before historical dated sections and after st
 
 - If an existing `Next` section is present, do not create another.
 - If a confident next date is known and that date section already exists, do not create another.
+- If a clear top note/info panel template appears after static preamble and before the first real dated or `Next` section, insert the new meeting section immediately after the whole template block and immediately before the first real meeting section.
+- H1 static preamble sections above a clear template are not historical meeting sections and should not block this insertion point.
 - If placement would require moving unrelated content, refuse.
