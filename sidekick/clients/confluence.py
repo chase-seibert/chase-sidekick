@@ -2,6 +2,7 @@
 import sys
 import json
 import base64
+import re
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -258,10 +259,10 @@ class ConfluenceClient:
     # ===== Read Operations =====
 
     def get_page(self, page_id: str, expand: Optional[list] = None) -> dict:
-        """Get page details by ID.
+        """Get page details by ID or Confluence URL.
 
         Args:
-            page_id: Confluence page ID
+            page_id: Confluence page ID or URL
             expand: List of properties to expand
                    Default: ['body.storage', 'version', 'space']
 
@@ -282,16 +283,17 @@ class ConfluenceClient:
         if expand is None:
             expand = ['body.storage', 'version', 'space']
 
+        page_id = self._normalize_page_id(page_id)
         endpoint = f"/wiki/rest/api/content/{page_id}"
         params = {"expand": ",".join(expand)}
 
         return self._request("GET", endpoint, params=params)
 
     def get_page_content(self, page_id: str, return_markdown: bool = True) -> str:
-        """Get page content as Markdown or HTML storage format.
+        """Get page content by ID or URL as Markdown or HTML storage format.
 
         Args:
-            page_id: Confluence page ID
+            page_id: Confluence page ID or URL
             return_markdown: If True (default), convert HTML to Markdown using pandoc
 
         Returns:
@@ -315,11 +317,20 @@ class ConfluenceClient:
         except (KeyError, TypeError):
             raise ValueError(f"Could not extract content from page {page_id}")
 
+    def _normalize_page_id(self, page_ref: str) -> str:
+        """Normalize a page ID or supported Confluence URL into a page ID."""
+        page_id = self._page_id_from_link(page_ref)
+        if page_id:
+            return page_id
+
+        raise ValueError(f"Could not extract page ID from page reference: {page_ref}")
+
     def get_page_from_link(self, link: str) -> dict:
         """Get page details from any Confluence link format.
 
         Supports multiple URL formats:
         - Short link: https://domain.atlassian.net/wiki/x/HYeVwQ
+        - Tiny URL action: https://domain.atlassian.net/wiki/pages/tinyurl.action?urlIdentifier=HYeVwQ
         - Full link: https://domain.atlassian.net/wiki/spaces/SPACE/pages/123456/Title
         - Page ID link: https://domain.atlassian.net/wiki/pages/viewpage.action?pageId=123456
 
@@ -332,31 +343,43 @@ class ConfluenceClient:
         Raises:
             ValueError: If link cannot be parsed or page not found
         """
-        import re
-
-        # Extract page ID from various URL formats
-        page_id = None
-
-        # Format 1: Short link /wiki/x/XXXXX
-        short_match = re.search(r'/wiki/x/([A-Za-z0-9_-]+)', link)
-        if short_match:
-            short_id = short_match.group(1)
-            page_id = self._resolve_short_link(short_id)
-        else:
-            # Format 2: Full link /wiki/spaces/SPACE/pages/123456/Title
-            full_match = re.search(r'/wiki/spaces/[^/]+/pages/(\d+)', link)
-            if full_match:
-                page_id = full_match.group(1)
-            else:
-                # Format 3: Page ID link ?pageId=123456
-                pageid_match = re.search(r'pageId=(\d+)', link)
-                if pageid_match:
-                    page_id = pageid_match.group(1)
+        page_id = self._page_id_from_link(link)
 
         if not page_id:
             raise ValueError(f"Could not extract page ID from link: {link}")
 
         return self.get_page(page_id)
+
+    def _page_id_from_link(self, link: str, resolve_short_links: bool = True) -> Optional[str]:
+        """Extract or resolve a page ID from supported Confluence link formats."""
+        link = link.strip()
+        if link.isdigit():
+            return link
+
+        parsed = urllib.parse.urlparse(link)
+        query = urllib.parse.parse_qs(parsed.query)
+
+        page_ids = query.get("pageId")
+        if page_ids and page_ids[0].isdigit():
+            return page_ids[0]
+
+        full_match = re.search(r'/wiki/spaces/[^/]+/pages/(\d+)(?:/|$)', parsed.path)
+        if full_match:
+            return full_match.group(1)
+
+        short_match = re.search(r'/wiki/x/([A-Za-z0-9_-]+)(?:/|$)', parsed.path)
+        if short_match:
+            if resolve_short_links:
+                return self._resolve_short_link(short_match.group(1))
+            return None
+
+        short_ids = query.get("urlIdentifier")
+        if parsed.path.endswith("/wiki/pages/tinyurl.action") and short_ids:
+            if resolve_short_links:
+                return self._resolve_short_link(short_ids[0])
+            return None
+
+        return None
 
     def get_content_from_link(self, link: str, return_markdown: bool = True) -> str:
         """Get page content from any Confluence link format.
@@ -400,7 +423,8 @@ class ConfluenceClient:
         """Resolve a Confluence short link ID to a page ID.
 
         Short links like /wiki/x/HYeVwQ need to be resolved to actual page IDs.
-        This follows the redirect to find the real page ID.
+        Atlassian may redirect through /wiki/pages/tinyurl.action before the
+        canonical page URL, so this follows the full redirect chain.
 
         Args:
             short_id: Short ID from URL (e.g., "HYeVwQ")
@@ -411,46 +435,33 @@ class ConfluenceClient:
         Raises:
             ValueError: If short link cannot be resolved
         """
-        # The short link redirects to the full page URL
-        short_url = f"{self.base_url}/wiki/x/{short_id}"
-
-        class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
-            """Handler that captures redirect without following it."""
-            def redirect_request(self, req, fp, code, msg, headers, newurl):
-                # Store the redirect location
-                self.redirect_url = newurl
-                return None
-
-        # Try to follow the redirect manually
-        handler = NoRedirectHandler()
-        opener = urllib.request.build_opener(handler)
+        quoted_short_id = urllib.parse.quote(short_id, safe="")
+        short_url = f"{self.base_url}/wiki/x/{quoted_short_id}"
+        headers = self._get_auth_headers()
+        headers["Accept"] = "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8"
 
         try:
-            req = urllib.request.Request(short_url, headers=self._get_auth_headers())
-            opener.open(req, timeout=self.timeout)
+            req = urllib.request.Request(short_url, headers=headers)
+            with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                resolved_url = response.geturl()
         except urllib.error.HTTPError as e:
-            # Redirects (301, 302, 303, 307, 308) are expected
-            if hasattr(handler, 'redirect_url'):
-                redirect_url = handler.redirect_url
-            elif e.code in (301, 302, 303, 307, 308):
-                redirect_url = e.headers.get('Location')
-                if not redirect_url:
-                    raise ValueError(f"No redirect location found for short link: {short_id}")
+            location = e.headers.get("Location")
+            if e.code in (301, 302, 303, 307, 308) and location:
+                resolved_url = urllib.parse.urljoin(short_url, location)
             else:
                 raise ValueError(f"Failed to resolve short link {short_id}: HTTP {e.code}")
+        except urllib.error.URLError as e:
+            raise ValueError(f"Failed to resolve short link {short_id}: {e.reason}")
         except Exception as e:
             raise ValueError(f"Failed to resolve short link {short_id}: {e}")
 
-        # Extract page ID from the redirect URL
-        if hasattr(handler, 'redirect_url'):
-            redirect_url = handler.redirect_url
-            import re
-            # Try to match /wiki/spaces/SPACE/pages/123456/Title
-            match = re.search(r'/wiki/spaces/[^/]+/pages/(\d+)', redirect_url)
-            if match:
-                return match.group(1)
+        page_id = self._page_id_from_link(resolved_url, resolve_short_links=False)
+        if page_id:
+            return page_id
 
-        raise ValueError(f"Could not extract page ID from redirect for short link: {short_id}")
+        raise ValueError(
+            f"Could not extract page ID from resolved short link {short_id}: {resolved_url}"
+        )
 
     def get_page_restrictions(self, page_id: str) -> dict:
         """Get page restrictions (view/edit permissions).
@@ -1056,11 +1067,11 @@ def main():
 
     Commands:
         search <query> [--space SPACE] [--limit N]
-        get-page <page-id>
+        get-page <page-id-or-url>
         get-page-by-title <title> <space>
         get-page-from-link <url>
         get-content-from-link <url> [--html]
-        read-page <page-id> [--html]
+        read-page <page-id-or-url> [--html]
         create-page <space> <title> <content-file> [--parent PAGE-ID]
         update-page <page-id> <content-file> [--title TITLE]
         create-oneonone <name> <email> <parent-id> [--paper-url URL] [--template URL]
@@ -1074,11 +1085,11 @@ def main():
         print("Usage: python3 -m sidekick.clients.confluence <command> [args...]")
         print("\nCommands:")
         print("  search <query> [--space SPACE] [--limit N]")
-        print("  get-page <page-id>")
+        print("  get-page <page-id-or-url>")
         print("  get-page-by-title <title> <space>")
         print("  get-page-from-link <url>")
         print("  get-content-from-link <url> [--html]")
-        print("  read-page <page-id> [--html]")
+        print("  read-page <page-id-or-url> [--html]")
         print("  create-page <space> <title> <content-file> [--parent PAGE-ID]")
         print("  update-page <page-id> <content-file> [--title TITLE]")
         print("  create-oneonone <name> <email> <parent-id> [--paper-url URL] [--template URL]")
@@ -1130,7 +1141,7 @@ def main():
 
         elif command == "get-page":
             if len(sys.argv) < 3:
-                print("Usage: get-page <page-id>", file=sys.stderr)
+                print("Usage: get-page <page-id-or-url>", file=sys.stderr)
                 sys.exit(1)
 
             page_id = sys.argv[2]
@@ -1175,7 +1186,7 @@ def main():
 
         elif command == "read-page":
             if len(sys.argv) < 3:
-                print("Usage: read-page <page-id> [--html]", file=sys.stderr)
+                print("Usage: read-page <page-id-or-url> [--html]", file=sys.stderr)
                 sys.exit(1)
 
             page_id = sys.argv[2]

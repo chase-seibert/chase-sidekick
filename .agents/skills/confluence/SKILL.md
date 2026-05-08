@@ -22,7 +22,8 @@ python3 -m sidekick.clients.confluence search "query" [--space SPACE] [--limit N
 
 ### Get Page Details
 ```bash
-python3 -m sidekick.clients.confluence get-page PAGE_ID
+python3 -m sidekick.clients.confluence get-page PAGE_ID_OR_URL
+python3 -m sidekick.clients.confluence get-page-from-link "CONFLUENCE_URL"
 ```
 
 ### Get Page by Title
@@ -32,11 +33,20 @@ python3 -m sidekick.clients.confluence get-page-by-title "Title" SPACE
 
 ### Read Page Content
 ```bash
-# Returns Markdown by default
-python3 -m sidekick.clients.confluence read-page PAGE_ID
+# Prefer this when the user provides a Confluence URL.
+# Supports full page URLs and tiny URLs:
+# - https://domain.atlassian.net/wiki/spaces/SPACE/pages/123456/Title
+# - https://domain.atlassian.net/wiki/x/SHORTID
+python3 -m sidekick.clients.confluence get-content-from-link "CONFLUENCE_URL"
+
+# For raw HTML from a URL (content manipulation)
+python3 -m sidekick.clients.confluence get-content-from-link "CONFLUENCE_URL" --html
+
+# Read by page ID or URL; returns Markdown by default
+python3 -m sidekick.clients.confluence read-page PAGE_ID_OR_URL
 
 # For raw HTML (content manipulation)
-python3 -m sidekick.clients.confluence read-page PAGE_ID --html
+python3 -m sidekick.clients.confluence read-page PAGE_ID_OR_URL --html
 ```
 
 ### Create New Page
@@ -69,6 +79,7 @@ python3 -m sidekick.clients.confluence cache-clear
 When the user asks to:
 - "Search for API documentation in Confluence" - Use search command
 - "Read the contents of my 1:1 doc with Bob" - Search for the doc and read it
+- "Read this Confluence URL" - Use get-content-from-link; it accepts both full page URLs and /wiki/x tiny URLs
 - "Add a topic to my 1:1 with Alice" - Use the confluence-meeting-notes-update skill
 - "Create the next section for this meeting doc" - Use the confluence-meeting-notes-create-next skill
 - "Update the team wiki page" - Use update-page command

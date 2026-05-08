@@ -6,7 +6,7 @@ Manage Confluence pages with search, read, and write operations.
 
 This skill provides command-line access to Confluence with:
 - Search for pages by title or CQL queries
-- Read page content and metadata
+- Read page content and metadata from page IDs, full page URLs, or tiny URLs
 - Create new pages with optional parent hierarchy
 - Update existing pages with automatic version handling
 
@@ -35,16 +35,16 @@ Search pages by title or using CQL (Confluence Query Language):
 
 ```bash
 # Simple search by title
-python -m sidekick.clients.confluence search "API Documentation"
+python3 -m sidekick.clients.confluence search "API Documentation"
 
 # Search in specific space
-python -m sidekick.clients.confluence search "API" --space DEV
+python3 -m sidekick.clients.confluence search "API" --space DEV
 
 # Limit results
-python -m sidekick.clients.confluence search "Documentation" --space TEAM --limit 10
+python3 -m sidekick.clients.confluence search "Documentation" --space TEAM --limit 10
 
 # Advanced CQL query
-python -m sidekick.clients.confluence search "title~'API' AND lastModified > '2024-01-01'" --space DEV
+python3 -m sidekick.clients.confluence search "title~'API' AND lastModified > '2024-01-01'" --space DEV
 ```
 
 **Memory format** (one per line):
@@ -66,12 +66,12 @@ The Confluence client automatically caches search query to page mappings for fas
 **Example workflow:**
 ```bash
 # First search - performs API call and caches first result
-python -m sidekick.clients.confluence search "Bob 1:1"
+python3 -m sidekick.clients.confluence search "Bob 1:1"
 # Output: Found 5 pages (showing 5):...
 # [Cached 'Bob 1:1' -> 123456789]
 
 # Search again - uses cache
-python -m sidekick.clients.confluence search "Bob 1:1"
+python3 -m sidekick.clients.confluence search "Bob 1:1"
 # Output: [Using cached result for 'Bob 1:1']
 # Returns page 123456789 immediately
 ```
@@ -79,10 +79,10 @@ python -m sidekick.clients.confluence search "Bob 1:1"
 **Cache management:**
 ```bash
 # View cache contents
-python -m sidekick.clients.confluence cache-show
+python3 -m sidekick.clients.confluence cache-show
 
 # Clear cache
-python -m sidekick.clients.confluence cache-clear
+python3 -m sidekick.clients.confluence cache-clear
 ```
 
 **Manual editing:**
@@ -122,10 +122,13 @@ api documentation:
 
 ### Get Page Details
 
-Get detailed information about a page by ID:
+Get detailed information about a page by ID or URL:
 
 ```bash
-python -m sidekick.clients.confluence get-page 123456789
+python3 -m sidekick.clients.confluence get-page 123456789
+python3 -m sidekick.clients.confluence get-page "https://company.atlassian.net/wiki/x/HYeVwQ"
+python3 -m sidekick.clients.confluence get-page-from-link "https://company.atlassian.net/wiki/spaces/DEV/pages/123456789/API+Documentation"
+python3 -m sidekick.clients.confluence get-page-from-link "https://company.atlassian.net/wiki/x/HYeVwQ"
 ```
 
 **Output:**
@@ -143,18 +146,30 @@ python -m sidekick.clients.confluence get-page 123456789
 Find and display a page by exact title in a space:
 
 ```bash
-python -m sidekick.clients.confluence get-page-by-title "API Documentation" DEV
+python3 -m sidekick.clients.confluence get-page-by-title "API Documentation" DEV
 ```
 
 ### Read Page Content
 
-Get the raw HTML content of a page (storage format):
+Read content from a Confluence URL. Use this when the user provides either a
+full page URL or a `/wiki/x/...` tiny URL. Markdown is returned by default; add
+`--html` when you need raw Confluence storage HTML for content manipulation.
 
 ```bash
-python -m sidekick.clients.confluence read-page 123456789
+python3 -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/DEV/pages/123456789/API+Documentation"
+python3 -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/x/HYeVwQ"
+python3 -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/x/HYeVwQ" --html
+```
+
+Read content by page ID:
+
+```bash
+python3 -m sidekick.clients.confluence read-page 123456789
+python3 -m sidekick.clients.confluence read-page "https://company.atlassian.net/wiki/x/HYeVwQ"
+python3 -m sidekick.clients.confluence read-page 123456789 --html
 
 # Save to file
-python -m sidekick.clients.confluence read-page 123456789 > api-docs.html
+python3 -m sidekick.clients.confluence read-page 123456789 > api-docs.md
 ```
 
 ### Create New Page
@@ -164,10 +179,10 @@ Create a new Confluence page from an HTML file:
 ```bash
 # Create simple page
 echo "<h1>Test Page</h1><p>Content here</p>" > content.html
-python -m sidekick.clients.confluence create-page DEV "Test Page" content.html
+python3 -m sidekick.clients.confluence create-page DEV "Test Page" content.html
 
 # Create page with parent (child page)
-python -m sidekick.clients.confluence create-page DEV "Child Page" content.html --parent 123456789
+python3 -m sidekick.clients.confluence create-page DEV "Child Page" content.html --parent 123456789
 ```
 
 **Output:**
@@ -182,10 +197,10 @@ Update a page's content (automatically handles version conflicts):
 
 ```bash
 # Update content only (keeps existing title)
-python -m sidekick.clients.confluence update-page 123456789 new-content.html
+python3 -m sidekick.clients.confluence update-page 123456789 new-content.html
 
 # Update content and title
-python -m sidekick.clients.confluence update-page 123456789 new-content.html --title "New Title"
+python3 -m sidekick.clients.confluence update-page 123456789 new-content.html --title "New Title"
 ```
 
 **Output:**
@@ -284,14 +299,14 @@ When creating a new dated section, place it at the top (after any "Next" section
 
 ```bash
 # 1. Read current page content
-python -m sidekick.clients.confluence read-page 123456789 > current.html
+python3 -m sidekick.clients.confluence read-page 123456789 --html > current.html
 
 # 2. Edit the file to update the "Next" section (don't create a new one)
 # Or add a new dated section at the top
 vi current.html
 
 # 3. Update the page
-python -m sidekick.clients.confluence update-page 123456789 current.html
+python3 -m sidekick.clients.confluence update-page 123456789 current.html
 ```
 
 **Why This Matters**
@@ -412,19 +427,19 @@ Advanced search queries using CQL:
 
 ```bash
 # Pages by type and space
-python -m sidekick.clients.confluence search "type=page AND space=DEV"
+python3 -m sidekick.clients.confluence search "type=page AND space=DEV"
 
 # Pages modified recently
-python -m sidekick.clients.confluence search "lastModified > '2024-01-01'"
+python3 -m sidekick.clients.confluence search "lastModified > '2024-01-01'"
 
 # Pages by creator
-python -m sidekick.clients.confluence search "creator='john.doe@company.com'"
+python3 -m sidekick.clients.confluence search "creator='john.doe@company.com'"
 
 # Title contains text
-python -m sidekick.clients.confluence search "title~'API'"
+python3 -m sidekick.clients.confluence search "title~'API'"
 
 # Combine conditions
-python -m sidekick.clients.confluence search "type=page AND space=DEV AND title~'Documentation'" --limit 20
+python3 -m sidekick.clients.confluence search "type=page AND space=DEV AND title~'Documentation'" --limit 20
 ```
 
 ### CQL Operators
@@ -441,10 +456,10 @@ python -m sidekick.clients.confluence search "type=page AND space=DEV AND title~
 
 ```bash
 # Save page content to file
-python -m sidekick.clients.confluence read-page 123456789 > backup.html
+python3 -m sidekick.clients.confluence read-page 123456789 --html > backup.html
 
 # Later restore from backup
-python -m sidekick.clients.confluence update-page 123456789 backup.html
+python3 -m sidekick.clients.confluence update-page 123456789 backup.html
 ```
 
 ### 2. Bulk Create Pages
@@ -511,11 +526,11 @@ for i in range(1, 4):
 mkdir -p confluence-export
 
 # Search for pages
-python -m sidekick.clients.confluence search "type=page" --space DEV --limit 100 > pages.txt
+python3 -m sidekick.clients.confluence search "type=page" --space DEV --limit 100 > pages.txt
 
 # Extract page IDs and export each
 grep -oE '^[0-9]+' pages.txt | while read page_id; do
-    python -m sidekick.clients.confluence read-page "$page_id" > "confluence-export/${page_id}.html"
+    python3 -m sidekick.clients.confluence read-page "$page_id" --html > "confluence-export/${page_id}.html"
     echo "Exported: $page_id"
 done
 ```
@@ -566,11 +581,11 @@ Verify your ATLASSIAN_EMAIL and ATLASSIAN_API_TOKEN in `.env`.
 
 ```bash
 # Save a template page
-python -m sidekick.clients.confluence read-page TEMPLATE-ID > template.html
+python3 -m sidekick.clients.confluence read-page TEMPLATE-ID --html > template.html
 
 # Create new page from template
 sed 's/{{TITLE}}/New Page Title/g' template.html > new-page.html
-python -m sidekick.clients.confluence create-page DEV "New Page" new-page.html
+python3 -m sidekick.clients.confluence create-page DEV "New Page" new-page.html
 ```
 
 ## Related Skills
