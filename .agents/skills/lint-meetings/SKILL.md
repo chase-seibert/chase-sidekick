@@ -1,11 +1,11 @@
 ---
 name: lint-meetings
-description: Lint upcoming Google Calendar meetings for required Zoom links, agenda docs, and date-specific agenda sections, grouped by meetings owned by the user versus other owners.
+description: Lint upcoming Google Calendar meetings for required Zoom links, agenda docs, and date-specific agenda sections, with general table and email priority output formats.
 ---
 
 # Lint Meetings
 
-Use this skill when asked to audit, lint, check, or clean up meeting hygiene for calendar meetings. It checks real meetings for Zoom links, agenda docs, and date-specific agenda sections, then reports issues grouped by meetings owned by the current user and meetings owned by others.
+Use this skill when asked to audit, lint, check, or clean up meeting hygiene for calendar meetings. It checks real meetings for Zoom links, agenda docs, and date-specific agenda sections, then reports either a general table view or an email-ready priority view.
 
 By default, lint tomorrow's calendar in the user's local timezone. If the user gives an explicit date or range, use that instead. Output the result in chat only unless the user asks for a report file.
 
@@ -54,9 +54,16 @@ For Slack context, use the `/slack` skill. Do not send Slack messages or create 
    - Date section: inspect the linked agenda doc for an H1/H2 date heading, Confluence `<time datetime="YYYY-MM-DD">`, or a clearly labeled section matching the meeting's local date.
 5. For owned meetings only, if a Confluence agenda doc exists but no date-specific section exists, use the `$confluence-meeting-notes-create-next` skill to attempt creating the next section. Report whether it created a section, stopped because one already existed, or refused because the doc shape was ambiguous.
 6. For meetings owned by others, do not modify docs or calendar events. Draft a Codex-only Slack message asking the owner to update the missing items.
-7. Output results in Markdown.
+7. Choose the output format.
+   - Use the general table view by default.
+   - Use the email priority view when the user asks for email, email-ready, sendable, or priority-formatted output.
+8. Output results in Markdown.
 
-## Output Format
+## Output Formats
+
+### General Table View
+
+Use this view by default. Group meetings by meetings owned by the current user and meetings owned by others.
 
 Use emoji status cells. Do not include a separate status field. Use:
 
@@ -92,6 +99,58 @@ Hi <owner>, could you update <meeting title> before <date/time> with <missing it
 ```
 
 If every meeting passes, keep the output short and still use the tables. The table cells should make the all-clear obvious without a separate status column.
+
+### Email Priority View
+
+Use this view when the user asks for an email-specific summary. Do not use tables. Do not include Slack message drafts unless the user separately asks for them. If sending the result by email, send it as rich text or HTML so headings render as headings and bullets render as real bullet lists; do not send raw Markdown markers like `#`, `##`, or `-`.
+
+Separate the output into exactly three priority sections in this order: P0, P1, P2. Each section must be a bullet list. Use `None.` when a priority has no items. Each bullet should include the meeting time, meeting title, owner, missing or ambiguous items, and the requested action.
+
+Assign each meeting to only the highest applicable priority:
+
+- P0: Owned meetings that still fail hygiene after any allowed Confluence section creation attempt, or any meeting missing a Zoom link or agenda doc.
+- P1: Meetings with a readable agenda doc but no date-specific section, or meetings owned by others that need owner follow-up for a non-P0 issue.
+- P2: Ambiguous, unreadable, or low-confidence checks; informational cleanup; or all-clear notes if the user asked to include passing meetings.
+
+Use emoji status markers in each bullet:
+
+- ❌ for P0 missing or failing items
+- ⚠️ for P1/P2 ambiguous, unreadable, or needs-confirmation items
+- ✅ for passing or all-clear notes included at the user's request
+
+Use this Markdown structure in chat:
+
+```markdown
+# Meeting Lint Email Summary
+
+Checked: <date range>
+Real meetings checked: <count>
+
+## P0
+
+- <time> — <meeting title> (<owner>): Missing <items>. <requested action>.
+
+## P1
+
+- <time> — <meeting title> (<owner>): Missing <items>. <requested action>.
+
+## P2
+
+- <time> — <meeting title> (<owner>): <warning or note>. <requested action if any>.
+```
+
+When sending by email, render the same content as HTML or rich text:
+
+```html
+<h1>Meeting Lint Email Summary</h1>
+<p><strong>Checked:</strong> <date range><br>
+<strong>Real meetings checked:</strong> <count></p>
+
+<h2>P0</h2>
+<ul>
+  <li>❌ <strong><time></strong> — <meeting title> (<owner>): Missing <items>. <requested action>.</li>
+</ul>
+```
 
 ## Slack Draft Guidance
 
