@@ -7,26 +7,17 @@ non-interactive `codex exec` path so scheduled triggers can still complete.
 """
 import argparse
 import json
-import os
 import selectors
-import sqlite3
-import socket
-import struct
 import subprocess
 import sys
-import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 
 DEFAULT_TIMEOUT = 1800
 STDERR_LIMIT = 40
-SIDEKICK_AUTOMATION_ID = "sidekick-trigger-tools"
-SIDEKICK_AUTOMATION_NAME = "Sidekick trigger tools"
-SIDEKICK_AUTOMATION_RRULE = "FREQ=HOURLY;INTERVAL=24;BYMINUTE=0"
-DESKTOP_INBOX_SUMMARY_LIMIT = 1200
 
 UNATTENDED_TRIGGER_INSTRUCTIONS = """This request was launched by an unattended trigger.
 
@@ -61,10 +52,6 @@ class AppServerUnavailable(AppServerError):
 
 class AppServerTurnStartedError(AppServerError):
     """Raised after turn/start has been sent; callers should not retry."""
-
-
-class CodexDesktopUnreadError(Exception):
-    """Raised when Desktop unread state cannot be updated."""
 
 
 class _CodexAppServerClient:
@@ -340,7 +327,6 @@ def run_codex_app_server(
     timeout: float = DEFAULT_TIMEOUT,
     codex_bin: str = "codex",
     thread_name: Optional[str] = None,
-    mark_unread: bool = True,
 ) -> CodexRunResult:
     """Run Codex through a headless app-server session."""
     start_time = time.time()
@@ -412,17 +398,6 @@ def run_codex_app_server(
             error = turn.get("error") or {}
             output = error.get("message") or f"Codex turn ended with status: {status or 'unknown'}"
 
-        if mark_unread:
-            warning = _mark_desktop_session_unread(
-                thread_id=thread_id,
-                thread_name=thread_name or build_thread_name(prompt),
-                working_dir=working_dir,
-                output=output,
-                success=success,
-            )
-            if warning:
-                output = _append_warning(output, warning)
-
         return CodexRunResult(
             success=success,
             output=output,
@@ -445,7 +420,6 @@ def execute_codex_with_fallback(
     timeout: float = DEFAULT_TIMEOUT,
     codex_bin: str = "codex",
     thread_name: Optional[str] = None,
-    mark_unread: bool = True,
 ) -> CodexRunResult:
     """Run app-server first, then exec fallback if no turn was started."""
     start_time = time.time()
@@ -457,7 +431,6 @@ def execute_codex_with_fallback(
             timeout=timeout,
             codex_bin=codex_bin,
             thread_name=thread_name or build_thread_name(prompt),
-            mark_unread=mark_unread,
         )
     except AppServerUnavailable as e:
         app_server_error = str(e)
@@ -514,231 +487,11 @@ def _read_final_thread_output(client: _CodexAppServerClient, thread_id: str) -> 
     return "\n\n".join(final_messages or agent_messages).strip()
 
 
-def _mark_desktop_session_unread(
-    thread_id: str,
-    thread_name: str,
-    working_dir: str,
-    output: str,
-    success: bool,
-) -> Optional[str]:
-    """Register the completed trigger thread as unread in Codex Desktop.
-
-    Desktop's local thread unread dot is kept in renderer memory, not the
-    persisted thread table. Its durable Inbox uses automation_runs.read_at, so
-    the trigger runner mirrors a completed run there and leaves read_at NULL.
-    """
-    try:
-        desktop_db = _find_codex_desktop_db()
-        _upsert_unread_desktop_run(
-            desktop_db=desktop_db,
-            thread_id=thread_id,
-            thread_name=thread_name,
-            working_dir=working_dir,
-            output=output,
-            success=success,
-        )
-    except Exception as e:
-        return f"Warning: could not mark Codex Desktop session as unread: {e}"
-
-    try:
-        _broadcast_desktop_unread_state(thread_id)
-    except Exception:
-        pass
-
-    return None
-
-
-def _find_codex_desktop_db() -> Path:
-    explicit = os.environ.get("CODEX_DESKTOP_DB")
-    if explicit:
-        path = Path(explicit).expanduser()
-        if path.exists():
-            return path
-        raise CodexDesktopUnreadError(f"Codex Desktop database does not exist: {path}")
-
-    codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")).expanduser()
-    sqlite_dir = codex_home / "sqlite"
-    candidates = [
-        sqlite_dir / "codex-dev.db",
-        sqlite_dir / "codex.db",
-    ]
-    candidates.extend(sorted(sqlite_dir.glob("codex*.db")))
-
-    for path in candidates:
-        if path.exists():
-            return path
-    raise CodexDesktopUnreadError(f"Codex Desktop database not found under {sqlite_dir}")
-
-
-def _upsert_unread_desktop_run(
-    desktop_db: Path,
-    thread_id: str,
-    thread_name: str,
-    working_dir: str,
-    output: str,
-    success: bool,
-) -> None:
-    now_ms = int(time.time() * 1000)
-    summary = _build_desktop_inbox_summary(output, success)
-
-    with sqlite3.connect(str(desktop_db), timeout=5) as connection:
-        connection.execute("PRAGMA busy_timeout = 5000")
-        _ensure_desktop_inbox_schema(connection)
-        connection.execute(
-            """
-            INSERT INTO automations
-                (id, name, prompt, status, next_run_at, last_run_at, cwds, rrule, created_at, updated_at)
-            VALUES
-                (?, ?, ?, 'ACTIVE', NULL, ?, ?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET
-                name = excluded.name,
-                prompt = excluded.prompt,
-                status = 'ACTIVE',
-                last_run_at = excluded.last_run_at,
-                cwds = excluded.cwds,
-                rrule = excluded.rrule,
-                updated_at = excluded.updated_at
-            """,
-            (
-                SIDEKICK_AUTOMATION_ID,
-                SIDEKICK_AUTOMATION_NAME,
-                "Sessions launched by the Sidekick email and OmniFocus trigger tools.",
-                now_ms,
-                json.dumps([working_dir]),
-                SIDEKICK_AUTOMATION_RRULE,
-                now_ms,
-                now_ms,
-            ),
-        )
-        connection.execute(
-            """
-            INSERT INTO automation_runs
-                (thread_id, automation_id, status, read_at, thread_title, source_cwd,
-                 inbox_title, inbox_summary, created_at, updated_at)
-            VALUES
-                (?, ?, 'PENDING_REVIEW', NULL, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(thread_id) DO UPDATE SET
-                automation_id = excluded.automation_id,
-                status = 'PENDING_REVIEW',
-                read_at = NULL,
-                thread_title = excluded.thread_title,
-                source_cwd = excluded.source_cwd,
-                inbox_title = excluded.inbox_title,
-                inbox_summary = excluded.inbox_summary,
-                updated_at = excluded.updated_at
-            """,
-            (
-                thread_id,
-                SIDEKICK_AUTOMATION_ID,
-                thread_name,
-                working_dir,
-                thread_name,
-                summary,
-                now_ms,
-                now_ms,
-            ),
-        )
-        connection.commit()
-
-
-def _ensure_desktop_inbox_schema(connection: sqlite3.Connection) -> None:
-    tables = {
-        row[0]
-        for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type = 'table'"
-        )
-    }
-    if "automations" not in tables or "automation_runs" not in tables:
-        raise CodexDesktopUnreadError("Codex Desktop inbox tables are missing")
-
-    required_columns = {
-        "automations": {
-            "id",
-            "name",
-            "prompt",
-            "status",
-            "next_run_at",
-            "last_run_at",
-            "cwds",
-            "rrule",
-            "created_at",
-            "updated_at",
-        },
-        "automation_runs": {
-            "thread_id",
-            "automation_id",
-            "status",
-            "read_at",
-            "thread_title",
-            "source_cwd",
-            "inbox_title",
-            "inbox_summary",
-            "created_at",
-            "updated_at",
-        },
-    }
-
-    for table, required in required_columns.items():
-        columns = {row[1] for row in connection.execute(f"PRAGMA table_info({table})")}
-        missing = required - columns
-        if missing:
-            raise CodexDesktopUnreadError(
-                f"Codex Desktop table {table} is missing columns: {', '.join(sorted(missing))}"
-            )
-
-
-def _build_desktop_inbox_summary(output: str, success: bool) -> str:
-    output = " ".join((output or "").strip().split())
-    if not output:
-        output = "Codex trigger completed." if success else "Codex trigger failed."
-    if len(output) > DESKTOP_INBOX_SUMMARY_LIMIT:
-        output = output[: DESKTOP_INBOX_SUMMARY_LIMIT - 3].rstrip() + "..."
-    return output
-
-
-def _append_warning(output: str, warning: str) -> str:
-    output = output.rstrip()
-    if not output:
-        return warning
-    return f"{output}\n\n{warning}"
-
-
-def _broadcast_desktop_unread_state(thread_id: str) -> None:
-    socket_path = _codex_ipc_socket_path()
-    if not socket_path.exists():
-        return
-
-    payload = json.dumps(
-        {
-            "type": "broadcast",
-            "sourceClientId": SIDEKICK_AUTOMATION_ID,
-            "method": "thread-read-state-changed",
-            "version": 1,
-            "params": {
-                "conversationId": thread_id,
-                "hasUnreadTurn": True,
-            },
-        }
-    ).encode("utf-8")
-    frame = struct.pack("<I", len(payload)) + payload
-
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as ipc_socket:
-        ipc_socket.settimeout(0.5)
-        ipc_socket.connect(str(socket_path))
-        ipc_socket.sendall(frame)
-
-
-def _codex_ipc_socket_path() -> Path:
-    if sys.platform == "win32":
-        return Path(r"\\.\pipe\codex-ipc")
-    uid = os.getuid() if hasattr(os, "getuid") else None
-    socket_name = f"ipc-{uid}.sock" if uid else "ipc.sock"
-    return Path(tempfile.gettempdir()) / "codex-ipc" / socket_name
-
-
 def _format_fallback_output(app_server_error: str, fallback_output: str) -> str:
     fallback_output = fallback_output.strip() or "(no fallback output)"
     return f"""App-server runner failed before the Codex turn started; used exec fallback.
+
+Fallback runs do not create Codex Desktop sessions.
 
 App-server error:
 {app_server_error}
@@ -774,19 +527,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         default=DEFAULT_TIMEOUT,
         help=f"Execution timeout in seconds (default: {DEFAULT_TIMEOUT}).",
     )
-    parser.add_argument(
-        "--mark-unread",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Leave the completed Codex Desktop session marked unread (default: enabled).",
-    )
     args = parser.parse_args(argv)
 
     result = execute_codex_with_fallback(
         prompt=args.prompt,
         working_dir=args.cd,
         timeout=args.timeout,
-        mark_unread=args.mark_unread,
     )
     print(f"Runner: {result.runner}")
     if result.thread_id:

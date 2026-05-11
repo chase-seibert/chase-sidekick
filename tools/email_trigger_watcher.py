@@ -8,7 +8,6 @@ the results.
 Usage:
     python3 tools/email_trigger_watcher.py
     python3 tools/email_trigger_watcher.py --max-emails 3
-    python3 tools/email_trigger_watcher.py --no-mark-codex-unread
 
 Expected email format:
     Subject: Claude <your prompt here>
@@ -33,6 +32,7 @@ The script will:
 5. Mark the email as read
 """
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -59,6 +59,8 @@ DEFAULT_EMAILS_PER_RUN = 1
 SEARCH_PAGE_SIZE = 100
 DEFAULT_EXECUTION_TIMEOUT = 1800  # 30 minutes timeout for agent execution
 MAX_HOURLY_EXECUTIONS = 20  # Rate limit
+RECENT_TRIGGER_LOOKBACK_DAYS = 2
+MESSAGE_STATE_FILE = "/tmp/email_trigger_processed_messages.json"
 
 ONE_ON_ONE_DOCS_PATH = REPO_ROOT / "local" / "one-on-ones.md"
 MEETING_DOCS_PATH = REPO_ROOT / "local" / "meetings.md"
@@ -143,12 +145,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--mark-codex-unread",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Leave Codex Desktop sessions marked unread after trigger runs (default: enabled).",
-    )
-    parser.add_argument(
         "--timeout",
         type=positive_int,
         default=DEFAULT_EXECUTION_TIMEOUT,
@@ -218,6 +214,62 @@ def record_execution(state_file: str):
                 f.write(f"{ts}\n")
     except Exception as e:
         log(f"Error recording execution: {e}")
+
+
+def load_processed_message_ids(state_file: str = MESSAGE_STATE_FILE) -> set:
+    """Load trigger message IDs already claimed by the watcher."""
+    try:
+        if not os.path.exists(state_file):
+            return set()
+
+        with open(state_file, "r") as f:
+            data = json.load(f)
+
+        if not isinstance(data, dict):
+            return set()
+
+        return {
+            message_id
+            for message_id, processed_at in data.items()
+            if isinstance(message_id, str) and isinstance(processed_at, (int, float))
+        }
+    except Exception as e:
+        log(f"Error reading processed message state: {e}")
+        return set()
+
+
+def record_processed_message(
+    message_id: str,
+    state_file: str = MESSAGE_STATE_FILE,
+    retention_days: int = 14,
+) -> None:
+    """Record a trigger message ID so read-message backstop searches do not replay it."""
+    try:
+        now = time.time()
+        cutoff = now - (retention_days * 86400)
+        data = {}
+
+        if os.path.exists(state_file):
+            with open(state_file, "r") as f:
+                loaded = json.load(f)
+            if isinstance(loaded, dict):
+                data = {
+                    key: value
+                    for key, value in loaded.items()
+                    if isinstance(key, str)
+                    and isinstance(value, (int, float))
+                    and value > cutoff
+                }
+
+        data[message_id] = now
+
+        temp_file = f"{state_file}.tmp"
+        with open(temp_file, "w") as f:
+            json.dump(data, f, sort_keys=True)
+            f.write("\n")
+        os.replace(temp_file, state_file)
+    except Exception as e:
+        log(f"Error recording processed message state: {e}")
 
 
 def extract_prompt(subject: str, body: str, trigger_word: str) -> Optional[str]:
@@ -412,7 +464,6 @@ def execute_agent(
     prompt: str,
     working_dir: str,
     agent_config: dict,
-    mark_codex_unread: bool = True,
     timeout: int = DEFAULT_EXECUTION_TIMEOUT,
 ) -> Tuple[bool, str, float, dict]:
     """Execute the configured agent CLI with the given prompt.
@@ -434,7 +485,6 @@ def execute_agent(
             prompt=prompt,
             working_dir=working_dir,
             timeout=timeout,
-            mark_unread=mark_codex_unread,
         )
         if result.thread_id:
             log(f"{display_name} runner: {result.runner}; thread id: {result.thread_id}")
@@ -585,7 +635,6 @@ def process_trigger_email(
     message: dict,
     working_dir: str,
     active_agent_configs: List[dict],
-    mark_codex_unread: bool = True,
     timeout: int = DEFAULT_EXECUTION_TIMEOUT,
 ) -> bool:
     """Process a single trigger email.
@@ -601,6 +650,9 @@ def process_trigger_email(
     """
     message_id = message.get("id")
     thread_id = message.get("threadId")
+    subject = ""
+    from_addr = ""
+    message_id_header = ""
 
     try:
         # Get full message details
@@ -610,6 +662,7 @@ def process_trigger_email(
 
         subject = headers.get("subject", "")
         from_addr = headers.get("from", "")
+        message_id_header = headers.get("message-id", "")
 
         log(f"Processing email: {subject}")
         log(f"From: {from_addr}")
@@ -621,6 +674,8 @@ def process_trigger_email(
 
         if not sender_is_allowed(from_addr, agent_config):
             log(f"Sender is not allowlisted for {agent_config['display_name']}; marking email as read")
+            if message_id:
+                record_processed_message(message_id)
             client.modify_labels(message_id, remove_labels=["UNREAD"])
             return False
 
@@ -633,6 +688,8 @@ def process_trigger_email(
         if not prompt:
             log("Warning: Could not extract prompt from email")
             # Mark as read anyway to avoid reprocessing
+            if message_id:
+                record_processed_message(message_id)
             client.modify_labels(message_id, remove_labels=["UNREAD"])
             return False
 
@@ -644,6 +701,8 @@ def process_trigger_email(
 
         # Mark as read immediately to prevent reprocessing
         # (even if agent execution or reply fails)
+        if message_id:
+            record_processed_message(message_id)
         log("Marking email as read...")
         client.modify_labels(message_id, remove_labels=["UNREAD"])
 
@@ -655,7 +714,6 @@ def process_trigger_email(
             execution_prompt,
             working_dir,
             agent_config,
-            mark_codex_unread=mark_codex_unread,
             timeout=timeout,
         )
 
@@ -671,18 +729,20 @@ def process_trigger_email(
         )
         reply_subject = f"Re: {subject}"
 
-        # Get Message-ID for threading
-        message_id_header = headers.get("message-id", "")
-
         # Send reply
         log("Sending reply email...")
-        client.send_message(
+        sent_message = client.send_message(
             to=from_addr,
             subject=reply_subject,
             body=reply_body,
             thread_id=thread_id,
             in_reply_to=message_id_header,
             references=message_id_header
+        )
+        log(
+            "Sent reply "
+            f"{sent_message.get('id', 'unknown')} "
+            f"in thread {sent_message.get('threadId', thread_id or 'unknown')}"
         )
 
         log(f"✅ Successfully processed email {message_id}")
@@ -703,10 +763,14 @@ The trigger email could not be processed. Please check the logs.
                 to=from_addr,
                 subject=f"Re: {subject}",
                 body=error_body,
-                thread_id=thread_id
+                thread_id=thread_id,
+                in_reply_to=message_id_header,
+                references=message_id_header,
             )
 
             # Mark as read to avoid reprocessing
+            if message_id:
+                record_processed_message(message_id)
             client.modify_labels(message_id, remove_labels=["UNREAD"])
         except Exception as send_error:
             log(f"Failed to send error reply: {send_error}")
@@ -775,14 +839,45 @@ def search_all_messages(client: GmailClient, query: str) -> List[dict]:
     return messages
 
 
+def thread_has_later_sent_message(
+    client: GmailClient,
+    thread_id: Optional[str],
+    after_internal_date: int,
+) -> bool:
+    """Return True if the thread already has a sent message after this trigger."""
+    if not thread_id:
+        return False
+
+    try:
+        thread = client.get_thread(thread_id)
+    except Exception as e:
+        log(f"Could not inspect thread {thread_id} for existing replies: {e}")
+        return False
+
+    for thread_message in thread.get("messages", []):
+        label_ids = set(thread_message.get("labelIds", []))
+        if "SENT" not in label_ids:
+            continue
+        if message_internal_date(thread_message) > after_internal_date:
+            return True
+
+    return False
+
+
 def search_trigger_messages(
     client: GmailClient,
     active_agent_configs: List[dict],
     max_emails: int
 ) -> List[dict]:
-    """Search once for unread trigger messages for every active agent."""
+    """Search for trigger messages for every active agent.
+
+    Unread messages remain the primary queue. A short recent-message backstop
+    catches trigger emails that another integration already marked read before
+    this cron watcher ran.
+    """
     messages_by_id: Dict[str, dict] = {}
     searchable_agent_configs = []
+    processed_message_ids = load_processed_message_ids()
 
     for agent_config in active_agent_configs:
         display_name = agent_config["display_name"]
@@ -810,10 +905,16 @@ def search_trigger_messages(
 
     from_query = " OR ".join([f"from:{email}" for email in sender_emails])
     subject_query = " OR ".join([f"subject:{trigger_word}" for trigger_word in trigger_words])
-    query = f"is:unread ({from_query}) ({subject_query})"
-    log(f"Searching for trigger emails: {query}")
+    unread_query = f"is:unread ({from_query}) ({subject_query})"
+    recent_query = (
+        f"newer_than:{RECENT_TRIGGER_LOOKBACK_DAYS}d "
+        f"({from_query}) ({subject_query})"
+    )
 
-    messages = search_all_messages(client, query)
+    log(f"Searching for unread trigger emails: {unread_query}")
+    messages = search_all_messages(client, unread_query)
+    log(f"Searching for recent trigger-email backstop: {recent_query}")
+    messages.extend(search_all_messages(client, recent_query))
     log(f"Found {len(messages)} possible trigger email(s)")
 
     for message in messages:
@@ -824,6 +925,20 @@ def search_trigger_messages(
             continue
 
         message_id = message.get("id")
+        if not message_id:
+            continue
+        if message_id in processed_message_ids:
+            log(f"Skipping already claimed trigger message: {message_id}")
+            continue
+        if thread_has_later_sent_message(
+            client,
+            message.get("threadId"),
+            message_internal_date(message),
+        ):
+            log(f"Skipping trigger message with existing sent reply: {message_id}")
+            record_processed_message(message_id)
+            continue
+
         if message_id and message_id not in messages_by_id:
             messages_by_id[message_id] = message
 
@@ -841,7 +956,6 @@ def main(argv: Optional[List[str]] = None):
     log("=== Email Trigger Watcher Starting ===")
     log(f"Max emails to process this run: {args.max_emails}")
     log(f"Execution timeout: {args.timeout}s")
-    log(f"Mark Codex Desktop sessions unread: {args.mark_codex_unread}")
 
     # Load configuration
     try:
@@ -883,7 +997,6 @@ def main(argv: Optional[List[str]] = None):
                 message,
                 working_dir,
                 active_agent_configs,
-                mark_codex_unread=args.mark_codex_unread,
                 timeout=args.timeout,
             ):
                 processed_count += 1

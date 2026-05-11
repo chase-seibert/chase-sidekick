@@ -8,7 +8,6 @@ task prompt, and appends the output to the task note. It never completes tasks.
 Usage:
     python3 tools/omnifocus_trigger_watcher.py
     python3 tools/omnifocus_trigger_watcher.py --max-tasks 3
-    python3 tools/omnifocus_trigger_watcher.py --no-mark-codex-unread
     python3 tools/omnifocus_trigger_watcher.py --dry-run
 
 Expected task formats:
@@ -98,12 +97,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="Preview matching tasks and prompt expansion without mutating or running Codex.",
     )
     parser.add_argument(
-        "--mark-codex-unread",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Leave Codex Desktop sessions marked unread after trigger runs (default: enabled).",
-    )
-    parser.add_argument(
         "--timeout",
         type=positive_int,
         default=DEFAULT_EXECUTION_TIMEOUT,
@@ -115,7 +108,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
 def execute_codex(
     prompt: str,
     working_dir: str,
-    mark_codex_unread: bool = True,
     timeout: int = DEFAULT_EXECUTION_TIMEOUT,
 ) -> CodexRunResult:
     """Execute Codex with the given prompt."""
@@ -124,7 +116,6 @@ def execute_codex(
         prompt=prompt,
         working_dir=working_dir,
         timeout=timeout,
-        mark_unread=mark_codex_unread,
     )
     if result.thread_id:
         log(f"Codex runner: {result.runner}; thread id: {result.thread_id}")
@@ -416,7 +407,6 @@ def process_task(
     task_summary: dict,
     working_dir: str,
     dry_run: bool = False,
-    mark_codex_unread: bool = True,
     timeout: int = DEFAULT_EXECUTION_TIMEOUT,
 ) -> bool:
     """Process a single OmniFocus trigger task."""
@@ -475,7 +465,6 @@ def process_task(
         result = execute_codex(
             executed_prompt,
             working_dir,
-            mark_codex_unread=mark_codex_unread,
             timeout=timeout,
         )
         result_note = format_result_note(
@@ -522,7 +511,6 @@ def main(argv: Optional[List[str]] = None) -> None:
     log(f"Max tasks to process this run: {args.max_tasks}")
     log(f"Scan limit: {args.scan_limit}")
     log(f"Execution timeout: {args.timeout}s")
-    log(f"Mark Codex Desktop sessions unread: {args.mark_codex_unread}")
     if args.dry_run:
         log("Dry run enabled: no tasks will be mutated and Codex will not run")
 
@@ -550,7 +538,6 @@ def main(argv: Optional[List[str]] = None) -> None:
                 task,
                 working_dir,
                 dry_run=args.dry_run,
-                mark_codex_unread=args.mark_codex_unread,
                 timeout=args.timeout,
             ):
                 processed_count += 1

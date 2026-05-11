@@ -484,7 +484,7 @@ Codex meeting Core Eng LT staffing concerns for hiring IC5s
 
 The `1:1` shortcut resolves people from `local/one-on-ones.md`. The `meeting` shortcut resolves the longest matching meeting heading from `local/meetings.md`. Both shortcuts ask Codex to use the `confluence-meeting-notes-update` skill to add the remaining text as a next-meeting agenda topic.
 
-Codex triggers run through a headless Codex app-server session first so the resulting sessions are visible in Codex Desktop. If app-server cannot start before the Codex turn begins, the watchers fall back to `codex exec` so scheduled triggers still complete unattended. Trigger replies and OmniFocus notes include the runner used and the Codex thread ID when one is available.
+Codex trigger jobs are launched by cron. They run through a headless Codex app-server session first so successful app-server runs are visible in Codex Desktop. If app-server cannot start before the Codex turn begins, the watchers fall back to `codex exec` so scheduled triggers still complete unattended; fallback runs are reliability-only and may not create Desktop sessions. Trigger replies and OmniFocus notes include the runner used and the Codex thread ID when one is available.
 
 ### Setup
 

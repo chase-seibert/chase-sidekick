@@ -190,6 +190,19 @@ class GmailClient:
         params = {"format": format}
         return self._request("GET", f"/users/me/messages/{message_id}", params=params)
 
+    def get_thread(self, thread_id: str, format: str = "full") -> dict:
+        """Get a Gmail thread by ID.
+
+        Args:
+            thread_id: The Gmail thread ID
+            format: Message format for messages in the thread
+
+        Returns:
+            Thread dict with messages
+        """
+        params = {"format": format}
+        return self._request("GET", f"/users/me/threads/{thread_id}", params=params)
+
     def get_message_body(self, message: dict) -> str:
         """Extract text body from a message.
 
@@ -258,7 +271,17 @@ class GmailClient:
         if "payload" in message and "headers" in message["payload"]:
             for header in message["payload"]["headers"]:
                 name = header["name"].lower()
-                if name in ["from", "to", "subject", "date", "cc", "bcc"]:
+                if name in [
+                    "from",
+                    "to",
+                    "subject",
+                    "date",
+                    "cc",
+                    "bcc",
+                    "message-id",
+                    "in-reply-to",
+                    "references",
+                ]:
                     headers[name] = header["value"]
         return headers
 

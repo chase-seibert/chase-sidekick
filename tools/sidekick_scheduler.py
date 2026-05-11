@@ -90,12 +90,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action="store_true",
         help="Print the configured slots and tasks, then exit.",
     )
-    parser.add_argument(
-        "--mark-codex-unread",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Leave completed Codex Desktop sessions marked unread (default: enabled).",
-    )
     return parser.parse_args(argv)
 
 
@@ -358,7 +352,6 @@ def execute_task(
     task: Dict[str, Any],
     index: int,
     timeout: int,
-    mark_codex_unread: bool,
 ) -> CodexRunResult:
     prompt = build_prompt(task, index)
     name = task_name(task, index)
@@ -368,7 +361,6 @@ def execute_task(
         working_dir=str(REPO_ROOT),
         timeout=timeout,
         thread_name=f"Scheduled: {name}",
-        mark_unread=mark_codex_unread,
     )
     if result.thread_id:
         log(f"Finished {name} via {result.runner}; thread id: {result.thread_id}")
@@ -425,7 +417,6 @@ def main(argv: Optional[List[str]] = None) -> int:
                 task=task,
                 index=index,
                 timeout=args.timeout,
-                mark_codex_unread=args.mark_codex_unread,
             )
             if not result.success:
                 failures += 1

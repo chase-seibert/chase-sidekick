@@ -100,12 +100,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="Print the selected event and prompt preview without launching Codex or updating state.",
     )
     parser.add_argument(
-        "--mark-codex-unread",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Leave Codex Desktop sessions marked unread after trigger runs.",
-    )
-    parser.add_argument(
         "--timeout",
         type=positive_int,
         default=DEFAULT_EXECUTION_TIMEOUT,
@@ -502,7 +496,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         working_dir=str(REPO_ROOT),
         timeout=args.timeout,
         thread_name=f"Meeting notes: {event.get('summary') or 'recent meeting'}",
-        mark_unread=args.mark_codex_unread,
     )
     log(f"Codex runner: {result.runner}")
     if result.thread_id:
