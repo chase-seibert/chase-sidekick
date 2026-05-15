@@ -392,8 +392,6 @@ chase-sidekick/
 │   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
 │   ├── sidekick_scheduler.py     # TOML-driven scheduled Sidekick tasks
 │   └── smoketest.py              # Test access to Paper, Confluence, Slack
-├── examples/
-│   └── sidekick_schedule.toml    # Example private scheduler config
 ├── sidekick/
 │   ├── config.py            # Load from .env
 │   └── clients/             # Single-file service clients
@@ -551,7 +549,7 @@ You can run recurring reports and other Sidekick workflows from one human-readab
 Create your private schedule from the example:
 
 ```bash
-cp examples/sidekick_schedule.toml local/sidekick_schedule.toml
+cp sidekick_schedule.toml.example local/sidekick_schedule.toml
 ```
 
 The schedule uses three named slots by default. Slot times are PST:

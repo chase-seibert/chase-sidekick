@@ -388,7 +388,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         if schedule.get("_missing_path"):
             log(
                 "No schedule file found; nothing to run. "
-                f"Create {schedule['_missing_path']} from examples/sidekick_schedule.toml."
+                f"Create {schedule['_missing_path']} from sidekick_schedule.toml.example."
             )
             return 0
 

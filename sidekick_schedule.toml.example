@@ -1,4 +1,4 @@
-# Copy this file to local/sidekick_schedule.toml and edit it for your own schedule.
+# Copy this example file to local/sidekick_schedule.toml and edit it for your own schedule.
 #
 # The cron entry should run at these three times every day. This file decides
 # whether any Codex work should actually start at each slot.
