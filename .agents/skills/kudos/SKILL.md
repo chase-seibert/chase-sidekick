@@ -14,14 +14,14 @@ Generate kudos for team members from recent 1:1 and meeting notes, with proper S
 This skill helps you:
 1. Review recent notes from all your 1:1 and recurring meeting docs
 2. Extract kudos, wins, and accomplishments for specific people
-3. Format kudos with Slack mentions (@username format)
+3. Format kudos with real Slack user mentions (`<@U...>` ID format)
 4. Include references to source documents
 
 ## Prerequisites
 
 - `@AGENTS.override.md` file with your 1:1 and meeting doc links
 - Configured Dropbox and Atlassian credentials in `.env`
-- `memory/people.json` file for email to Slack username mapping
+- `memory/people.json` file for person/email data and, when available, Slack user IDs
 
 ## Usage Pattern
 
@@ -55,23 +55,27 @@ Look for recent mentions of:
 
 For each kudos item:
 1. Identify the person(s) involved
-2. Look up their Slack username:
-   - Extract email from context or @AGENTS.override.md
-   - Slack username = first part of email before @example.com
-   - Format as: `@username`
+2. Resolve each person to a Slack user ID:
+   - Prefer an existing Slack mention found in source context, such as `<@U041F9YQ64Q>`.
+   - If the Slack connector is available, use Slack user search/profile lookup by name or email and capture the `U...` user ID.
+   - If local data has a Slack user ID, use that.
+   - If only an email is available and no Slack ID can be resolved, use plain non-notifying text such as `alice@example.com` or `Alice Smith`; do not pretend it will notify.
 3. Format kudos with:
    - Clear description of accomplishment
    - Context and impact
-   - Slack mentions for all people involved
+   - Raw Slack mention tokens for all resolved people involved
    - Reference link to source doc
 
 **Slack Mention Format:**
-- Email: `alice@example.com` → Slack: `@alice`
-- Email: `bob.smith@example.com` → Slack: `@bob.smith`
+- Correct notifying mention: `<@U041F9YQ64Q>`
+- Incorrect: `` `<@U041F9YQ64Q>` `` because inline code prevents Slack from rendering the mention.
+- Incorrect: `@alice` or `@bob.smith` because email-prefix usernames are not reliable notifying mentions.
+- Never wrap Slack mention tokens in backticks, code fences, quotes, or escaped angle brackets in Slack-ready text.
+- If sending or editing the report in Slack, preserve raw `<@U...>` tokens in every message chunk.
 
 ### Step 5: Generate Output
 
-Create a markdown file with:
+Create a markdown file with Slack-ready sections. The example below is documentation only; do not wrap generated report text in a code block when sending to Slack.
 
 ```markdown
 ## Kudos - [Date Range]
@@ -79,7 +83,7 @@ Create a markdown file with:
 ### [Category/Project Name]
 [Description with impact and context]
 
-**People:** @username1, @username2, @username3
+**People:** <@U123ABC>, <@U456DEF>, <@U789GHI>
 
 [[ref]](source-doc-url)
 
@@ -105,7 +109,7 @@ Print a list of documents that errored during retrieval.
 - **Be Specific**: Include concrete details about what was accomplished
 - **Show Impact**: Explain why it matters, not just what was done
 - **Group Related**: Combine related kudos for the same project/initiative
-- **Verify Usernames**: Double-check Slack username format matches email prefix
+- **Verify Mentions**: Double-check every Slack-ready mention is a raw `<@U...>` token and not inline code
 - **Include Context**: Help readers understand the significance
 
 ## Common Use Cases

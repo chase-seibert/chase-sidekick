@@ -14,6 +14,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 FOOTER = (
     "This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) "
@@ -90,6 +91,8 @@ class SessionUsage:
     source: str
     created_at: datetime
     updated_at: datetime
+    project: str
+    project_path: str
     models: dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
     work_type: str = "cowork"
     work_type_reason: str = "no local non-memory write signal"
@@ -127,6 +130,10 @@ def fmt_percent(numerator: int | float, denominator: int | float) -> str:
     if not denominator:
         return "0.0%"
     return f"{(numerator / denominator) * 100:.1f}%"
+
+
+def md_escape(value: str) -> str:
+    return value.replace("|", "\\|")
 
 
 def fmt_chart_value(value: float) -> str:
@@ -207,6 +214,47 @@ def compute_amounts(usage: Counter, model: str) -> tuple[float | None, float | N
         ) / 1_000_000
 
     return usd, credits
+
+
+def compact_path(raw_path: str | None) -> str:
+    path = (raw_path or "").strip()
+    if not path:
+        return "(unknown cwd)"
+    home = str(Path.home())
+    if path == home:
+        return "~"
+    if path.startswith(home + "/"):
+        return "~/" + path[len(home) + 1 :]
+    return path
+
+
+def project_from_origin(raw_origin: str | None) -> str | None:
+    origin = (raw_origin or "").strip().rstrip("/")
+    if not origin:
+        return None
+
+    if origin.endswith(".git"):
+        origin = origin[:-4]
+
+    if "://" in origin:
+        project_path = urlparse(origin).path.strip("/")
+    elif ":" in origin:
+        project_path = origin.rsplit(":", 1)[1].strip("/")
+    else:
+        project_path = origin.strip("/")
+
+    return project_path.rsplit("/", 1)[-1] or None
+
+
+def project_name(cwd: str | None, git_origin_url: str | None) -> str:
+    from_origin = project_from_origin(git_origin_url)
+    if from_origin:
+        return from_origin
+
+    compact = compact_path(cwd)
+    if compact in {"", "~", "(unknown cwd)"}:
+        return compact
+    return compact.rstrip("/").rsplit("/", 1)[-1] or compact
 
 
 def clean_path(raw_path: str) -> str:
@@ -337,7 +385,7 @@ def read_threads() -> dict[str, dict]:
     connection.row_factory = sqlite3.Row
     rows = connection.execute(
         """
-        select id, title, source, model, created_at_ms, updated_at_ms
+        select id, title, source, model, created_at_ms, updated_at_ms, cwd, git_origin_url
         from threads
         """
     ).fetchall()
@@ -415,6 +463,8 @@ def build_sessions() -> tuple[list[SessionUsage], Counter]:
             source=source,
             created_at=as_local_datetime(thread.get("created_at_ms")) if thread.get("created_at_ms") else first_seen,
             updated_at=as_local_datetime(thread.get("updated_at_ms")) if thread.get("updated_at_ms") else last_seen,
+            project=project_name(thread.get("cwd"), thread.get("git_origin_url")),
+            project_path=compact_path(thread.get("cwd")),
             models=usage_by_model,
             work_type="coding" if coding_reasons else "cowork",
             work_type_reason=coding_reasons[0] if coding_reasons else "no local non-memory write signal",
@@ -465,6 +515,12 @@ def report() -> str:
     by_year = Counter()
     work_type_usd = Counter()
     work_type_sessions = Counter()
+    project_usd = Counter()
+    project_credits = Counter()
+    project_sessions = Counter()
+    project_work_type_sessions: dict[str, Counter] = defaultdict(Counter)
+    project_usage: dict[str, Counter] = defaultdict(Counter)
+    project_paths: dict[str, Counter] = defaultdict(Counter)
     unknown_usd_models = Counter()
 
     total_usd = 0.0
@@ -482,6 +538,11 @@ def report() -> str:
         by_year[year] += session.usd
         work_type_usd[session.work_type] += session.usd
         work_type_sessions[session.work_type] += 1
+        project_usd[session.project] += session.usd
+        project_credits[session.project] += session.credits
+        project_sessions[session.project] += 1
+        project_work_type_sessions[session.project][session.work_type] += 1
+        project_paths[session.project][session.project_path] += 1
         total_usd += session.usd
         total_credits += session.credits
         for model in session.unknown_usd_models:
@@ -490,6 +551,7 @@ def report() -> str:
             canonical_model = MODEL_ALIASES.get(model, model)
             model_sessions[canonical_model] += 1
             model_usage[canonical_model].update(usage)
+            project_usage[session.project].update(usage)
             total_usage.update(usage)
 
     first_day = min(session.created_at.date() for session in sessions)
@@ -501,9 +563,13 @@ def report() -> str:
     average_session_usd = total_usd / len(sessions)
     projected_yearly_credits = (total_credits / covered_days) * 365
     top_sessions = sorted(sessions, key=lambda item: item.usd, reverse=True)[:10]
+    projects_by_usd = sorted(project_usd, key=lambda project: project_usd[project], reverse=True)
+    top_projects = projects_by_usd[:10]
     week_labels = week_labels_between(first_day, last_day)
     weekly_values = [by_week[label] for label in week_labels]
     top_session_values = [session.usd for session in top_sessions]
+    top_project_values = [project_usd[project] for project in top_projects]
+    top_project_name = top_projects[0] if top_projects else "n/a"
 
     lines = [
         "---",
@@ -528,6 +594,8 @@ def report() -> str:
         f"- Period covered: {first_day.isoformat()} to {last_day.isoformat()} ({covered_days} days)",
         f"- Sessions included: {len(sessions)} user-created sessions",
         f"- Sessions excluded: {counters['excluded_internal_sessions']} internal/subagent sessions",
+        f"- Projects included: {len(project_sessions)}",
+        f"- Top project by estimated cost: {top_project_name} ({fmt_money(project_usd[top_project_name])})",
         f"- Estimated API-equivalent total: {fmt_money(total_usd)}",
         f"- Estimated Codex credits: {total_credits:,.1f}",
         f"- Average per included session: {fmt_money(average_session_usd)}",
@@ -542,14 +610,33 @@ def report() -> str:
         "- Credential material, raw prompts, and transcript content are intentionally omitted.",
         "- Pricing sources checked on 2026-04-30: OpenAI API Pricing and OpenAI Codex rate card.",
         "- Coding versus cowork is a best-effort classification based on local non-memory write signals in the Codex session log.",
+        "- Project is derived from the thread git origin repo name when present, otherwise from the thread current working directory.",
         "",
         "## Charts",
         "",
+        "### Top Projects By Estimated Cost",
+        "",
+        "Bars are labeled by rank; the project details table below maps each rank to project name.",
+        "",
+    ]
+
+    add_mermaid(
+        lines,
+        [
+            "xychart-beta",
+            '  title "Top Projects by Estimated Cost"',
+            f"  x-axis {mermaid_list([f'P{index}' for index in range(1, len(top_projects) + 1)])}",
+            f'  y-axis "USD" 0 --> {fmt_chart_value(chart_axis_max(top_project_values))}',
+            f"  bar {mermaid_list(top_project_values)}",
+        ],
+    )
+
+    lines.extend([
         "### Top Sessions By Estimated Cost",
         "",
         "Bars are labeled by rank; the session details table below maps each rank to title and thread id.",
         "",
-    ]
+    ])
 
     add_mermaid(
         lines,
@@ -635,6 +722,44 @@ def report() -> str:
         ],
     )
 
+    lines.append("## Cost By Project")
+    project_rows = []
+    for index, project in enumerate(projects_by_usd, start=1):
+        usage = project_usage[project]
+        primary_path = project_paths[project].most_common(1)[0][0]
+        project_rows.append([
+            f"P{index}",
+            md_escape(project),
+            md_escape(primary_path),
+            fmt_number(project_sessions[project]),
+            fmt_number(project_work_type_sessions[project]["coding"]),
+            fmt_number(project_work_type_sessions[project]["cowork"]),
+            fmt_money(project_usd[project]),
+            fmt_percent(project_usd[project], total_usd),
+            fmt_money(project_usd[project] / project_sessions[project]),
+            f"{project_credits[project]:,.1f}",
+            fmt_number(usage["total_tokens"]),
+            fmt_percent(usage["cached_input_tokens"], usage["input_tokens"]),
+        ])
+    add_table(
+        lines,
+        [
+            "Rank",
+            "Project",
+            "Primary CWD",
+            "Sessions",
+            "Coding",
+            "Cowork",
+            "Estimated USD",
+            "Share",
+            "Average Session",
+            "Codex Credits",
+            "Tokens",
+            "Cache %",
+        ],
+        project_rows,
+    )
+
     lines.append("## Usage By Model")
     model_rows = []
     for model, usage in sorted(model_usage.items(), key=lambda item: item[1]["total_tokens"], reverse=True):
@@ -664,7 +789,8 @@ def report() -> str:
         top_rows.append([
             f"S{index}",
             session.created_at.date().isoformat(),
-            session.title.replace("|", "\\|"),
+            md_escape(session.project),
+            md_escape(session.title),
             model_list,
             session.work_type,
             fmt_money(session.usd),
@@ -674,7 +800,7 @@ def report() -> str:
         ])
     add_table(
         lines,
-        ["Rank", "Date", "Session", "Model", "Work Type", "Estimated USD", "Codex Credits", "Tokens", "Thread ID"],
+        ["Rank", "Date", "Project", "Session", "Model", "Work Type", "Estimated USD", "Codex Credits", "Tokens", "Thread ID"],
         top_rows,
     )
 
@@ -694,7 +820,9 @@ def report() -> str:
         "The generator reads thread metadata from `~/.codex/state_5.sqlite` and scans "
         "`~/.codex/sessions/**/*.jsonl` for session ids, model changes, token-count events, "
         "and local write signals. It includes user-created Codex Desktop and exec/trigger "
-        "threads (`vscode` and `exec`) and excludes internal subagent or guardian sessions."
+        "threads (`vscode` and `exec`) and excludes internal subagent or guardian sessions. "
+        "Project rollups use the thread git origin repo name when available and otherwise "
+        "fall back to the thread current working directory name."
     )
     lines.append("")
     lines.append(

@@ -9,7 +9,7 @@ The Kudos skill helps engineering managers recognize team accomplishments by aut
 ## Features
 
 - 📝 Extract kudos from Confluence and Dropbox Paper documents
-- 👥 Automatic Slack username formatting from email addresses
+- 👥 Slack-ready mention formatting with real `<@U...>` user IDs
 - 🔗 Include source references for each kudos
 - 📅 Filter by time period (default: last 7 days)
 - 🎯 Categorize kudos by type (launches, promotions, etc.)
@@ -29,14 +29,15 @@ The Kudos skill helps engineering managers recognize team accomplishments by aut
    - [Team Sync](https://example.com/docs/...)
    ```
 
-2. **memory/people.json** - Employee data for email to Slack mapping:
+2. **memory/people.json** - Employee data for identifying people:
    ```json
    {
      "dropboxers": [
        {
          "email": "alice@example.com",
          "ldap": "alice",
-         "full_name": "Alice Smith"
+         "full_name": "Alice Smith",
+         "slack_user_id": "U123ABC"
        }
      ]
    }
@@ -102,10 +103,13 @@ Only extracts from sections with recent date headers.
 
 For each kudos:
 1. Identifies people mentioned
-2. Looks up their email from context
-3. Converts email to Slack username:
-   - `alice@example.com` → `@alice`
-   - `bob.smith@example.com` → `@bob.smith`
+2. Resolves each person to a Slack user ID
+3. Formats real Slack mentions as raw `<@U...>` tokens:
+   - Correct: `<@U123ABC>`
+   - Incorrect: `` `<@U123ABC>` `` because inline code prevents Slack from rendering the mention
+   - Incorrect: `@alice` because email-prefix usernames are not reliable notifying mentions
+
+Prefer existing Slack mentions in source context or Slack user/profile lookup by name or email. If no Slack ID can be resolved, use plain non-notifying text such as `alice@example.com` or `Alice Smith`; do not imply that it will notify the person.
 
 ### 5. Output Generation
 
@@ -120,22 +124,24 @@ Creates formatted kudos with:
 ```markdown
 ## Kudos - Week of Feb 3, 2026
 
-### 🎉 [Project/Category Name]
+### [Project/Category Name]
 
 [Description of accomplishment with context about why it matters]
 
 [Details about approach, impact, or what made it special]
 
-**People:** @username1, @username2, @username3
+**People:** <@U123ABC>, <@U456DEF>, <@U789GHI>
 
 [[ref]](source-document-url)
 
 ---
 
-### 🌟 [Another Category]
+### [Another Category]
 
 [Another kudos item...]
 ```
+
+When sending the report to Slack, do not wrap the generated report in a code block, and do not wrap individual mention tokens in backticks. If the message is split into multiple Slack messages, preserve raw `<@U...>` tokens in every chunk.
 
 ## Tips
 
@@ -157,11 +163,12 @@ Look for phrases like:
 3. **Add Context**: What made it special or challenging?
 4. **Be Genuine**: Only call out real accomplishments
 
-### Slack Username Tips
+### Slack Mention Tips
 
-- Username is always the email prefix before @example.com
-- Keep dots, hyphens, underscores from email
-- Case doesn't matter in Slack (@Alice = @alice)
+- Real notifying mentions use Slack user IDs in the form `<@U123ABC>`
+- Bare `@alice` text may not notify and should not be used for Slack-ready kudos
+- Inline code such as `` `<@U123ABC>` `` renders visibly and does not notify
+- If a Slack ID cannot be resolved, use plain text and treat it as non-notifying
 
 ## Troubleshooting
 
@@ -177,11 +184,11 @@ Look for phrases like:
 - Check that URLs in `@AGENTS.override.md` are correct
 - Ensure you have access to the documents
 
-### "Wrong Slack username"
+### "Wrong Slack mention"
 
-- Verify the person's email in your company's directory
-- Username = email prefix before @example.com
-- Check `memory/people.json` has current data
+- Verify the person's Slack user ID through Slack user/profile lookup or trusted local data
+- Check that the final Slack-ready text contains raw `<@U...>` tokens
+- Remove any backticks, code fences, escaped angle brackets, or quotes around mention tokens
 
 ## File Structure
 

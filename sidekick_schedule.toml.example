@@ -5,7 +5,8 @@
 #
 # Slot times are PST.
 # Valid day values are: mon, tue, wed, thu, fri, sat, sun, weekday, weekend, all.
-# Use slot = "morning" for one slot or slots = ["morning", "evening"] for several.
+# Use slots = ["morning"] for one slot.
+# Use slots = ["morning", "evening"] to run the same task more than once per day.
 
 [slots]
 morning = "08:00"
@@ -16,7 +17,7 @@ evening = "17:00"
 name = "Weekly report"
 enabled = true
 days = ["fri"]
-slot = "morning"
+slots = ["morning"]
 skill = "weekly-report"
 prompt = """
 Generate my weekly report for this week.
@@ -27,14 +28,14 @@ Save the final report under memory/.
 name = "Prep tomorrow meetings"
 enabled = true
 days = ["mon", "tue", "wed", "thu", "sun"]
-slot = "evening"
+slots = ["evening"]
 skill = "prep-tomorrow-meetings"
 
 [[tasks]]
 name = "Daily meeting link check"
 enabled = false
 days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-slot = "midday"
+slots = ["morning", "midday"]
 prompt = """
 Find meetings that need docs or links and prepare whatever is missing.
 """

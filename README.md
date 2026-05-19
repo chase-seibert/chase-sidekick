@@ -566,15 +566,24 @@ evening = "17:00"
 name = "Weekly report"
 enabled = true
 days = ["fri"]
-slot = "morning"
+slots = ["morning"]
 skill = "weekly-report"
 prompt = """
 Generate my weekly report for this week.
 Save the final report under memory/.
 """
+
+[[tasks]]
+name = "Daily meeting link check"
+enabled = true
+days = ["weekday"]
+slots = ["morning", "midday"]
+prompt = """
+Find meetings that need docs or links and prepare whatever is missing.
+"""
 ```
 
-Each task can use `skill`, `skills`, `prompt`, or a combination. Use `slot = "morning"` for one slot or `slots = ["morning", "evening"]` for multiple slots.
+Each task can use `skill`, `skills`, `prompt`, or a combination. Use `slots = ["morning"]` for one slot or `slots = ["morning", "evening"]` to run the same task more than once per day.
 
 Preview matching work without starting Codex:
 

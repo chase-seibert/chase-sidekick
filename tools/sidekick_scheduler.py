@@ -3,6 +3,7 @@
 
 Cron should call this script at each configured slot. The script exits without
 starting Codex unless an enabled task is scheduled for the current day and slot.
+Tasks must use slots = ["morning"] or slots = ["morning", "evening"].
 """
 import argparse
 import sys
@@ -235,23 +236,28 @@ def normalize_days(values: Any) -> List[str]:
 
 
 def task_slots(task: Dict[str, Any]) -> List[str]:
-    if "slots" in task:
-        raw_slots = task["slots"]
-    elif "slot" in task:
-        raw_slots = task["slot"]
-    else:
-        raise ScheduleError(f"Task {task_name(task)!r} must include slot or slots.")
+    if "slot" in task:
+        raise ScheduleError(f"Task {task_name(task)!r} must use slots, not slot.")
 
-    if isinstance(raw_slots, str):
-        raw_slots = [raw_slots]
+    if "slots" not in task:
+        raise ScheduleError(f"Task {task_name(task)!r} must include slots.")
+
+    raw_slots = task["slots"]
     if not isinstance(raw_slots, list):
-        raise ScheduleError(f"Task {task_name(task)!r} slot must be a string or list of strings.")
+        raise ScheduleError(f"Task {task_name(task)!r} slots must be a list of strings.")
 
     slots = []
     for slot in raw_slots:
         if not isinstance(slot, str):
             raise ScheduleError(f"Task {task_name(task)!r} slot names must be strings.")
-        slots.append(slot.strip().lower())
+        normalized = slot.strip().lower()
+        if not normalized:
+            raise ScheduleError(f"Task {task_name(task)!r} slot names must not be blank.")
+        if normalized not in slots:
+            slots.append(normalized)
+
+    if not slots:
+        raise ScheduleError(f"Task {task_name(task)!r} must include at least one slot.")
     return slots
 
 
