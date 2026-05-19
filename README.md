@@ -75,7 +75,7 @@ Current skills in `.agents/skills`:
 - **prep-tomorrow-meetings** - Open all meeting docs in Chrome for the next business day.
 - **project-activity** - Generate weekly project activity summaries from Slack and JIRA.
 - **project-review** - Generate comprehensive project review reports from PRD and tech spec documents.
-- **pto-block** - Block calendar for PTO and handle conflicting meetings.
+- **pto-block** - Block calendar for PTO, offsites, travel days, and conflicting meetings.
 - **quarto-report** - Write and render Quarto reports with text, tables, diagrams, PDF, HTML, and PowerPoint output.
 - **recent-docs** - Generate categorized summaries of recent Paper and Confluence docs from Chrome history.
 - **sev-review-prep** - Generate questions to ask during SEV review meetings based on Confluence SEV review documents.

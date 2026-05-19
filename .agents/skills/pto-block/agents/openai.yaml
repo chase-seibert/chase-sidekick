@@ -1,3 +1,4 @@
 interface:
-  display_name: "PTO Block"
-  short_description: "Block calendar for PTO periods"
+  display_name: "Calendar Block"
+  short_description: "Block PTO, offsites, and travel days"
+  default_prompt: "Use $pto-block to dry-run calendar blocking for my upcoming offsite."

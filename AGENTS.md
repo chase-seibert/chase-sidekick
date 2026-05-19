@@ -23,7 +23,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 ## Shared Skills
 
 - `.agents/skills` is the canonical checked-in skill tree for both Codex and Claude Code.
-- `.claude/skills` is a compatibility symlink to `../.agents/skills`.
+- `.claude/skills` is a compatibility symlink pointing at the canonical checked-in skill tree.
 - `AGENTS.md` is the canonical project instruction file for Codex. Use nested `AGENTS.md` files for narrower scoped guidance, and use per-skill `agents/openai.yaml` files for Codex UI metadata.
 - Every `SKILL.md` must include frontmatter with `name` and `description`.
 - Keep skill descriptions specific enough that Codex can decide when to invoke them.
@@ -32,7 +32,7 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Never put reusable skill source files under `memory/`, including `memory/*_skill/SKILL.md`; `memory/` is for generated reports, cached context, and personal working data.
 - When a skill writes reports or memories, write final files directly under the root `memory/` directory with a skill/client-prefixed filename; do not create memory subdirectories. The skill definition itself still belongs in `.agents/skills/<skill-name>/SKILL.md`.
 - Do not create `.codex/agents` for these Sidekick workflows; the current workflows are skills, not Codex subagent personas.
-- When creating a Skill, update @README.md "Available Skills" and "Project Structure"
+- When creating a Skill, update README.md "Available Skills" and "Project Structure"
 
 ## Local Context
 
@@ -40,9 +40,9 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 
 ## Safety
 
-- Do NOT ask for user confirmation before any remote write operation, including creating, updating, deleting, sending, declining, or changing permissions in external services.
+- Require explicit confirmation before destructive or externally visible remote write operations unless the user has already requested the exact action.
 - API calls and local file reads do not require confirmation.
-- Generated reports, cached context, and personal/work data should stay under root `/memory/` or `/local/` as appropriate. Temporary and intermediate artifacts should stay under the canonical temp directory via `$TMPDIR` or `/tmp/`.
+- Generated reports, cached context, and personal/work data should stay under the project-root `memory` and `local` directories as appropriate. Temporary and intermediate artifacts should stay under the canonical temp directory from the TMPDIR environment variable, or the system temp directory.
 - Generated reports and memory files under `memory/` must end with an exact bottom-of-report footer that names and links the primary skill used to generate the report: `This report generated using [chase-sidekick](https://github.com/chase-seibert/chase-sidekick) and the [<skill-name> skill](https://github.com/chase-seibert/chase-sidekick/tree/main/.agents/skills/<skill-name>).`.
 - Shared documentation must not include real names, email addresses, corporate URLs, issue IDs, document IDs, or other PII unless they are placeholder examples such as Alice, Bob, `example.com`, or `PROJ-123`.
 
