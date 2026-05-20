@@ -35,6 +35,13 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - For Paper edits, comments, or thread resolution, call `paper_read_document` first and pass returned receipts to Dropbox MCP write tools; continue to require explicit confirmation for externally visible writes unless the user has already requested the exact write.
 - Use `/dropbox`, `sidekick.clients.dropbox`, or the Dropbox skill/client only when Dropbox MCP is unavailable, lacks the needed operation, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
 
+## Slack Access
+
+- For Slack work, use the Codex Slack plugin first for channel and user search, channel reads, thread reads, public/private message search, drafts, sends, scheduling, and canvases.
+- For time-based Slack reading, use the plugin's search/read parameters or Slack date filters such as `after:YYYY-MM-DD`.
+- Use `/slack`, Dash MCP, `sidekick.clients.slack`, or other local Slack clients only when the Codex Slack plugin is unavailable, lacks the needed operation, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
+- Continue to require explicit confirmation before externally visible Slack writes unless the user has already requested the exact write; use Slack plugin drafts when the user has not reviewed the message.
+
 ## Shared Skills
 
 - `.agents/skills` is the canonical checked-in skill tree for both Codex and Claude Code.
