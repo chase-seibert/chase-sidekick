@@ -28,12 +28,9 @@ Use `python3`:
 ```bash
 python3 -m sidekick.clients.gcalendar list <time-min> <time-max> <max-results>
 python3 -m sidekick.clients.gcalendar get <event-id>
-python3 -m sidekick.clients.confluence get-page-from-link "<confluence-url>"
-python3 -m sidekick.clients.confluence read-page <page-id>
-python3 -m sidekick.clients.confluence read-page <page-id> --html
 ```
 
-Prefer the Confluence client for Confluence links. Prefer Dash MCP for reading Paper or Dropbox docs by link.
+Use Atlassian Rovo MCP first for Confluence links. Fall back to `sidekick.clients.confluence` only when Rovo is unavailable or raw storage HTML is required to verify a date section. Prefer Dash MCP for reading Paper or Dropbox docs by link.
 
 For Slack context, use the `/slack` skill. Do not send Slack messages or create Slack drafts as part of this skill. Only draft message text in the Codex response unless the user separately asks to send or draft in Slack.
 

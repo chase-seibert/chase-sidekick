@@ -9,13 +9,22 @@ allowed-tools: Bash, Read
 
 Find and visualize roadmap initiatives by recursively exploring issue hierarchies.
 
-When invoked, use the JIRA roadmap commands to handle the request: $ARGUMENTS
+When invoked, use Atlassian Rovo MCP first to handle the request: $ARGUMENTS
 
-## Available Commands
+## Primary Path: Atlassian Rovo MCP
+
+- Fetch the root issue with Rovo search/JQL and then fetch details by returned Atlassian resource ID when available.
+- Use Rovo JQL searches for children, for example `parent = PROJ-123`, scoped by project or issue type when requested.
+- Repeat child queries until the requested hierarchy depth is covered, tracking visited issue keys to avoid loops.
+- For writes such as labeling or parent changes, use Rovo update tools after the normal remote-write confirmation rule is satisfied.
+
+Use the local roadmap commands only when Rovo is unavailable, lacks the needed hierarchy detail, local streaming tree output is specifically useful, debugging the local client, or the user explicitly asks for the local client.
+
+## Sidekick CLI Fallback Commands
 
 ### Roadmap Hierarchy
 ```bash
-python -m sidekick.clients.jira roadmap-hierarchy <root-issue> [project] [issue-type]
+python3 -m sidekick.clients.jira roadmap-hierarchy <root-issue> [project] [issue-type]
 ```
 
 Recursively fetch and display an issue hierarchy tree.
@@ -27,7 +36,7 @@ Recursively fetch and display an issue hierarchy tree.
 
 ### Label Roadmap
 ```bash
-python -m sidekick.clients.jira label-roadmap <root-issue> [project] [--dry-run] [--limit N]
+python3 -m sidekick.clients.jira label-roadmap <root-issue> [project] [--dry-run] [--limit N]
 ```
 
 Automatically label issues in a roadmap hierarchy based on their prefix ancestry.

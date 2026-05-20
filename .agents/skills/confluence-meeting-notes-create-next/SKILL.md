@@ -7,13 +7,13 @@ description: Create the next dated or Next H1 section in an existing Confluence 
 
 Use this skill when asked to prepare, create, or add the next instance section for an existing Confluence 1:1 or recurring meeting notes page.
 
-This skill is intentionally instruction-only. Do not create helper scripts for the workflow. Use the existing Confluence and Google Calendar clients directly, edit raw Confluence storage HTML, and validate that the full-page update changes only the intended insertion range.
+This skill is intentionally instruction-only. Do not create helper scripts for the workflow. This is an explicit exception to the Rovo-first Confluence default: use the local Confluence client for raw storage HTML reads/writes, use the Google Calendar client for date lookup, edit raw Confluence storage HTML, and validate that the full-page update changes only the intended insertion range. Rovo may be used for discovery or simple reads, but do not write meeting-note changes through Rovo unless it exposes equivalent raw storage HTML semantics.
 
 Before editing, read [meeting-notes-docs.md](../confluence-meeting-notes-update/references/meeting-notes-docs.md). That reference is the shared source of truth for meeting-section boundaries, templates, bullet/table formats, calendar matching, and insertion placement.
 
 ## Commands
 
-Use `python3`:
+Use `python3` for the raw-storage Confluence workflow:
 
 ```bash
 python3 -m sidekick.clients.confluence get-page-from-link "<confluence-url>"

@@ -20,6 +20,14 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Keep auth logic inside the relevant client class unless a shared helper is already present.
 - Do not generate fixture, fake-client, self-test, or other test-only code unless the user explicitly asks for tests.
 
+## Atlassian Access
+
+- For Jira and Confluence work, use Atlassian Rovo MCP first for search, fetch, create, and update operations.
+- For natural-language Jira or Confluence discovery, use Rovo search. For explicit JQL, use Rovo JQL search. Fetch search-result details by returned Atlassian resource ID when available.
+- For direct Confluence page URLs or page IDs, use Rovo page fetch when Markdown or ADF content is sufficient.
+- Use Sidekick `/jira`, `/confluence`, and `sidekick.clients.jira` or `sidekick.clients.confluence` only when Rovo is unavailable, lacks the needed operation, raw Confluence storage HTML is required, local cache behavior is specifically needed, debugging the local clients, or the user explicitly asks for the local client.
+- Continue to require explicit confirmation before externally visible Jira or Confluence writes unless the user has already requested the exact write.
+
 ## Shared Skills
 
 - `.agents/skills` is the canonical checked-in skill tree for both Codex and Claude Code.

@@ -22,7 +22,7 @@ Assists with pre-reading documents before meetings by analyzing the content and 
 
 1. **Read Primary Document**
    - Extract document URL from user request
-   - Read content using appropriate client (Dropbox Paper, Confluence, Google Docs)
+   - Read content using the appropriate integration (Dropbox Paper, Atlassian Rovo MCP for Confluence, Google Docs)
    - **Capture the exact document title from the source**
    - Identify key themes, decisions, and action items
 
@@ -95,7 +95,7 @@ This report generated using [chase-sidekick](https://github.com/chase-seibert/ch
 ## Supported Document Types
 
 - **Dropbox Paper**: Use `dropbox` skill to read
-- **Confluence**: Use `confluence` skill to read
+- **Confluence**: Use Atlassian Rovo MCP to read; fall back to the `confluence` skill/client only when Rovo is unavailable or raw storage HTML is required
 - **Google Docs**: Use web fetch or appropriate integration
 
 ## Example Invocation

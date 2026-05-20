@@ -39,10 +39,10 @@ This report generated using [chase-sidekick](https://github.com/chase-seibert/ch
 ## Workflow
 
 1. Load the quarto-report skill before writing the final report.
-2. Fetch each Confluence page as Markdown. Prefer the Confluence client or Confluence skill for Confluence links.
+2. Fetch each Confluence page as Markdown. Prefer Atlassian Rovo MCP for Confluence links; fall back to the Confluence client or skill only when Rovo is unavailable or raw storage HTML is required.
 3. Keep a temporary working directory under the system temp directory for fetched Markdown, extracted sections, and issue metadata.
 4. Parse each MMR for title, covered month, Summary, Key Improvements, Key Concerns, SEVs, MMR AIs, SEV AIs, and any detailed metric sections referenced by Summary.
-5. Query JIRA for MMR AIs, SEVs, SEV AIs, issue status, issue estimates, assignees/reporters, linked issues, labels, resolution dates, and comments when needed to explain investigation outcomes.
+5. Query JIRA through Atlassian Rovo MCP for MMR AIs, SEVs, SEV AIs, issue status, issue estimates, assignees/reporters, linked issues, labels, resolution dates, and comments when needed to explain investigation outcomes. Fall back to the JIRA client only when Rovo is unavailable or lacks the needed field.
 6. Determine the reporting year and the most recent full calendar month relative to the current date. For example, if the current date is in May, the most recent full month is April 1 through May 1 exclusive.
 7. Generate a Quarto report in the required Core Eng Ops Review structure below. Preserve the user's additional context or questions in the narrative, next steps, or feedback response.
 8. Render the report and verify the output file exists.
@@ -202,7 +202,7 @@ MMR pages commonly contain:
 
 Use the Summary section as the primary executive source, then verify details against specific sections when a concern or action item needs context.
 
-For issue keys, use a generic JIRA key pattern and then validate each candidate through JIRA before treating it as real. Some Confluence exports may glue issue keys to HTML or UUID-like text, so validation matters.
+For issue keys, use a generic JIRA key pattern and then validate each candidate through Rovo/JIRA before treating it as real. Some Confluence exports may glue issue keys to HTML or UUID-like text, so validation matters.
 
 For terminal status, treat Done, Resolved, Closed, Canceled, and equivalent workflow statuses as terminal. If a status is unfamiliar, infer conservatively and mention the ambiguity if it affects counts.
 

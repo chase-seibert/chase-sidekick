@@ -44,16 +44,9 @@ For each project area:
 
 1. Collect links and source hints from the selected project entry, related local index entries, recent weekly-report references, and any local context files they point to.
 2. Add shared strategic context only when local context links it to the selected project. Do not add hard-coded docs, channels, or roadmap items from the skill itself.
-3. Fetch Confluence pages with the Confluence client or skill:
-   ```bash
-   python3 -m sidekick.clients.confluence get-content-from-link "<url>"
-   ```
+3. Fetch Confluence pages with Atlassian Rovo MCP when Markdown or ADF is sufficient. Fall back to the Confluence client or skill only when Rovo is unavailable or raw storage HTML is required.
 4. For Dropbox Paper links, follow local connector preferences from `AGENTS.override.md` or repo guidance. If the preferred connector is unavailable, use the Dropbox skill/client as a fallback.
-5. Use JIRA as a supporting source for milestones and status:
-   ```bash
-   python3 -m sidekick.clients.jira get-issue ISSUE-123
-   python3 -m sidekick.clients.jira query-by-parent ISSUE-123
-   ```
+5. Use JIRA as a supporting source for milestones and status through Atlassian Rovo MCP. Fetch direct issues with Rovo search/fetch and child epics with Rovo JQL such as `parent = ISSUE-123`; fall back to `sidekick.clients.jira` only when Rovo is unavailable or lacks the needed field.
    Fetch linked roadmap initiatives first, then child epics. Use status fields, summaries, target dates, and recent comments where available.
 6. Use the `/slack` skill pattern for Slack. For time-based reading, search with `after:YYYY-MM-DD`:
    ```json

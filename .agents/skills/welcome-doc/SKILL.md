@@ -29,7 +29,7 @@ The agent will first try to figure out whatever it can by reading any provided l
 1. **Gathers Information**: Prompts for all necessary details through interactive questions
 2. **Fetches Context**:
    - Reads template/example documents
-   - Queries JIRA for roadmap information
+   - Queries JIRA through Atlassian Rovo MCP for roadmap information
    - Extracts team and project context
 3. **Generates Document**: Creates a personalized Confluence welcome document with:
    - Personalized welcome message
@@ -37,7 +37,7 @@ The agent will first try to figure out whatever it can by reading any provided l
    - Roadmap overview with links
    - Key people to meet
    - 30/60/90 day goals
-4. **Saves to Confluence**: Creates the page in the specified Confluence space
+4. **Saves to Confluence**: Creates the page in the specified Confluence space through Atlassian Rovo MCP
 
 ## Examples
 
@@ -108,8 +108,8 @@ Returns the Confluence page URL when complete.
 
 ## Notes
 
-- Uses existing skills: /confluence, /jira, /dropbox
-- Fetches real roadmap data from JIRA
+- Uses Atlassian Rovo MCP for Confluence/JIRA, with `/confluence`, `/jira`, and `/dropbox` as fallbacks where appropriate
+- Fetches real roadmap data from JIRA through Rovo first
 - Extracts content from example documents
 - Filters and organizes Slack channels
 - Generates appropriate 30/60/90 goals based on role

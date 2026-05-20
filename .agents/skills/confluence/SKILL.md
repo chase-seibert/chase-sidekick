@@ -7,13 +7,22 @@ allowed-tools: Bash, Read
 
 # Confluence Skill
 
-Manage Confluence pages with search, read, and write operations.
+Rovo-first guide for Confluence pages, with the local Sidekick client kept as a fallback.
 
-When invoked, use the Confluence client to handle the request: $ARGUMENTS
+When invoked, use Atlassian Rovo MCP first to handle the request: $ARGUMENTS
 
-**Note:** Confluence commands return Markdown by default. Use `--html` flag only if you need raw HTML for content manipulation.
+## Primary Path: Atlassian Rovo MCP
 
-## Available Commands
+- Natural-language discovery: use Rovo search.
+- Page details from search results: fetch by returned Atlassian resource ID when available.
+- Direct page URL or page ID: use Rovo page fetch when Markdown or ADF is sufficient.
+- Page writes: use Rovo create/update page tools, after the normal remote-write confirmation rule is satisfied.
+
+Use the local Sidekick client only when Rovo is unavailable, lacks the needed operation, raw Confluence storage HTML is required, local cache behavior is specifically useful, debugging the client itself, or the user explicitly asks for the local client.
+
+**Fallback note:** Local Confluence commands return Markdown by default. Use `--html` only when raw storage HTML is required for content manipulation.
+
+## Sidekick CLI Fallback Commands
 
 ### Search for Pages
 ```bash
@@ -33,7 +42,7 @@ python3 -m sidekick.clients.confluence get-page-by-title "Title" SPACE
 
 ### Read Page Content
 ```bash
-# Prefer this when the user provides a Confluence URL.
+# Fallback for Confluence URLs when Rovo cannot be used.
 # Supports full page URLs and tiny URLs:
 # - https://domain.atlassian.net/wiki/spaces/SPACE/pages/123456/Title
 # - https://domain.atlassian.net/wiki/x/SHORTID
@@ -66,7 +75,7 @@ For creating or preparing the next meeting notes section, use the
 
 ## Search Cache
 
-The Confluence client automatically caches search query to page mappings for faster repeated searches.
+The local Confluence client automatically caches search query to page mappings for faster repeated searches.
 
 **Cache Management:**
 ```bash
@@ -79,9 +88,9 @@ python3 -m sidekick.clients.confluence cache-clear
 When the user asks to:
 - "Search for API documentation in Confluence" - Use search command
 - "Read the contents of my 1:1 doc with Bob" - Search for the doc and read it
-- "Read this Confluence URL" - Use get-content-from-link; it accepts both full page URLs and /wiki/x tiny URLs
+- "Read this Confluence URL" - Use Rovo page fetch first; fall back to get-content-from-link for full page URLs and /wiki/x tiny URLs
 - "Add a topic to my 1:1 with Alice" - Use the confluence-meeting-notes-update skill
 - "Create the next section for this meeting doc" - Use the confluence-meeting-notes-create-next skill
-- "Update the team wiki page" - Use update-page command
+- "Update the team wiki page" - Use Rovo update page first; fall back to update-page when raw storage HTML is required or Rovo cannot be used
 
 For full documentation, see the detailed Confluence skill documentation in this folder.

@@ -20,7 +20,7 @@ This skill helps you:
 ## Prerequisites
 
 - `@AGENTS.override.md` file with your 1:1 and meeting doc links
-- Configured Dropbox and Atlassian credentials in `.env`
+- Configured Dropbox access and Atlassian Rovo MCP for Confluence/JIRA context
 - `memory/people.json` file for person/email data and, when available, Slack user IDs
 
 ## Usage Pattern

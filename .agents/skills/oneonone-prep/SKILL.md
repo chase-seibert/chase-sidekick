@@ -60,7 +60,7 @@ If relationship is uncertain, proceed as cross-functional partner and mention un
 
 Find the person's 1:1 doc from `local/one-on-ones.md`. Use the appropriate reader:
 
-- Confluence links: use the `confluence` skill/client.
+- Confluence links: use Atlassian Rovo MCP first; fall back to the `confluence` skill/client only when Rovo is unavailable or raw storage HTML is required.
 - Paper links: prefer Dash MCP over `/dropbox` when reading Paper docs by link.
 - The cached local report at `memory/weekly_report.md` is acceptable when it is recent enough.
 

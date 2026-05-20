@@ -48,9 +48,13 @@ You already have context form `@AGENTS.override.md` for
 
 Query JIRA for all issues updated in the specified time period (default 30 days):
 
-```bash
-python3 -m sidekick.clients.jira query 'project IN ("KEY1", "KEY2", "KEY3") AND updated >= -30d' 200
+Use Atlassian Rovo MCP JQL search first:
+
+```text
+project IN ("KEY1", "KEY2", "KEY3") AND updated >= -30d
 ```
+
+Fall back to `python3 -m sidekick.clients.jira query ...` only when Rovo is unavailable or lacks the needed fields.
 
 Note: escape project keys with double quotes because they can be reserved words
 
@@ -71,7 +75,7 @@ Group by project for the analysis report.
 
 ### Step 4: Query Roadmap Initiatives and Build Hierarchies
 
-Use the /jira-roadmap skill to query for all relevant potential parents, starting at a root issue. 
+Use Atlassian Rovo MCP first to query for all relevant potential parents, starting at a root issue. Use the `/jira-roadmap` skill only as a fallback when Rovo is unavailable or local recursive tree output is specifically useful.
 
 This captures:
 - All Epics currently under this initiative
@@ -198,9 +202,7 @@ Wait for user response before proceeding.
 
 Based on user selection, update JIRA for each confirmed Epic assignment:
 
-```bash
-python3 -m sidekick.clients.jira update-issue KEY1-123 '{"parent": {"key": "INIT-456"}}'
-```
+Use Atlassian Rovo MCP update issue first to set the parent field, after the user has confirmed the update set. Fall back to `python3 -m sidekick.clients.jira update-issue KEY1-123 '{"parent": {"key": "INIT-456"}}'` only when Rovo is unavailable or cannot update the needed field.
 
 **Error Handling:**
 - Catch and log all errors without stopping

@@ -21,7 +21,7 @@ This agent helps you:
 ## Prerequisites
 
 - `@AGENTS.override.md` file with team and people context
-- Configured Dropbox and Atlassian credentials in `.env`
+- Configured Dropbox access and Atlassian Rovo MCP for Jira/Confluence
 - One or more links to project documents (Confluence, Paper, or Figma)
 
 ## Usage Pattern
@@ -42,9 +42,7 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 ```
 
 **For Confluence pages:**
-```bash
-python3 -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > "$TMP_DIR/doc_name.md"
-```
+Use Atlassian Rovo MCP page fetch first when Markdown or ADF is sufficient. If Rovo is unavailable or raw storage HTML is required, fall back to `python3 -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > "$TMP_DIR/doc_name.md"`.
 
 **For Dropbox Paper docs:**
 ```bash
@@ -60,13 +58,7 @@ Currently not supported - note this in the report as "Link provided but content 
 
 If JIRA issue IDs are found in the documents, fetch them to get additional context:
 
-```bash
-# For the Epic
-python3 -m sidekick.clients.jira get-issue PROJ-123 > "$TMP_DIR/jira-epic.txt"
-
-# For any related issues in the roadmap
-python3 -m sidekick.clients.jira roadmap-hierarchy PROJ-123 PROJ > "$TMP_DIR/jira-hierarchy.txt"
-```
+Use Atlassian Rovo MCP first. Fetch direct issue details with Rovo search/fetch, use Rovo JQL for related issues or `parent = PROJ-123`, and fall back to `python3 -m sidekick.clients.jira get-issue ...` or `python3 -m sidekick.clients.jira roadmap-hierarchy ...` only when Rovo is unavailable or lacks the needed hierarchy detail.
 
 JIRA issues may contain:
 - DRI names in assignee field or description
@@ -402,14 +394,16 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 # Link 1: https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/
 # Link 2: https://example.com/docs/project-brief
 
-# Fetch Confluence page
-python3 -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > "$TMP_DIR/tech_spec.md"
+# Fetch the Confluence page through Atlassian Rovo MCP first.
+# If Rovo cannot be used:
+# python3 -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > "$TMP_DIR/tech_spec.md"
 
 # Fetch Paper doc
 python3 -m sidekick.clients.dropbox get-paper-contents-from-link "https://example.com/docs/project-brief" > "$TMP_DIR/prd.md"
 
-# Fetch JIRA epic
-python3 -m sidekick.clients.jira get-issue PROJ-123 > "$TMP_DIR/jira-epic.txt"
+# Fetch the JIRA epic through Atlassian Rovo MCP first.
+# If Rovo cannot be used:
+# python3 -m sidekick.clients.jira get-issue PROJ-123 > "$TMP_DIR/jira-epic.txt"
 
 # Analyze documents and generate report at memory/project-review-project-name.md
 
@@ -435,7 +429,9 @@ cat memory/project-review-basic-gating.md
 
 # Re-fetch documents
 python3 -m sidekick.clients.dropbox get-paper-contents-from-link "$PRD_LINK" > "$TMP_DIR/prd-new.md"
-python3 -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > "$TMP_DIR/tech-spec-new.md"
+# Re-fetch Confluence through Atlassian Rovo MCP first.
+# If Rovo cannot be used:
+# python3 -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > "$TMP_DIR/tech-spec-new.md"
 
 # Compare with previous versions
 # Update report sections that changed

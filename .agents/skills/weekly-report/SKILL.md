@@ -19,7 +19,7 @@ This agent helps you:
 ## Prerequisites
 
 - `@AGENTS.override.md` file with your 1:1 docs, meeting docs, and Slack channels
-- Configured Dropbox and Atlassian credentials in `.env`
+- Configured Dropbox access and Atlassian Rovo MCP for Confluence/JIRA context
 
 ## Usage Pattern
 

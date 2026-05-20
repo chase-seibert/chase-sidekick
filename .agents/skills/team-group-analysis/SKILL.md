@@ -27,11 +27,13 @@ MYTEAM_GROUP_JQL=project IN ("PROJ1", "PROJ2", "PROJ3")
 
 Query completed issues from your group:
 
-```bash
-python3 -m sidekick.clients.jira query \
-  'project IN ("PROJ1", "PROJ2", "PROJ3") AND resolved >= -90d AND parent is EMPTY' \
-  > team_completed_90days.txt
+Use Atlassian Rovo MCP JQL search first:
+
+```text
+project IN ("PROJ1", "PROJ2", "PROJ3") AND resolved >= -90d AND parent is EMPTY
 ```
+
+Fall back to `python3 -m sidekick.clients.jira query ...` only when Rovo is unavailable or local file output is specifically useful.
 
 ### Step 2: Analyze Themes
 

@@ -7,50 +7,59 @@ allowed-tools: Bash, Read
 
 # JIRA Skill
 
-Command-line interface for JIRA operations.
+Rovo-first guide for JIRA operations, with the local Sidekick client kept as a fallback.
 
-When invoked, use the JIRA client to handle the request: $ARGUMENTS
+When invoked, use Atlassian Rovo MCP first to handle the request: $ARGUMENTS
 
-## Available Commands
+## Primary Path: Atlassian Rovo MCP
+
+- Natural-language discovery: use Rovo search.
+- Explicit JQL: use Rovo JQL search.
+- Issue details: fetch by returned Atlassian resource ID when available.
+- Issue writes: use Rovo create, edit, transition, worklog, or link tools as appropriate, after the normal remote-write confirmation rule is satisfied.
+
+Use the local Sidekick client only when Rovo is unavailable, lacks the needed operation, local cache/output behavior is specifically useful, debugging the client itself, or the user explicitly asks for the local client.
+
+## Sidekick CLI Fallback Commands
 
 ### Query Issues
 ```bash
-python -m sidekick.clients.jira query "JQL query" [max_results]
+python3 -m sidekick.clients.jira query "JQL query" [max_results]
 ```
 
 ### Get Single Issue
 ```bash
-python -m sidekick.clients.jira get-issue ISSUE-KEY
+python3 -m sidekick.clients.jira get-issue ISSUE-KEY
 ```
 
 ### Get Multiple Issues
 ```bash
-python -m sidekick.clients.jira get-issues-bulk ISSUE-1 ISSUE-2 ISSUE-3
+python3 -m sidekick.clients.jira get-issues-bulk ISSUE-1 ISSUE-2 ISSUE-3
 ```
 
 ### Query by Parent
 ```bash
-python -m sidekick.clients.jira query-by-parent PARENT-ISSUE [max_results]
+python3 -m sidekick.clients.jira query-by-parent PARENT-ISSUE [max_results]
 ```
 
 ### Query by Label
 ```bash
-python -m sidekick.clients.jira query-by-label LABEL [project] [max_results]
+python3 -m sidekick.clients.jira query-by-label LABEL [project] [max_results]
 ```
 
 ### Update Issue
 ```bash
-python -m sidekick.clients.jira update-issue ISSUE-KEY '{"field": "value"}'
+python3 -m sidekick.clients.jira update-issue ISSUE-KEY '{"field": "value"}'
 ```
 
 ### Add Label
 ```bash
-python -m sidekick.clients.jira add-label ISSUE-KEY label-name
+python3 -m sidekick.clients.jira add-label ISSUE-KEY label-name
 ```
 
 ### Remove Label
 ```bash
-python -m sidekick.clients.jira remove-label ISSUE-KEY label-name
+python3 -m sidekick.clients.jira remove-label ISSUE-KEY label-name
 ```
 
 ## Common JQL Examples

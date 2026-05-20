@@ -26,7 +26,7 @@ Example:
 
 ### Read the SEV Document
 
-Use the `/confluence` skill to read the provided Confluence page. The page should be a completed (or in-progress) SEV review document.
+Use Atlassian Rovo MCP to read the provided Confluence page. Fall back to the `/confluence` skill only when Rovo is unavailable or raw storage HTML is required. The page should be a completed (or in-progress) SEV review document.
 
 ### Analyze Completeness
 

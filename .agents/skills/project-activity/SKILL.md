@@ -22,7 +22,7 @@ This agent helps you:
 
 - `local/projects.md` file with project structure
 - Configured Dash MCP for Slack access
-- Configured JIRA client for issue access
+- Atlassian Rovo MCP for JIRA issue access; local JIRA client only as a fallback
 
 ## Usage Pattern
 
@@ -81,10 +81,7 @@ For each JIRA Roadmap Initiative (DBX-XXXX):
 
 **A. Fetch child Epics:**
 
-```bash
-# Query for child Epics of the Roadmap Initiative
-python -m sidekick.clients.jira query-by-parent DBX-XXXX
-```
+Use Atlassian Rovo MCP JQL search first, for example `parent = DBX-XXXX`. Scope by project or issue type when useful.
 
 This returns all child issues (Epics, Stories, etc.). Filter for:
 - Issue type = "Epic"
@@ -94,10 +91,7 @@ Track the list of child Epic keys for this Roadmap Initiative.
 
 **B. Fetch Roadmap Initiative comments:**
 
-```bash
-# Use the JIRA client to get issue with comments
-python -m sidekick.clients.jira get-issue DBX-XXXX
-```
+Use Rovo search/fetch for the roadmap initiative. Fetch by returned Atlassian resource ID when available.
 
 Extract:
 - Issue status field (for overall status)
@@ -106,11 +100,7 @@ Extract:
 
 **C. Fetch Epic comments (for each child Epic):**
 
-For each child Epic found in step A:
-
-```bash
-python -m sidekick.clients.jira get-issue EPIC-KEY
-```
+For each child Epic found in step A, use Rovo search/fetch to retrieve the Epic details and comments. Fall back to `python3 -m sidekick.clients.jira query-by-parent ...` or `python3 -m sidekick.clients.jira get-issue ...` only when Rovo is unavailable or lacks the needed comment/detail fields.
 
 Extract:
 - Epic status
