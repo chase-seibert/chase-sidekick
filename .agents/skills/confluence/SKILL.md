@@ -1,13 +1,14 @@
 ---
 name: confluence
 description: Manage Confluence pages with search, read, and write operations
-argument-hint: <operation> [args]
 allowed-tools: Bash, Read
 ---
 
 # Confluence Skill
 
 Rovo-first guide for Confluence pages, with the local Sidekick client kept as a fallback.
+
+**Try Rovo first for reads and writes.** The local Sidekick Confluence client is for fallback, debugging, local cache behavior, or raw-storage compatibility work.
 
 When invoked, use Atlassian Rovo MCP first to handle the request: $ARGUMENTS
 
@@ -69,7 +70,7 @@ python3 -m sidekick.clients.confluence update-page PAGE_ID content.html [--title
 ```
 
 For meeting-note agenda updates, use the `confluence-meeting-notes-update`
-skill. It performs safe raw-storage HTML edits with target-range validation.
+skill. It performs safe Rovo ADF edits with structural validation.
 For creating or preparing the next meeting notes section, use the
 `confluence-meeting-notes-create-next` skill.
 
@@ -86,8 +87,8 @@ python3 -m sidekick.clients.confluence cache-clear
 ## Example Usage
 
 When the user asks to:
-- "Search for API documentation in Confluence" - Use search command
-- "Read the contents of my 1:1 doc with Bob" - Search for the doc and read it
+- "Search for API documentation in Confluence" - Use Rovo search first; fall back to the search command only if needed
+- "Read the contents of my 1:1 doc with Bob" - Use Rovo search/fetch first; fall back to the local client only if needed
 - "Read this Confluence URL" - Use Rovo page fetch first; fall back to get-content-from-link for full page URLs and /wiki/x tiny URLs
 - "Add a topic to my 1:1 with Alice" - Use the confluence-meeting-notes-update skill
 - "Create the next section for this meeting doc" - Use the confluence-meeting-notes-create-next skill

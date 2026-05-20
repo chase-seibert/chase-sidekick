@@ -2,9 +2,15 @@
 
 Manage Confluence pages with search, read, and write operations.
 
+## Rovo First
+
+Try Atlassian Rovo MCP first for Confluence reads and writes. The local Sidekick Confluence CLI documented here is a fallback for cases where Rovo is unavailable, the user explicitly asks for the local client, local cache/debug behavior is needed, or a legacy raw-storage compatibility workflow requires it.
+
+For meeting-note workflows, prefer the checked-in meeting-notes skills. They use Rovo ADF as the safe structured update format and validate that existing notes are not changed outside the intended section.
+
 ## Overview
 
-This skill provides command-line access to Confluence with:
+This skill provides fallback command-line access to Confluence with:
 - Search for pages by title or CQL queries
 - Read page content and metadata from page IDs, full page URLs, or tiny URLs
 - Create new pages with optional parent hierarchy
@@ -27,7 +33,7 @@ ATLASSIAN_API_TOKEN=your_api_token_here
 
 Get API token at: https://id.atlassian.com/manage-profile/security/api-tokens
 
-## Commands
+## Fallback CLI Commands
 
 ### Search for Pages
 
@@ -215,13 +221,15 @@ Updated page: 123456789: API Documentation [DEV] (v6)
 
 For adding topics to 1:1 or recurring meeting notes, use the
 `confluence-meeting-notes-update` skill instead of the generic Confluence
-client. That workflow reads raw Confluence storage HTML, changes only a safe
-target region such as `Next` or the next dated section, and validates that the
-diff does not touch unrelated page content.
+client. That workflow reads and writes Confluence through Rovo ADF, changes
+only a safe target region such as `Next` or the next dated section, and
+validates that unrelated page content is unchanged. The raw-storage local
+client path is only a fallback when Rovo is unavailable.
 
 ### Content Update Best Practices
 
-When updating Confluence pages, follow these guidelines for managing sections:
+When updating Confluence pages through Rovo or the fallback local client, follow
+these guidelines for managing sections:
 
 **1. Never Add Duplicate Items**
 
@@ -295,7 +303,10 @@ When creating a new dated section, place it at the top (after any "Next" section
 <p>Today's meeting notes - this should be at the top!</p>
 ```
 
-**Example Update Workflow**
+**Fallback Raw-Storage Update Workflow**
+
+Use this only when Rovo cannot perform the operation or raw Confluence storage
+HTML is specifically required.
 
 ```bash
 # 1. Read current page content

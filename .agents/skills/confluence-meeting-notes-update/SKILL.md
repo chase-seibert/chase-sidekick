@@ -7,13 +7,21 @@ description: Safely update Confluence meeting notes by changing only Next, the t
 
 Use this skill when asked to update a Confluence meeting notes page, add an item to a future agenda, replace an AI placeholder, or add notes to the current meeting section.
 
-This skill is intentionally instruction-only. Do not create helper scripts for the workflow. This is an explicit exception to the Rovo-first Confluence default: use the local Confluence client for raw storage HTML reads/writes, edit raw Confluence storage HTML, and validate that the full-page update changes only the intended region. Rovo may be used for discovery or simple reads, but do not write meeting-note changes through Rovo unless it exposes equivalent raw storage HTML semantics.
+This skill is intentionally instruction-only. Do not create helper scripts for the workflow. Use Atlassian Rovo MCP for Confluence reads and writes, and use ADF as the safe structured edit format. The local Confluence client is a fallback only when Rovo is unavailable.
 
 Before identifying meeting sections, date headings, templates, or bullet/table formats, read [meeting-notes-docs.md](references/meeting-notes-docs.md). That reference is the shared source of truth for Confluence meeting notes document shapes.
 
 ## Commands
 
-Use `python3` for the raw-storage Confluence workflow:
+Use Atlassian Rovo MCP for the primary workflow:
+
+```text
+getConfluencePage(cloudId, pageId, contentFormat="adf")
+updateConfluencePage(cloudId, pageId, body=<ADF JSON>, contentFormat="adf")
+getConfluencePage(cloudId, pageId, contentFormat="markdown")
+```
+
+Use `python3` only as a fallback when Rovo is unavailable:
 
 ```bash
 python3 -m sidekick.clients.confluence get-page-from-link "<confluence-url>"
@@ -28,7 +36,7 @@ python3 -m sidekick.clients.gcalendar list <time-min> <time-max> <max-results>
 python3 -m sidekick.clients.gcalendar get <event-id>
 ```
 
-Never update from Markdown conversion. Read Markdown only for human orientation if useful; all writes must be based on raw storage HTML from `read-page --html`.
+Never update meeting notes from Markdown conversion. Read Markdown only for human orientation if useful; all writes must be based on the ADF document fetched from Rovo. If falling back to the local client, use raw storage HTML and the legacy range checks.
 
 ## Safe Targets
 
@@ -39,17 +47,18 @@ A valid update must affect exactly one of these regions:
 - The insertion point for one new dated or `Next` H1 section.
 - A unique `$AI_REPLACE` placeholder.
 - The first empty Confluence Note macro.
+- A new AI summary note panel inserted inside exactly one chosen meeting section.
 - For table-format agenda updates, one intended table row or one intended table cell inside the chosen section.
 
 ## Workflow
 
-1. Resolve the page ID from the link if needed, then fetch page details and raw storage HTML.
-2. Identify H1 section boundaries in raw HTML. A section starts after its `<h1>` and ends before the next top-level `<h1>` or end of document.
-3. Build the proposed after-HTML by changing only one safe target.
-4. Before writing, compare before and after HTML and verify every changed byte is within the intended target range.
-5. Immediately before writing, fetch raw storage HTML again. If the page changed outside the intended target, stop and re-plan against the latest content.
-6. Write the entire after-HTML with `update-page`.
-7. Fetch raw storage HTML again and verify the live page matches the intended after-HTML, with no out-of-target changes relative to the original.
+1. Resolve the page ID from the link if needed, then fetch page details and ADF with Rovo.
+2. Identify top-level ADF H1 section boundaries. A section starts after a top-level `heading` node with `attrs.level == 1` and ends before the next top-level H1 or end of document.
+3. Build the proposed after-ADF by changing only one safe target.
+4. Before writing, compare before and after ADF and verify every changed top-level node is inside the intended target section or insertion point.
+5. Immediately before writing, fetch ADF again. If the page changed outside the intended target, stop and re-plan against the latest content.
+6. Write the entire after-ADF with Rovo `updateConfluencePage(..., contentFormat="adf")`.
+7. Fetch ADF again and verify the live page matches the intended after-ADF, with no out-of-target changes relative to the original.
 
 Do not save rollback files. If a post-update check fails, report the unsafe region and point the user to Confluence version history.
 
@@ -63,7 +72,7 @@ Use placeholder mode when the user asks to replace a placeholder or when section
 - If `$AI_REPLACE` appears more than once, refuse and ask for a more specific target.
 - If `$AI_REPLACE` is absent, find the first empty Confluence Note macro.
 
-An empty Note macro is an `ac:structured-macro` with `ac:name="note"` whose body has no meaningful text after stripping tags, empty paragraphs, comments, and whitespace. Replace the empty Note macro body, not unrelated page content. If Note detection is ambiguous, refuse.
+An empty Note macro is an ADF `panel` with `attrs.panelType == "note"` whose body has no meaningful text after stripping empty paragraphs and whitespace. Replace the empty note panel body, not unrelated page content. If Note detection is ambiguous, refuse.
 
 ## Agenda Updates
 
@@ -80,27 +89,31 @@ When adding a new section, use the shared document-shape reference for placement
 
 ## Format Detection
 
-Use the shared document-shape reference to classify the chosen section as bullet format, table format, or empty. Do not count lists nested inside a table as the section's top-level list format.
+Use the shared document-shape reference to classify the chosen section as bullet format, table format, or empty. Do not count lists nested inside a table node as the section's top-level list format.
 
 ## Bullet Format
 
-Append a new item to the first top-level list in the target section:
+Append a new item to the first top-level ADF `bulletList` in the target section:
 
-```html
-<li><p>Agenda item text</p></li>
+```json
+{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"Agenda item text"}]}]}
 ```
 
-If the target section has no list, create a `<ul>` at the start of the section body. Escape user-provided text for HTML unless intentionally inserting reviewed storage HTML.
+If the target section has exactly one empty bullet placeholder, replace that placeholder with the new bullet. If the target section has no list, create a top-level ADF `bulletList` at the start of the section body. Insert user-provided text as ADF text nodes, not HTML.
+
+## AI Summary Notes
+
+For "insert an AI summary note", insert a top-level ADF `panel` with `attrs.panelType == "note"` inside the chosen meeting section. The panel content should be one or more paragraphs containing the supplied summary text. Do not modify preamble/template panels above the first real meeting section.
 
 ## Table Format
 
 Table-format docs often have one row per person or one row per agenda/demo item. Prefer updating the current user's row when it exists.
 
-Find the current user from `sidekick.config.get_user_config()` or `.env` (`USER_NAME`, `USER_EMAIL`), and resolve the Confluence account ID with `ConfluenceClient.get_user_account_id(USER_EMAIL)` when needed.
+Find the current user from local context or `.env` (`USER_NAME`, `USER_EMAIL`) when needed.
 
 To find the user's row, look for exactly one body row containing any of:
 
-- `<ri:user ri:account-id="...">` for the current user's account ID.
+- ADF mention nodes for the current user.
 - A visible mention or text matching `USER_NAME`.
 - A visible email or username matching `USER_EMAIL`.
 
@@ -110,24 +123,24 @@ If no own row exists, clone an existing body row only when the table clearly use
 
 ## Safety Validation
 
-Before writing, compute the exact target range in the original HTML. Then compare before and after content:
+Before writing, compute the exact target section or insertion index in the original ADF. Then compare before and after content:
 
-- Prefix before the target range must be byte-for-byte identical.
-- Suffix after the target range must be byte-for-byte identical.
-- All inserted or replaced content must be inside the target range.
-- Page title and unrelated sections must not change.
-- Re-fetch the page immediately before `update-page`; if latest storage HTML no longer matches the original outside the target range, do not write.
+- All top-level nodes before the target range must be structurally identical.
+- All top-level nodes after the target range must be structurally identical.
+- All inserted or replaced nodes must be inside the target range.
+- Page title, preamble, templates, unrelated sections, and existing dated meeting notes must not change.
+- Re-fetch the page immediately before `updateConfluencePage`; if latest ADF no longer matches the original outside the target range, do not write.
 
-For section updates, the target range is the section body after the H1 and before the next top-level H1. For placeholder updates, it is the marker span or empty Note macro body. For table updates, narrow the target range to the intended row or cell whenever possible.
+For section updates, the target range is the section body after the H1 and before the next top-level H1. For placeholder updates, it is the marker text node or empty note panel body. For table updates, narrow the target range to the intended row or cell whenever possible.
 
-After writing, fetch the page again with `read-page --html`. Verify the live HTML equals the intended after-HTML. If Confluence normalizes storage HTML, compare again using the same allowed-range confinement check and report any unexpected normalization.
+After writing, fetch the page again with Rovo ADF and Markdown. Verify the live ADF equals the intended after-ADF except for Confluence-added `localId` values on newly inserted nodes. Compare again using the same allowed-range confinement check and report any unexpected normalization.
 
 ## Refusal Cases
 
 Refuse to update when:
 
 - The page is not a Confluence page.
-- Raw storage HTML cannot be fetched.
+- ADF cannot be fetched through Rovo.
 - No safe target can be identified.
 - Multiple `Next` sections or placeholders make the target ambiguous.
 - A top template or static preamble is ambiguous and the requested update could modify it by mistake.
