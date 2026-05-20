@@ -19,7 +19,7 @@ This agent helps you:
 ## Prerequisites
 
 - `@AGENTS.override.md` file with your 1:1 docs, meeting docs, and Slack channels
-- Configured Dropbox access and Atlassian Rovo MCP for Confluence/JIRA context
+- Configured Dropbox MCP access for Paper and Atlassian Rovo MCP for Confluence/JIRA context
 
 ## Usage Pattern
 
@@ -53,7 +53,7 @@ After completing ALL batches, proceed to Step 3 (consolidation).
 2. Use `slack_search_messages` with `after:YYYY-MM-DD in:#channel-name` query and pagination
 3. Format results as Markdown (see `/slack` skill for formatting example)
 
-**For Confluence and Paper docs**, use the respective clients to fetch content.
+**For Confluence and Paper docs**, use Atlassian Rovo MCP for Confluence and Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper. Use `/confluence`, `/dropbox`, or `sidekick.clients.dropbox` only as fallbacks when the preferred MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 
 Look for notes from recent time period:
 - Date headers (e.g., "January 31, 2026", "Week of 1/27")

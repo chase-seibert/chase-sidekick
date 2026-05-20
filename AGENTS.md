@@ -28,6 +28,13 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - Use Sidekick `/jira`, `/confluence`, and `sidekick.clients.jira` or `sidekick.clients.confluence` only when Rovo is unavailable, lacks the needed operation, raw Confluence storage HTML is required, local cache behavior is specifically needed, debugging the local clients, or the user explicitly asks for the local client.
 - Continue to require explicit confirmation before externally visible Jira or Confluence writes unless the user has already requested the exact write.
 
+## Dropbox/Paper Access
+
+- For Dropbox Paper reads by URL, file ID, or pad ID, use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first.
+- Use Dropbox MCP `paper_resolve_doc_ref` only when a canonical ID is needed without reading the document.
+- For Paper edits, comments, or thread resolution, call `paper_read_document` first and pass returned receipts to Dropbox MCP write tools; continue to require explicit confirmation for externally visible writes unless the user has already requested the exact write.
+- Use `/dropbox`, `sidekick.clients.dropbox`, or the Dropbox skill/client only when Dropbox MCP is unavailable, lacks the needed operation, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
+
 ## Shared Skills
 
 - `.agents/skills` is the canonical checked-in skill tree for both Codex and Claude Code.

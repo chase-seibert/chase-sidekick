@@ -20,7 +20,7 @@ This skill helps you:
 ## Prerequisites
 
 - `@AGENTS.override.md` file with your 1:1 and meeting doc links
-- Configured Dropbox access and Atlassian Rovo MCP for Confluence/JIRA context
+- Configured Dropbox MCP access for Paper and Atlassian Rovo MCP for Confluence/JIRA context
 - `memory/people.json` file for person/email data and, when available, Slack user IDs
 
 ## Usage Pattern
@@ -37,6 +37,7 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 ### Step 2: Fetch Recent Content
 
 For each 1:1 document in `@AGENTS.override.md`, fetch the content
+Use Atlassian Rovo MCP for Confluence docs and Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper docs. Use `/dropbox` or `sidekick.clients.dropbox` only as a fallback when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 Also look in recent Slack channels and DMs
 Keep track of docs that error out to report at the end
 

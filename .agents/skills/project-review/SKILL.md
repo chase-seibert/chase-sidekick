@@ -45,6 +45,10 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 Use Atlassian Rovo MCP page fetch first when Markdown or ADF is sufficient. If Rovo is unavailable or raw storage HTML is required, fall back to `python3 -m sidekick.clients.confluence get-content-from-link "<CONFLUENCE_URL>" > "$TMP_DIR/doc_name.md"`.
 
 **For Dropbox Paper docs:**
+Use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first. If an intermediate file is useful for analysis, save the relevant returned Markdown/content under `$TMP_DIR`.
+
+Fallback only when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client:
+
 ```bash
 python3 -m sidekick.clients.dropbox get-paper-contents-from-link "<PAPER_URL>" > "$TMP_DIR/doc_name.md"
 ```
@@ -398,8 +402,9 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 # If Rovo cannot be used:
 # python3 -m sidekick.clients.confluence get-content-from-link "https://company.atlassian.net/wiki/spaces/ERP/pages/3002434012/" > "$TMP_DIR/tech_spec.md"
 
-# Fetch Paper doc
-python3 -m sidekick.clients.dropbox get-paper-contents-from-link "https://example.com/docs/project-brief" > "$TMP_DIR/prd.md"
+# Fetch the Paper doc through Dropbox MCP paper_read_document first.
+# If Dropbox MCP cannot be used:
+# python3 -m sidekick.clients.dropbox get-paper-contents-from-link "https://example.com/docs/project-brief" > "$TMP_DIR/prd.md"
 
 # Fetch the JIRA epic through Atlassian Rovo MCP first.
 # If Rovo cannot be used:
@@ -428,7 +433,9 @@ cat memory/project-review-basic-gating.md
 # tech_spec_link: "https://..."
 
 # Re-fetch documents
-python3 -m sidekick.clients.dropbox get-paper-contents-from-link "$PRD_LINK" > "$TMP_DIR/prd-new.md"
+# Re-fetch Paper through Dropbox MCP paper_read_document first.
+# If Dropbox MCP cannot be used:
+# python3 -m sidekick.clients.dropbox get-paper-contents-from-link "$PRD_LINK" > "$TMP_DIR/prd-new.md"
 # Re-fetch Confluence through Atlassian Rovo MCP first.
 # If Rovo cannot be used:
 # python3 -m sidekick.clients.confluence get-content-from-link "$TECH_SPEC_LINK" > "$TMP_DIR/tech-spec-new.md"

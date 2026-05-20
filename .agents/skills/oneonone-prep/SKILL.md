@@ -61,7 +61,7 @@ If relationship is uncertain, proceed as cross-functional partner and mention un
 Find the person's 1:1 doc from `local/one-on-ones.md`. Use the appropriate reader:
 
 - Confluence links: use Atlassian Rovo MCP first; fall back to the `confluence` skill/client only when Rovo is unavailable or raw storage HTML is required.
-- Paper links: prefer Dash MCP over `/dropbox` when reading Paper docs by link.
+- Paper links: use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first. Fall back to `/dropbox` or `sidekick.clients.dropbox` only when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 - The cached local report at `memory/weekly_report.md` is acceptable when it is recent enough.
 
 From the 1:1 doc, extract only the most recent completed conversation section and any unresolved older follow-ups that are explicitly carried forward. Do not brainstorm from existing content in the next/upcoming 1:1 instance, including sections named `Next`, `Upcoming`, `Next time`, or the next dated instance; those topics are already on the agenda. Use the next/upcoming section only to avoid duplicating bullets or to preserve explicit carried-forward commitments that originated in older sections. Look for:

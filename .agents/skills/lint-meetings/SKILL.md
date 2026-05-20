@@ -30,7 +30,7 @@ python3 -m sidekick.clients.gcalendar list <time-min> <time-max> <max-results>
 python3 -m sidekick.clients.gcalendar get <event-id>
 ```
 
-Use Atlassian Rovo MCP first for Confluence links. Fall back to `sidekick.clients.confluence` only when Rovo is unavailable or raw storage HTML is required to verify a date section. Prefer Dash MCP for reading Paper or Dropbox docs by link.
+Use Atlassian Rovo MCP first for Confluence links. Fall back to `sidekick.clients.confluence` only when Rovo is unavailable or raw storage HTML is required to verify a date section. Use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first for Paper agenda docs by URL, file ID, or pad ID; fall back to `/dropbox` or `sidekick.clients.dropbox` only when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 
 For Slack context, use the `/slack` skill. Do not send Slack messages or create Slack drafts as part of this skill. Only draft message text in the Codex response unless the user separately asks to send or draft in Slack.
 

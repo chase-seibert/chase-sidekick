@@ -7,7 +7,15 @@ allowed-tools: Bash, Read
 
 # Dropbox Skill
 
-Command-line interface for Dropbox file and Paper doc operations.
+Fallback command-line interface for Dropbox file and Paper doc operations.
+
+Prefer Dropbox MCP (`dropbox-mcp`) for Paper reads, edits, comments, and thread resolution when it is available:
+
+- Use `paper_read_document` for Paper reads by URL, file ID, or pad ID.
+- Use `paper_resolve_doc_ref` only when a canonical ID is needed without reading the full document.
+- For Paper edits or comments, call `paper_read_document` first and pass returned receipts to Dropbox MCP write tools.
+
+Use this skill and `sidekick.clients.dropbox` only when Dropbox MCP is unavailable, lacks the needed operation, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
 
 When invoked, use the Dropbox client to handle the request: $ARGUMENTS
 
