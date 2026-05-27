@@ -1,0 +1,4 @@
+interface:
+  display_name: "JIRA Sprint Cleanup"
+  short_description: "Clean up sprint Epic and parent links"
+  default_prompt: "Use $jira-sprint-cleanup to analyze current and previous sprint issues for missing Epic and parent links."
