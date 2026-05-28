@@ -37,7 +37,7 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 ### Step 2: Fetch Recent Content
 
 For each 1:1 document in `@AGENTS.override.md`, fetch the content
-Use Atlassian Rovo MCP for Confluence docs and Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper docs. Use `/dropbox` or `sidekick.clients.dropbox` only as a fallback when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
+Use Atlassian Rovo MCP for Confluence docs and Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper docs. For Paper docs, fall back to the Chrome plugin/live Paper view second when Dropbox MCP is unavailable or lacks the needed operation. Use `/dropbox` or `sidekick.clients.dropbox` only as a final fallback when Chrome is unavailable or unsuitable, `DROPBOX_ACCESS_TOKEN` is set, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 Also look in recent Slack channels and DMs
 Keep track of docs that error out to report at the end
 

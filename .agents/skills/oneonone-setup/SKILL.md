@@ -41,7 +41,7 @@ Automates the creation or migration of 1:1 meeting documents from Dropbox Paper 
      ```
    - Look for Paper doc URLs in results (paper.dropbox.com or dropbox.com/scl/fi/)
    - Extract the share link URL for use in --paper-url parameter
-   - If the migration requires reading existing Paper content, use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first. Fall back to `/dropbox` or `sidekick.clients.dropbox` only when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
+   - If the migration requires reading existing Paper content, use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first. Fall back to the Chrome plugin/live Paper view second when Dropbox MCP is unavailable or lacks the needed operation. Use `/dropbox` or `sidekick.clients.dropbox` only as a final fallback when Chrome is unavailable or unsuitable, `DROPBOX_ACCESS_TOKEN` is set, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 
 3. **Create Confluence 1:1 Doc**
    - Default parent ID: same place as other 1:1 docs

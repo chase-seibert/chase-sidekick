@@ -108,7 +108,7 @@ Returns the Confluence page URL when complete.
 
 ## Notes
 
-- Uses Atlassian Rovo MCP for Confluence/JIRA and Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper templates/examples, with `/confluence`, `/jira`, `/dropbox`, and Sidekick clients as fallbacks where appropriate
+- Uses Atlassian Rovo MCP for Confluence/JIRA and Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper templates/examples. For Paper docs, uses the Chrome plugin/live Paper view as the next fallback when Dropbox MCP is unavailable or lacks the needed operation, and uses `/dropbox` or Sidekick clients only as final fallbacks when Chrome is unavailable or unsuitable and `DROPBOX_ACCESS_TOKEN` is set.
 - Fetches real roadmap data from JIRA through Rovo first
 - Extracts content from example documents
 - Filters and organizes Slack channels

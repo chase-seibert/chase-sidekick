@@ -20,7 +20,7 @@ If the prompt does not include a transcript excerpt, read `memory/miclog.txt` an
 ## Context Gathering
 
 1. Read the calendar event metadata first. Use the event title, description, attendees, and links to understand the meeting purpose.
-2. Read linked docs that look relevant to the agenda or decisions. Prefer Atlassian Rovo MCP for Confluence links. Prefer Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Dropbox Paper links, following the repository and user instructions. Use `/dropbox` or `sidekick.clients.dropbox` only as a fallback when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
+2. Read linked docs that look relevant to the agenda or decisions. Prefer Atlassian Rovo MCP for Confluence links. Prefer Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Dropbox Paper links, following the repository and user instructions. For Paper links, fall back to the Chrome plugin/live Paper view second when Dropbox MCP is unavailable or lacks the needed operation. Use `/dropbox` or `sidekick.clients.dropbox` only as a final fallback when Chrome is unavailable or unsuitable, `DROPBOX_ACCESS_TOKEN` is set, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 3. Use linked docs as context, not as a replacement for the transcript. If docs conflict with the transcript, treat the transcript as what was actually discussed.
 4. Infer speaker names only when there is strong evidence from the transcript text, attendee list, event owner, or linked docs. If confidence is low, write generic notes without speaker attribution.
 

@@ -2,6 +2,16 @@
 
 Command-line interface for Dropbox file and Paper doc operations.
 
+## Paper Access Precedence
+
+For Dropbox Paper reads and writes, use this order of precedence:
+
+1. Dropbox MCP (`dropbox-mcp`) first. Use `paper_read_document` for reads by URL, file ID, or pad ID, and pass returned receipts to Dropbox MCP write tools for edits, comments, or thread resolution.
+2. Chrome plugin/live Paper editor second when Dropbox MCP is unavailable, lacks the needed operation, or browser-authenticated Paper access is the safer path.
+3. This local Dropbox client / API third only when Dropbox MCP and Chrome plugin paths are unavailable or unsuitable and `DROPBOX_ACCESS_TOKEN` is set.
+
+Continue to require explicit confirmation for externally visible Paper writes unless the user has already requested the exact write.
+
 ## Configuration
 
 Configuration is automatically loaded from `.env` file in project root.
@@ -156,7 +166,7 @@ python -m sidekick.clients.dropbox update-paper-contents /Paper/MyDoc.paper --co
 python -m sidekick.clients.dropbox update-paper-contents /Paper/MyDoc.paper --content "<h1>Updated</h1>" --format html
 ```
 
-Updates existing Paper doc with new content. Replaces all content (overwrites).
+Updates existing Paper doc with new content. Replaces all content (overwrites). Prefer Dropbox MCP receipts or the Chrome plugin/live Paper editor for targeted Paper edits; use this local overwrite path only as the final fallback when `DROPBOX_ACCESS_TOKEN` is set and whole-document replacement is appropriate.
 
 ## 1:1 Doc Format Best Practices
 
@@ -262,7 +272,7 @@ When creating a new dated section, place it at the top (after any "Next" section
 <ul><li><span>Yesterday's meeting notes</span></li></ul>
 ```
 
-### Example Workflow
+### Local Client Example Workflow
 
 ```bash
 # 1. Get current Paper doc content as HTML
@@ -280,6 +290,8 @@ cat current.html | python -m sidekick.clients.dropbox update-paper-contents "/Pa
 # 4. Clean up
 rm current.html
 ```
+
+Use this local read-modify-overwrite workflow only as a final fallback when Dropbox MCP and Chrome plugin/live-editor paths are unavailable or unsuitable and `DROPBOX_ACCESS_TOKEN` is set.
 
 ### Why This Matters
 
@@ -434,6 +446,8 @@ cat document.md | python -m sidekick.clients.dropbox create-paper-contents /Pape
 ```
 
 ### Edit Paper Doc Locally
+
+Use this only as a final fallback when Dropbox MCP and Chrome plugin/live-editor paths are unavailable or unsuitable and `DROPBOX_ACCESS_TOKEN` is set.
 
 ```bash
 # Download

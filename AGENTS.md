@@ -35,8 +35,9 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 
 - For Dropbox Paper reads by URL, file ID, or pad ID, use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first.
 - Use Dropbox MCP `paper_resolve_doc_ref` only when a canonical ID is needed without reading the document.
-- For Paper edits, comments, or thread resolution, call `paper_read_document` first and pass returned receipts to Dropbox MCP write tools; continue to require explicit confirmation for externally visible writes unless the user has already requested the exact write.
-- Use `/dropbox`, `sidekick.clients.dropbox`, or the Dropbox skill/client only when Dropbox MCP is unavailable, lacks the needed operation, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
+- For Paper reads and writes, use this order of precedence: Dropbox MCP first; Chrome plugin/live Paper editor second; local Dropbox client/API third only when `DROPBOX_ACCESS_TOKEN` is set.
+- For Paper edits, comments, or thread resolution, call `paper_read_document` first and pass returned receipts to Dropbox MCP write tools. If Dropbox MCP is unavailable or lacks the needed write operation, use the Chrome plugin/live Paper editor before any local client/API fallback. Continue to require explicit confirmation for externally visible writes unless the user has already requested the exact write.
+- Use `/dropbox`, `sidekick.clients.dropbox`, or the Dropbox skill/client only when Dropbox MCP and Chrome plugin paths are unavailable or unsuitable, `DROPBOX_ACCESS_TOKEN` is set, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
 
 ## Slack Access
 

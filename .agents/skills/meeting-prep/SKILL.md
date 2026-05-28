@@ -94,7 +94,7 @@ This report generated using [chase-sidekick](https://github.com/chase-seibert/ch
 
 ## Supported Document Types
 
-- **Dropbox Paper**: Use Dropbox MCP (`dropbox-mcp`) `paper_read_document` to read by URL, file ID, or pad ID. Use `/dropbox` or `sidekick.clients.dropbox` only as a fallback when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client
+- **Dropbox Paper**: Use Dropbox MCP (`dropbox-mcp`) `paper_read_document` to read by URL, file ID, or pad ID. Fall back to the Chrome plugin/live Paper view second when Dropbox MCP is unavailable or lacks the needed operation. Use `/dropbox` or `sidekick.clients.dropbox` only as a final fallback when Chrome is unavailable or unsuitable, `DROPBOX_ACCESS_TOKEN` is set, debugging the local client, running standalone workflows, or the user explicitly asks for the local client
 - **Confluence**: Use Atlassian Rovo MCP to read; fall back to the `confluence` skill/client only when Rovo is unavailable or raw storage HTML is required
 - **Google Docs**: Use web fetch or appropriate integration
 

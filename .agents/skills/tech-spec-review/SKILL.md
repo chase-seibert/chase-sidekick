@@ -10,7 +10,7 @@ You are a reviewer of estimates on tech specs. Your job is to produce a report i
 How to gather information:
 - Read this current project doc
 - Read recent projects in @AGENTS.override.md
-- For each document use Atlassian Rovo MCP for Confluence, Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper, and `/gsheets` for Sheets. Use `/confluence` only as a fallback when Rovo is unavailable or raw storage HTML is required. Use `/dropbox` or `sidekick.clients.dropbox` only as a Paper fallback when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
+- For each document use Atlassian Rovo MCP for Confluence, Dropbox MCP (`dropbox-mcp`) `paper_read_document` for Paper, and `/gsheets` for Sheets. Use `/confluence` only as a fallback when Rovo is unavailable or raw storage HTML is required. For Paper docs, fall back to the Chrome plugin/live Paper view second when Dropbox MCP is unavailable or lacks the needed operation. Use `/dropbox` or `sidekick.clients.dropbox` only as a final Paper fallback when Chrome is unavailable or unsuitable, `DROPBOX_ACCESS_TOKEN` is set, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 - For all projects, look for a table of tasks and estimates 
 - Normalize all estimates to hours (assume 30 hours/week/engineer, or 3600 seconds/hour from JIRA)
 - Write an executive summary 

@@ -7,7 +7,7 @@ allowed-tools: Bash, Read
 
 # Dropbox Skill
 
-Fallback command-line interface for Dropbox file and Paper doc operations.
+Final fallback command-line interface for Dropbox file and Paper doc operations.
 
 Prefer Dropbox MCP (`dropbox-mcp`) for Paper reads, edits, comments, and thread resolution when it is available:
 
@@ -15,11 +15,20 @@ Prefer Dropbox MCP (`dropbox-mcp`) for Paper reads, edits, comments, and thread 
 - Use `paper_resolve_doc_ref` only when a canonical ID is needed without reading the full document.
 - For Paper edits or comments, call `paper_read_document` first and pass returned receipts to Dropbox MCP write tools.
 
-Use this skill and `sidekick.clients.dropbox` only when Dropbox MCP is unavailable, lacks the needed operation, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
+## Paper Access Precedence
+
+For Dropbox Paper reads and writes, use this fallback order:
+
+1. Dropbox MCP (`dropbox-mcp`) when it can perform the needed read or write.
+2. Chrome plugin/live Paper editor when Dropbox MCP is unavailable, lacks the needed operation, or browser-authenticated Paper access is the safer path.
+3. This skill and `sidekick.clients.dropbox` only when Dropbox MCP and Chrome plugin paths are unavailable or unsuitable and `DROPBOX_ACCESS_TOKEN` is set.
+
+Use this skill and `sidekick.clients.dropbox` only when the fallback order above permits it, standalone local-client execution is specifically needed, debugging the local client, or the user explicitly asks for the local client.
 
 When invoked, use the Dropbox client to handle the request: $ARGUMENTS
 
 **Note:** Dropbox commands return Markdown by default for Paper documents. Use `--html` flag only if you need raw HTML for content manipulation.
+**Write caution:** `update-paper-contents` replaces the full Paper doc body. Prefer Dropbox MCP receipts or the Chrome plugin/live editor for targeted Paper edits.
 
 ## Available Commands
 
