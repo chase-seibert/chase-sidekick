@@ -30,6 +30,8 @@ python3 -m sidekick.clients.gcalendar list <time-min> <time-max> <max-results>
 python3 -m sidekick.clients.gcalendar get <event-id>
 ```
 
+Treat `python3 -m sidekick.clients.gcalendar get <event-id>` as the source of truth for Zoom detection. Some connector or flattened calendar payloads can omit `conferenceData` even when the raw Google Calendar event still contains valid Zoom `entryPoints`. Do not mark Zoom missing until the raw event payload has been checked.
+
 Use Atlassian Rovo MCP first for Confluence links. Fall back to `sidekick.clients.confluence` only when Rovo is unavailable or raw storage HTML is required to verify a date section. Use Dropbox MCP (`dropbox-mcp`) `paper_read_document` first for Paper agenda docs by URL, file ID, or pad ID; fall back to `/dropbox` or `sidekick.clients.dropbox` only when Dropbox MCP is unavailable, lacks the needed operation, debugging the local client, running standalone workflows, or the user explicitly asks for the local client.
 
 For Slack context, use the `/slack` skill. Do not send Slack messages or create Slack drafts as part of this skill. Only draft message text in the Codex response unless the user separately asks to send or draft in Slack.
@@ -40,13 +42,16 @@ For Slack context, use the `/slack` skill. Do not send Slack messages or create 
    - Default to tomorrow from `00:00:00` through `23:59:59` in `America/Los_Angeles`.
    - For explicit dates, use the user's requested local date range.
    - Use RFC3339 timestamps with timezone offsets for Calendar commands.
-2. List events for the window, then fetch full details for candidate events with attendees.
+2. List events for the window, then fetch full raw event details for candidate events with attendees.
+   - Use the event list only to find candidates and basic metadata.
+   - Before checking Zoom hygiene, hydrate each candidate with `python3 -m sidekick.clients.gcalendar get <event-id>` or an equivalent raw Calendar API read that preserves `conferenceData`.
 3. Filter to real meetings.
    - Exclude canceled events.
    - Exclude events where the attendee list is empty or only the current user.
    - Treat resource calendars and rooms as non-human attendees when deciding whether the meeting has more than just the user.
 4. For each real meeting, check required hygiene.
-   - Zoom: find a `zoom.us` URL in video entry points, location, description, or attachments.
+   - Zoom: find a `zoom.us` URL in raw-event video entry points first, then location, description, or attachments.
+   - If a raw event has `conferenceData.entryPoints`, trust that over connector-specific flattened fields such as `hangoutLink` or abbreviated event summaries.
    - Agenda doc: find the first Confluence, Paper, or Dropbox document URL. If multiple plausible agenda docs exist, inspect the most agenda-like link first and report ambiguity if confidence is low.
    - Date section: inspect the linked agenda doc for an H1/H2 date heading, Confluence `<time datetime="YYYY-MM-DD">`, or a clearly labeled section matching the meeting's local date.
 5. For owned meetings only, if a Confluence agenda doc exists but no date-specific section exists, use the `$confluence-meeting-notes-create-next` skill to attempt creating the next section. Report whether it created a section, stopped because one already existed, or refused because the doc shape was ambiguous.
