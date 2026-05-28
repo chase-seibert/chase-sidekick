@@ -107,6 +107,8 @@ If the target section has exactly one empty bullet placeholder, replace that pla
 
 For "insert an AI summary note", insert a top-level ADF `panel` with `attrs.panelType == "note"` inside the chosen meeting section. The panel content should be one or more paragraphs containing the supplied summary text. Do not modify preamble/template panels above the first real meeting section.
 
+When falling back to Chrome/live-editor automation, still create a real Confluence note panel. Use the rich clipboard panel pattern in `references/meeting-notes-docs.md`; do not rely on typing `/note` or `/panel`, because live docs may treat those as literal text. Verify the result by reloading the browser tab and confirming the summary remains under a note-panel marker inside the target section.
+
 ## Table Format
 
 Table-format docs often have one row per person or one row per agenda/demo item. Prefer updating the current user's row when it exists.

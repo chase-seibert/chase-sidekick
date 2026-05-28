@@ -65,6 +65,32 @@ Bullet-format sections keep agenda items in the first top-level list.
 
 AI summary notes should be inserted as top-level ADF `panel` nodes with `attrs.panelType == "note"` inside the chosen meeting section only. Do not update preamble/template panels above the first real meeting section when adding a summary to meeting notes.
 
+For Chrome/live-editor fallback updates, preserve the same shape as a real note
+panel rather than pasting plain Markdown. In Confluence live docs, slash commands
+such as `/note` or `/panel` may insert literal text instead of opening the insert
+menu. A verified fallback is to paste rich HTML with a ProseMirror slice wrapper:
+
+```html
+<div data-pm-slice="0 0 []">
+  <div class="ak-editor-panel" data-panel-type="note"
+       data-prosemirror-content-type="node"
+       data-prosemirror-node-name="panel"
+       data-prosemirror-node-block="true">
+    <div class="ak-editor-panel__content">
+      <h2 data-prosemirror-node-name="heading">AI Notes</h2>
+      <p>Summary text...</p>
+    </div>
+  </div>
+</div>
+```
+
+Include `text/html` and `text/plain` clipboard entries, paste into the intended
+blank paragraph inside the target meeting section, then verify by reloading the
+browser tab and confirming the summary still appears under an `img "note panel"`
+marker before the next meeting heading. For live docs, a Rovo Markdown read may
+omit the live-editor note panel body even when the browser-reload verification
+shows the panel persisted.
+
 ## Table Format
 
 Table-format docs often have one row per person or one row per agenda/demo item.
