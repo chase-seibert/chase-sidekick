@@ -25,7 +25,10 @@ Chase Sidekick is an engineering manager task automation toolkit. The repo provi
 - For Jira and Confluence work, use Atlassian Rovo MCP first for search, fetch, create, and update operations.
 - For natural-language Jira or Confluence discovery, use Rovo search. For explicit JQL, use Rovo JQL search. Fetch search-result details by returned Atlassian resource ID when available.
 - For direct Confluence page URLs or page IDs, use Rovo page fetch when Markdown or ADF content is sufficient.
-- Use Sidekick `/jira`, `/confluence`, and `sidekick.clients.jira` or `sidekick.clients.confluence` only when Rovo is unavailable, lacks the needed operation, raw Confluence storage HTML is required, local cache behavior is specifically needed, debugging the local clients, or the user explicitly asks for the local client.
+- For Confluence page updates, use this order of precedence: Rovo MCP first; Chrome plugin/live-editor automation second; local Confluence REST API/client third only when `ATLASSIAN_API_TOKEN` is set.
+- For large Confluence pages, do not use a Rovo read-modify-write flow unless the fetched page body is confirmed complete. Rovo page updates replace the full page body, but Rovo page reads can truncate large bodies and Rovo does not currently provide partial page updates or paginated full-page reads. Prefer the Chrome plugin/live editor for large-page edits, then use the local Confluence REST API raw-storage HTML fallback only if an Atlassian API token is available; the token may rotate every 3 days.
+- Use Sidekick `/jira` and `sidekick.clients.jira` only when Rovo is unavailable, lacks the needed operation, local cache behavior is specifically needed, debugging the local client, or the user explicitly asks for the local client.
+- Use Sidekick `/confluence` and `sidekick.clients.confluence` only when Rovo and Chrome plugin paths are unavailable or unsuitable, the needed API token is set, raw Confluence storage HTML is required, local cache behavior is specifically needed, debugging the local client, or the user explicitly asks for the local client.
 - Continue to require explicit confirmation before externally visible Jira or Confluence writes unless the user has already requested the exact write.
 
 ## Dropbox/Paper Access

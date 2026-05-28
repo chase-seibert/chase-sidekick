@@ -7,7 +7,9 @@ description: Create the next dated or Next H1 section in an existing Confluence 
 
 Use this skill when asked to prepare, create, or add the next instance section for an existing Confluence 1:1 or recurring meeting notes page.
 
-This skill is intentionally instruction-only. Do not create helper scripts for the workflow. Use Atlassian Rovo MCP for Confluence reads and writes, and use ADF as the safe structured edit format. Use the Google Calendar client for date lookup when needed. The local Confluence client is a fallback only when Rovo is unavailable.
+This skill is intentionally instruction-only. Do not create helper scripts for the workflow. Use Atlassian Rovo MCP for Confluence reads and writes, and use ADF as the safe structured edit format when the Rovo page read is complete. Use the Google Calendar client for date lookup when needed. For fallback edits, use the Chrome plugin/live editor first, then use the local Confluence client only when the Chrome path is unavailable or unsuitable and `ATLASSIAN_API_TOKEN` is set.
+
+Rovo is safe for this workflow only when its page read returns the complete ADF body. Rovo updates replace the full Confluence page body, but Rovo reads can truncate large pages and Rovo does not currently provide partial page updates or paginated full-page reads. If the page is large or the Rovo body appears truncated, do not write with Rovo; use Chrome plugin/live-editor automation instead. Use the local Confluence REST API raw-storage HTML fallback only when Chrome is unavailable or unsuitable and `ATLASSIAN_API_TOKEN` is set. The token may rotate every 3 days.
 
 Before editing, read [meeting-notes-docs.md](../confluence-meeting-notes-update/references/meeting-notes-docs.md). That reference is the shared source of truth for meeting-section boundaries, templates, bullet/table formats, calendar matching, and insertion placement.
 
@@ -21,7 +23,7 @@ updateConfluencePage(cloudId, pageId, body=<ADF JSON>, contentFormat="adf")
 getConfluencePage(cloudId, pageId, contentFormat="markdown")
 ```
 
-Use `python3` only for calendar lookup and as a Confluence fallback when Rovo is unavailable:
+Use `python3` for calendar lookup, and as a final Confluence fallback only when Rovo and Chrome plugin/live-editor automation are unavailable or unsuitable and `ATLASSIAN_API_TOKEN` is set:
 
 ```bash
 python3 -m sidekick.clients.confluence get-page-from-link "<confluence-url>"

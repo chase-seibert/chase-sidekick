@@ -19,7 +19,21 @@ When invoked, use Atlassian Rovo MCP first to handle the request: $ARGUMENTS
 - Direct page URL or page ID: use Rovo page fetch when Markdown or ADF is sufficient.
 - Page writes: use Rovo create/update page tools, after the normal remote-write confirmation rule is satisfied.
 
-Use the local Sidekick client only when Rovo is unavailable, lacks the needed operation, raw Confluence storage HTML is required, local cache behavior is specifically useful, debugging the client itself, or the user explicitly asks for the local client.
+## Confluence Update Precedence
+
+For Confluence page updates, use this fallback order:
+
+1. Atlassian Rovo MCP, when the required complete page body can be fetched safely.
+2. Chrome plugin/live-editor automation, especially for large pages or cases where Rovo cannot safely read the full body.
+3. Local Sidekick Confluence client / Confluence REST API raw-storage HTML, only when `ATLASSIAN_API_TOKEN` is set.
+
+## Large Page Limitation
+
+Do not use Rovo for read-modify-write edits on large Confluence pages unless you have verified the Rovo page body is complete. Rovo page updates replace the full page body, while Rovo page reads can truncate large bodies and Rovo does not currently expose partial page updates or paginated full-page reads. A full-body write based on a truncated read can delete the unread tail of the page.
+
+For large-page edits, prefer Chrome plugin/live-editor automation after Rovo. Use the local Sidekick Confluence client with raw storage HTML from the Confluence REST API only when `ATLASSIAN_API_TOKEN` is set. The token may rotate every 3 days.
+
+Use the local Sidekick client when Rovo and Chrome plugin paths are unavailable or unsuitable, the needed API token is set, raw Confluence storage HTML is required, local cache behavior is specifically useful, debugging the client itself, or the user explicitly asks for the local client.
 
 **Fallback note:** Local Confluence commands return Markdown by default. Use `--html` only when raw storage HTML is required for content manipulation.
 

@@ -4,9 +4,15 @@ Manage Confluence pages with search, read, and write operations.
 
 ## Rovo First
 
-Try Atlassian Rovo MCP first for Confluence reads and writes. The local Sidekick Confluence CLI documented here is a fallback for cases where Rovo is unavailable, the user explicitly asks for the local client, local cache/debug behavior is needed, or a legacy raw-storage compatibility workflow requires it.
+Try Atlassian Rovo MCP first for Confluence reads and writes. For Confluence page updates, use this order of precedence: Rovo MCP first, Chrome plugin/live-editor automation second, and the local Sidekick Confluence CLI / Confluence REST API third only when `ATLASSIAN_API_TOKEN` is set. The local CLI documented here is a fallback for cases where Rovo and Chrome are unavailable or unsuitable, the user explicitly asks for the local client, local cache/debug behavior is needed, Rovo may have truncated a large page body, or a legacy raw-storage compatibility workflow requires it.
 
-For meeting-note workflows, prefer the checked-in meeting-notes skills. They use Rovo ADF as the safe structured update format and validate that existing notes are not changed outside the intended section.
+For meeting-note workflows, prefer the checked-in meeting-notes skills. They use Rovo ADF as the safe structured update format and validate that existing notes are not changed outside the intended section when the Rovo page read is complete.
+
+## Rovo Large-Page Limitation
+
+Do not use Rovo for read-modify-write edits on large Confluence pages unless you have verified the fetched ADF or Markdown body is complete. Rovo page updates replace the full page body, but Rovo page reads can truncate large bodies. Rovo does not currently expose partial page updates or paginated full-page reads, so a full-body update based on a truncated read can remove unread content.
+
+For large-page edits, prefer Chrome plugin/live-editor automation after Rovo. Use the local Sidekick Confluence client with raw storage HTML from the Confluence REST API only when `ATLASSIAN_API_TOKEN` is set. The token may rotate every 3 days.
 
 ## Overview
 
@@ -223,8 +229,11 @@ For adding topics to 1:1 or recurring meeting notes, use the
 `confluence-meeting-notes-update` skill instead of the generic Confluence
 client. That workflow reads and writes Confluence through Rovo ADF, changes
 only a safe target region such as `Next` or the next dated section, and
-validates that unrelated page content is unchanged. The raw-storage local
-client path is only a fallback when Rovo is unavailable.
+validates that unrelated page content is unchanged when the Rovo ADF read is
+complete. The Chrome plugin/live-editor path is the next fallback for large or
+otherwise unsafe Rovo updates. The raw-storage local client path is a final
+fallback when Rovo and Chrome are unavailable or unsuitable, raw storage HTML is
+required, and `ATLASSIAN_API_TOKEN` is set.
 
 ### Content Update Best Practices
 
@@ -305,8 +314,9 @@ When creating a new dated section, place it at the top (after any "Next" section
 
 **Fallback Raw-Storage Update Workflow**
 
-Use this only when Rovo cannot perform the operation or raw Confluence storage
-HTML is specifically required.
+Use this when Rovo and Chrome plugin/live-editor automation cannot perform the
+operation, Rovo may have truncated a large page body, raw Confluence storage
+HTML is specifically required, and `ATLASSIAN_API_TOKEN` is set.
 
 ```bash
 # 1. Read current page content
