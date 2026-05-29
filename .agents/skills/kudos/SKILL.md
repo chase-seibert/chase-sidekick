@@ -15,7 +15,8 @@ This skill helps you:
 1. Review recent notes from all your 1:1 and recurring meeting docs
 2. Extract kudos, wins, and accomplishments for specific people
 3. Format kudos with real Slack user mentions (`<@U...>` ID format)
-4. Include references to source documents
+4. Include a concise Slack copy/paste version
+5. Include references to source documents
 
 ## Prerequisites
 
@@ -76,7 +77,27 @@ For each kudos item:
 
 ### Step 5: Generate Output
 
-Create a markdown file with Slack-ready sections. The example below is documentation only; do not wrap generated report text in a code block when sending to Slack.
+Create a markdown file with Slack-ready sections and a concise Slack copy/paste version near the top.
+
+The Slack copy/paste version should:
+- Use plain bullets only; do not use a code block.
+- Start every bullet with `:raised_hands:`.
+- Include raw Slack mention tokens for each resolved person at the start of the bullet, such as `<@U123ABC>`.
+- Keep each bullet self-contained and specific enough to paste directly into Slack.
+- Avoid source links in the bullets unless the link is essential; keep source links in the categorized report below.
+- Use plain non-notifying text for any person whose Slack ID could not be resolved.
+
+Example Slack copy/paste section:
+
+```markdown
+## Slack copy/paste version
+
+:raised_hands: <@U123ABC> for driving the launch from ambiguous requirements to a concrete rollout plan, including the dashboard and go/no-go checklist that made the decision easy.
+
+:raised_hands: <@U456DEF> and <@U789GHI> for quickly debugging the regression, ramping the experiment down, and adding instrumentation so the team can separate product impact from telemetry noise.
+```
+
+Also include a categorized report with source links. The example below is documentation only; do not wrap generated report text in a code block when sending to Slack.
 
 ```markdown
 ## Kudos - [Date Range]

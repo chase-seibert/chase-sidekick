@@ -1,0 +1,4 @@
+interface:
+  display_name: "Capture Work TODOs"
+  short_description: "Create TODOs from recent work asks"
+  default_prompt: "Use $capture-work-todos to scan recent manager/direct-report Slack and 1:1 context, then create any missing TODOs with source links."
