@@ -1,0 +1,10 @@
+interface:
+  display_name: "Dropbox Share"
+  short_description: "Share files through Dropbox links"
+  default_prompt: "Use $dropbox-share to copy this file into Codex Shared and get a Dropbox shared link."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "dropbox-mcp"
+      description: "Dropbox MCP server for file metadata, copies, creates, and shared links"
