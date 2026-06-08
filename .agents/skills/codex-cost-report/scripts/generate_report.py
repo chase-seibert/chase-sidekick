@@ -5,11 +5,13 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 import shlex
 import shutil
 import sqlite3
 import subprocess
+import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -842,9 +844,18 @@ def render_html(report_path: Path) -> Path:
     if not shutil.which("quarto"):
         raise SystemExit(f"Generated {report_path}, but could not render HTML because `quarto` is not installed.")
 
+    env = os.environ.copy()
+    if env.get("HOME") == str(Path.home()):
+        quarto_home = Path(tempfile.mkdtemp(prefix="quarto-home-"))
+        # Quarto on macOS writes its Sass cache under ~/Library/Caches/quarto.
+        (quarto_home / "Library" / "Caches").mkdir(parents=True, exist_ok=True)
+        (quarto_home / "Library" / "Application Support").mkdir(parents=True, exist_ok=True)
+        env["HOME"] = str(quarto_home)
+
     result = subprocess.run(
         ["quarto", "render", str(report_path), "--to", "html"],
         cwd=REPO_ROOT,
+        env=env,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,

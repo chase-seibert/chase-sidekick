@@ -89,6 +89,7 @@ Current skills in `.agents/skills`:
 - **transcript** - Save conversation transcripts as structured Markdown in `memory/`.
 - **weekly-report** - Generate summaries of 1:1 and meeting notes organized by audience.
 - **welcome-doc** - Create personalized employee onboarding documents in Confluence.
+- **workstream-updates** - Report quarterly high-priority roadmap progress by work stream.
 
 ## What You'll Build
 
@@ -381,7 +382,8 @@ chase-sidekick/
 │       ├── top-projects-exec-summary/
 │       ├── transcript/
 │       ├── weekly-report/
-│       └── welcome-doc/
+│       ├── welcome-doc/
+│       └── workstream-updates/
 ├── .claude/
 │   ├── settings.json        # Claude-specific permissions/config
 │   └── skills -> ../.agents/skills

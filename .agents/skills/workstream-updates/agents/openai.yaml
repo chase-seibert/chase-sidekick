@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workstream Updates"
+  short_description: "Report roadmap progress by work stream"
+  default_prompt: "Use $workstream-updates to summarize current-quarter high-priority roadmap progress."

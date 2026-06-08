@@ -4,6 +4,7 @@ import json
 import subprocess
 import time
 from datetime import datetime
+from pathlib import Path
 
 
 class OmniFocusClient:
@@ -24,9 +25,21 @@ class OmniFocusClient:
         self.default_project = default_project
         self.default_tag = default_tag
         self.script_call_count = 0  # Track script calls for debugging
+        self.app_target = self._resolve_app_target()
 
         # Check if OmniFocus is available
         self._check_omnifocus_available()
+
+    def _resolve_app_target(self) -> str:
+        """Resolve the installed OmniFocus app path for JXA."""
+        candidates = [
+            Path("/Applications/OmniFocus.app"),
+            Path("/Applications/OmniFocus.localized/OmniFocus.app"),
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+        return "OmniFocus"
 
     def _check_omnifocus_available(self) -> bool:
         """Check if OmniFocus is installed and accessible.
@@ -65,6 +78,7 @@ class OmniFocusClient:
             ValueError: If script returns error
         """
         self.script_call_count += 1
+        script = script.replace('Application("OmniFocus")', f'Application({json.dumps(self.app_target)})')
 
         try:
             result = subprocess.run(
