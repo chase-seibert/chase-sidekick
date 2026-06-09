@@ -1,0 +1,4 @@
+interface:
+  display_name: "JIRA GA Date Report"
+  short_description: "Report GA dates from Jira evidence"
+  default_prompt: "Use $jira-ga-date-report to find GA dates for these Jira issues: <issue keys or URLs>."
