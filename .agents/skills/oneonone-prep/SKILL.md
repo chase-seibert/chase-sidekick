@@ -91,6 +91,7 @@ Extract sections where the team, manager, project, roadmap initiative, or Slack 
 For Slack context, use the `/slack` skill. For time-based reads, use `slack_search_messages` with an `after:YYYY-MM-DD` filter and pagination. Search:
 
 - The person's DM if listed in `local/slack-channels.md`.
+- Recent Slack activity from the person, especially private DMs and group DMs with the user, to find explicit asks, requested decisions, promised follow-ups, or unresolved questions to raise in the 1:1.
 - Relevant project channels from `local/projects.md`.
 - Relevant team channels from `local/slack-channels.md`.
 
@@ -141,6 +142,8 @@ Use prompts like:
 
 Prefer leadership-relevant bullets from the weekly report and cross-team risks from project activity.
 
+- Look up recent Slack activity from the manager, especially private DMs and group DMs, and include follow-up bullets for any explicit asks, requested decisions, or unresolved questions they raised.
+
 #### Skip-Level / Senior Leader
 
 Focus on strategy, organizational leverage, concise escalations, and decision points.
@@ -166,6 +169,8 @@ Use prompts like:
 - Feedback: What could engineering do differently to make our partnership smoother?
 
 Use growth or performance prompts lightly unless the relationship is explicitly a coaching relationship.
+
+- Look up recent Slack activity from the peer or partner, especially private DMs and group DMs, and include follow-up bullets for any explicit asks, requested decisions, dependencies, or unresolved questions they raised.
 
 #### Other Collaborator
 

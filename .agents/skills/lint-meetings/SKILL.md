@@ -17,7 +17,9 @@ A passing meeting has all of:
 
 - A Zoom link in conference entry points, location, description, or attachments. Google Meet or another video link does not satisfy this requirement.
 - An agenda doc link in the event description, location, or attachments.
-- A section in the agenda doc for this specific meeting date instance.
+- A section in the agenda doc for this specific meeting date instance, unless that instance starts a week or more after the lint run time.
+
+When a meeting instance is a week or more away, a missing date-specific agenda section is acceptable. Treat the Next section result as not applicable, do not classify it as failing or ambiguous, do not ask the owner to add it, and do not create a section for it.
 
 Classify a meeting as owned by the current user when Google Calendar marks the organizer or creator as self, or when the organizer or creator email matches the current user's email from local context or Calendar profile.
 
@@ -53,8 +55,8 @@ For Slack context, use the `/slack` skill. Do not send Slack messages or create 
    - Zoom: find a `zoom.us` URL in raw-event video entry points first, then location, description, or attachments.
    - If a raw event has `conferenceData.entryPoints`, trust that over connector-specific flattened fields such as `hangoutLink` or abbreviated event summaries.
    - Agenda doc: find the first Confluence, Paper, or Dropbox document URL. If multiple plausible agenda docs exist, inspect the most agenda-like link first and report ambiguity if confidence is low.
-   - Date section: inspect the linked agenda doc for an H1/H2 date heading, Confluence `<time datetime="YYYY-MM-DD">`, or a clearly labeled section matching the meeting's local date.
-5. For owned meetings only, if a Confluence agenda doc exists but no date-specific section exists, use the `$confluence-meeting-notes-create-next` skill to attempt creating the next section. Report whether it created a section, stopped because one already existed, or refused because the doc shape was ambiguous.
+   - Date section: if the meeting starts less than a week after the lint run time, inspect the linked agenda doc for an H1/H2 date heading, Confluence `<time datetime="YYYY-MM-DD">`, or a clearly labeled section matching the meeting's local date. If the meeting starts a week or more after the lint run time, skip this check and mark Next section as not applicable.
+5. For owned meetings only, if a Confluence agenda doc exists, no date-specific section exists, and the meeting starts less than a week after the lint run time, use the `$confluence-meeting-notes-create-next` skill to attempt creating the next section. Report whether it created a section, stopped because one already existed, or refused because the doc shape was ambiguous.
 6. For meetings owned by others, do not modify docs or calendar events. Draft a Codex-only Slack message asking the owner to update the missing items.
 7. Choose the output format.
    - Use the general table view by default.
@@ -72,7 +74,7 @@ Use emoji status cells. Do not include a separate status field. Use:
 - ✅ present, passing, or owned by the current user
 - ❌ missing or failing
 - ⚠️ ambiguous, unreadable, or not confidently checked
-- ➖ not applicable
+- ➖ not applicable, including a missing date-specific section for a meeting a week or more away
 
 Use this structure:
 
@@ -108,10 +110,10 @@ Use this view when the user asks for an email-specific summary. Do not use table
 
 Separate the output into exactly three priority sections in this order: P0, P1, P2. Each section must be a bullet list. Use `None.` when a priority has no items. Each bullet should include the meeting time, meeting title, owner, missing or ambiguous items, and the requested action.
 
-Assign each meeting to only the highest applicable priority:
+Assign each meeting to only the highest applicable priority. Do not assign a priority solely because a date-specific section is missing for a meeting a week or more away.
 
 - P0: Owned meetings that still fail hygiene after any allowed Confluence section creation attempt, or any meeting missing a Zoom link or agenda doc.
-- P1: Meetings with a readable agenda doc but no date-specific section, or meetings owned by others that need owner follow-up for a non-P0 issue.
+- P1: Meetings less than a week away with a readable agenda doc but no date-specific section, or meetings owned by others that need owner follow-up for a non-P0 issue.
 - P2: Ambiguous, unreadable, or low-confidence checks; informational cleanup; or all-clear notes if the user asked to include passing meetings.
 
 Use emoji status markers in each bullet:
@@ -163,6 +165,8 @@ Hi <owner>, could you update <meeting title> before our <date> instance? I could
 ```
 
 If several meetings have the same owner, combine them into one concise draft with bullets.
+
+Do not draft owner follow-up solely for a missing date-specific section when the meeting is a week or more away.
 
 ## Safety
 
