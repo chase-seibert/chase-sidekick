@@ -1,0 +1,145 @@
+Median,median_activity_score,median_merged_pr_count,median_review_count,median_review_comment_count
+By Level
+Dropbox - All Levels Combined,63.84,47.5,3.5,64
+IC2,60.29,48,0,45
+IC3,59.29,45,8.5,63
+IC4,73.06,54,23,76
+IC5,52.1,38,22,88
+IC6,16,14,3,23.5
+IC1,72.39,62.5,6.5,85.5
+IC7,178.7,101,145,569
+Unknown,2,0,6,2
+By Team
+Reclaim Engineering,56.8,48,56.5,16
+Core Admin and Accounts,24,17.5,0,8.5
+Purchase Solutions Enablement,58.9,36,112,70
+Desktop Experience,93.21,66,1,95
+Sign API & Mobile,77.14,56,21.5,78
+Dash Engineering - Dash Identity and Permission,66.4,51.5,95,28
+Dash Engineering - Enterprise,43.4,35.5,56,53
+Surfaces & Foundation,84.8,59,129,104
+DocSend,111.64,87,1,130
+Docsend - Expansion,114.85,100.5,108.5,220
+OCEO Paper Eng,33.9,36,35,21
+Connectors,54.25,49.5,61,62.5
+Growth Monetization,46.2,28,0,45
+Sign - Poland,41.4,35.5,6.5,25
+Team Formation,59.23,41,13,48
+Core MAX,136.68,93.5,0,180.5
+Core Web Experience,77.8,66,0,64
+Connectors Experience,43.3,25,72,73.5
+Dash - Relevance,43.9,38,54,73
+Dash Growth - Activation & Engagement,182.5,143,1,239
+Dash Experiences,63.68,44.5,0,72
+Simplify Sharing,87.5,66.5,0,109
+OTC - Eng,11.15,16,4.5,6.5
+Organize,237.7,172,0,231
+DocSend Cobalt,108.5,55,0,182
+Sign Core API & Integrations,44.55,38.5,9,42
+Churn,50,37,0,46
+Core Sync,31,23,27,26
+Acquisition Monetization,75.8,59,108,96
+Dash Self-Serve Growth,64.75,38.5,100.5,124
+Core Engineering,161,123,0,569
+Design Systems 2,52.6,36,71,49
+Growth Lifecycle,80.3,57,0,139.5
+ML Foundations,75.8,73,81,24
+Team Expansion,71.78,53.5,0,66
+Admin Experience,29.4,20,35,33
+Teams and Adjacencies,3,5,0,0
+Reclaim,315,153,548,588
+Connectors Factory,29.1,22.5,32.5,39.5
+Mobile Experience,97.115,79,0.5,115
+Recommendations,43.8,30,58,84
+Core Experience,58.7,45.5,36.5,93.5
+Growth and Customer Acquisition,78.2,70,1,88
+FormSwift - Eng 2,70.2,54,3,71
+Find & Discover,64.55,50.5,99,93.5
+Engineering Core,48.1,31,54,54
+Intel - Knowledge Platform,53.15,52.5,54,45
+Dash Intelligence (Intel),45.25,39.5,68,40
+Reclaim.ai engineering Team,42.1,45,31.5,31.5
+Smart Storage Management,68.885,69,0.5,58.5
+Dash Capabilities,51,41,84.5,14.5
+Agent Platform,46.9,35,63,62
+DocSend Expansion,154.63,107,0,276
+Dash Engineering - Stacks & Start Page Experiences,135.71,111,0,158
+,1.8,1,1,0
+Bridge FSS and Dash,89.59,67,0,87
+CompanyOS,13.15,10.5,11.5,13.5
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+,1.8,1,1,0
+By Org
+Software Engineering | New Initiatives,33.55,34.5,33,18.5
+Fullstack Product Software Engineering | Core Engineering | IC3,115.66,85,0,126
+Infrastructure Software Engineering | Core Engineering | IC4,124.04,91,0,118
+Infrastructure Software Engineering | Core Engineering | IC3,78.55,62,0,78
+Infrastructure Software Engineering | Core Engineering | IC5,43.02,22,0,88
+Infrastructure Software Engineering | Core Engineering | IC2,53.33,58,0,8
+Backend Product Software Engineering | Core Engineering | IC5,99.35,28.5,0,81.5
+Fullstack Product Software Engineering | Core Engineering | IC5,224.265,137.5,0,205
+Backend Product Software Engineering | Core Engineering | IC2,57.49,48.5,0,46.5
+Software Engineering | Core GM,40.6,30.5,51,42.5
+Backend Product Software Engineering | Core Engineering | IC4,124.22,101,0,148
+Fullstack Product Software Engineering | Core Engineering | IC2
+Fullstack Product Software Engineering | Core Engineering | IC4
+Software Engineering | OTC - Eng
+Backend Product Software Engineering | Core Engineering | IC3
+Fullstack Product Software Engineering | Core Engineering | IC1
+Mobile Software Engineering | Core Engineering | IC2
+Mobile Software Engineering | Core Engineering | IC3
+Mobile Software Engineering | Core Engineering | IC1
+Mobile Software Engineering | Core Engineering | IC4
+Software Engineering | Core Engineering | IC3
+Fullstack Product Software Engineering | Core Engineering | IC6
+Fullstack Product Software Engineering | Core Engineering | IC7
+Mobile Software Engineering | Core Engineering | IC5
+Software Engineering | No Level 1 Team | IC2
+Software Engineering | No Level 1 Team | IC3
+Software Engineering | No Level 1 Team | IC4
+Software Engineering | No Level 1 Team | IC5
+Software Engineering | No Level 1 Team | IC6
+Software Engineering | No Level 1 Team | Unknown

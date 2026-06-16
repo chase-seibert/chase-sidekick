@@ -1,0 +1,701 @@
+user_name,quartile_by_level,level,cohort,team_name,manager_name,activity_score,merged_pr_count,tloc_count,review_comment_count,erp_count,scaling_factor,quartile_calculated,quartile_by_team,quartile_by_org,at_company_level
+Clayton Knapp,Q2,IC2,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,42.5,43,51,14,,,,Q2,Q3,Below company median
+Daniel Kato,Q3,IC3,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,88.2,96,96,18,,,,Q3,Q4 (top 25%),Above company median
+Sandy Gifford,Q3,IC3,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,71.1,53,70,183,,,,Q3,Q4 (top 25%),Above company median
+Felipe Pegoraro,Q1 (bottom 25%),IC3,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Josh Jensen,Q4 (top 25%),IC4,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,174.5,163,236,59,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Pedro Castineiras Sanchez,Q3,IC4,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,107.5,135,82,19,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Chris Jones,Q3,IC4,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,92.7,116,62,45,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Shai Nir Hana,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Qasim Ali,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Christopher Wildman,Q1 (bottom 25%),IC5,Software Engineering | New Initiatives,Reclaim Engineering,Aaron Johnson,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Mateusz Mółka,Q1 (bottom 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core Admin and Accounts,Abraham Velazquez,31.71,24,0,2,0,1.62,Excluded: Recent Hire (<6mo),Q3,Q1 (bottom 25%),Below company median
+Krzysztof Duda,Q3,IC4,Infrastructure Software Engineering | Core Engineering | IC4,Core Admin and Accounts,Abraham Velazquez,80.87,55,0,109,0,1.23,Excluded: Small Cohort (<8),Q4 (top 25%),Q1 (bottom 25%),Above company median
+Jerzy Jurkowski,Q2,IC3,Infrastructure Software Engineering | Core Engineering | IC3,Core Admin and Accounts,Abraham Velazquez,47.1,35,0,12,0,1.55,Excluded: Small Cohort (<8),Q4 (top 25%),Q1 (bottom 25%),Below company median
+Perin Sabuwala,Q2,IC5,Infrastructure Software Engineering | Core Engineering | IC5,Core Admin and Accounts,Abraham Velazquez,43.02,22,0,88,0,1.22,Excluded: Small Cohort (<8),Q4 (top 25%),Q1 (bottom 25%),Below company median
+Irving Rodriguez,Q2,IC2,Infrastructure Software Engineering | Core Engineering | IC2,Core Admin and Accounts,Abraham Velazquez,53.33,58,0,8,0,1.11,Excluded: Recent Hire (<6mo),Q4 (top 25%),Q1 (bottom 25%),Below company median
+Wyatt Carss,Q2,IC5,Backend Product Software Engineering | Core Engineering | IC5,Core Admin and Accounts,Abraham Velazquez,28.36,10,0,18,0,2.44,Excluded: Recent Hire (<6mo),Q3,Q1 (bottom 25%),Below company median
+Dmytro Kovalenko,Q1 (bottom 25%),IC5,Fullstack Product Software Engineering | Core Engineering | IC5,Core Admin and Accounts,Abraham Velazquez,18.33,5,0,5,0,3.67,Excluded: Recent Hire (<6mo),Q2,Q1 (bottom 25%),Below company median
+Javier Alejandro Domene Reyes,Q1 (bottom 25%),IC2,Backend Product Software Engineering | Core Engineering | IC2,Core Admin and Accounts,Abraham Velazquez,12.02,13,0,1,0,1.13,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Irving Rodriguez,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Core Admin and Accounts,Abraham Velazquez,11.2,18,1,1,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Javier Alejandro Domene Reyes,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Core Admin and Accounts,Abraham Velazquez,4,6,1,1,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Bill Lucy,Q4 (top 25%),IC3,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,109.2,67,173,171,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Erick Rivas,Q3,IC3,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,84.1,63,116,115,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Adam Loo,Q3,IC3,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,61.5,36,112,63,,,,Q3,Q4 (top 25%),Below company median
+Pochao Yang,Q2,IC3,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,58.9,23,127,70,,,,Q2,Q3,Below company median
+Adam LaFave,Q2,IC3,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,52,37,69,91,,,,Q2,Q3,Below company median
+Jerzy Jurkowski,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Admin and Accounts,Abraham Velazquez,18.3,17,24,9,,,,Q2,Q1 (bottom 25%),Below company median
+Nisarg Patel,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,12,13,14,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Mateusz Mółka,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Admin and Accounts,Abraham Velazquez,4.9,7,2,1,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jian Chen,Q2,IC4,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,66,34,116,108,,,,Q3,Q4 (top 25%),Above company median
+Nick McLaughlin,Q2,IC4,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,46.2,45,50,42,,,,Q1 (bottom 25%),Q3,Below company median
+Josiah Lee,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Purchase Solutions Enablement,Abraham Velazquez,40.7,21,78,47,,,,Q1 (bottom 25%),Q3,Below company median
+Krzysztof Duda,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Core Admin and Accounts,Abraham Velazquez,24.6,36,6,12,,,,Q3,Q1 (bottom 25%),Below company median
+Perin Sabuwala,Q1 (bottom 25%),IC5,Software Engineering | Core GM,Core Admin and Accounts,Abraham Velazquez,23.4,9,48,36,,,,Q2,Q1 (bottom 25%),Below company median
+Jordi Paris Ferrer,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,Desktop Experience,Aisha Ferrazares,350.55,109,0,1251,0,1.04,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Ivan Perez,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Desktop Experience,Aisha Ferrazares,89.96,66,0,149,0,1.09,Lower-Middle (25-50 Percentile),Q2,Q3,Above company median
+Sameer Ganesh Shinde,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Desktop Experience,Aisha Ferrazares,93.21,79,0,131,0,1.04,Upper-Middle (50-75 Percentile),Q2,Q3,Above company median
+Brennan McDonald,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Desktop Experience,Aisha Ferrazares,93.82,87,0,87,0,1.08,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Ruben Uribe,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Desktop Experience,Aisha Ferrazares,107.09,100,0,46,0,1.2,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Dustyn Doyle,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Desktop Experience,Aisha Ferrazares,63.92,42,0,47,0,1.49,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Olivia Ho,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Desktop Experience,Aisha Ferrazares,109.29,84,0,126,0,1.18,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Swapnil Ahuja,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Desktop Experience,Aisha Ferrazares,110.69,84,0,147,0,1.15,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Eric Ellingson,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Desktop Experience,Aisha Ferrazares,130.34,114,0,95,0,1.18,Lower-Middle (25-50 Percentile),Q3,Q3,Above company median
+Armando Salcido,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Desktop Experience,Aisha Ferrazares,139.19,99,0,243,0,1.09,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Nick Tarter,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Desktop Experience,Aisha Ferrazares,174.32,146,1,225,0,1.05,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Tina Le,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Desktop Experience,Aisha Ferrazares,174.65,117,3,237,0,1.13,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Xander Griff,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Desktop Experience,Aisha Ferrazares,134.75,77,2,283,0,1.06,Lower-Middle (25-50 Percentile),Q3,Q3,Above company median
+Ryan YeePin Yheng,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Desktop Experience,Aisha Ferrazares,161.25,111,0,179,0,1.29,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Alexandru Grigoras,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Desktop Experience,Aisha Ferrazares,183.12,111,0,430,0,1.05,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Sourabh Yerfule,Q4 (top 25%),IC5,Backend Product Software Engineering | Core Engineering | IC5,Desktop Experience,Aisha Ferrazares,307.77,104,0,541,4,1.13,Excluded: Small Cohort (<8),Q4 (top 25%),Q4 (top 25%),Above company median
+Pasoon Azimi,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,1.2,2,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Nick Tarter,Q3,IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,72.6,60,101,63,,,,Q2,Q4 (top 25%),Above company median
+Swapnil Ahuja,Q3,IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,64.3,35,121,70,,,,Q2,Q4 (top 25%),Above company median
+Tina Le,Q2,IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,56.6,41,82,74,,,,Q2,Q3,Below company median
+Dustyn Doyle,Q2,IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,55.8,22,130,36,,,,Q1 (bottom 25%),Q3,Below company median
+Olivia Ho,Q2,IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,49.6,45,53,67,,,,Q1 (bottom 25%),Q3,Below company median
+Xander Griff,Q2,IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,42.8,30,52,92,,,,Q1 (bottom 25%),Q3,Below company median
+Armando Salcido,Q2,IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,35.1,40,24,39,,,,Q1 (bottom 25%),Q2,Below company median
+Tyler Lesperance,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,33.7,32,40,25,,,,Q1 (bottom 25%),Q2,Below company median
+Ninghe Zhang,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,31.7,30,41,14,,,,Q1 (bottom 25%),Q2,Below company median
+Jordi Paris Ferrer,Q3,IC4,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,118.4,34,136,572,,,,Q3,Q4 (top 25%),Above company median
+Ryan YeePin Yheng,Q2,IC4,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,51.4,35,70,94,,,,Q1 (bottom 25%),Q3,Below company median
+Sourabh Yerfule,Q3,IC5,Software Engineering | Core GM,Desktop Experience,Aisha Ferrazares,73.3,38,106,187,,,,Q2,Q4 (top 25%),Above company median
+Brian Erkkinen,Q3,IC4,Backend Product Software Engineering | Core Engineering | IC4,Sign API & Mobile,Anagha Mudigonda,79.88,24,1,255,0,1.07,Bottom (0-25 Percentile),Q3,Q2,Above company median
+John Spaetzel,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,Sign API & Mobile,Anagha Mudigonda,154.47,116,1,173,0,1.17,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Tom Barnes,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Sign API & Mobile,Anagha Mudigonda,100.6,73,2,133,0,1.07,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Christopher French,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Sign API & Mobile,Anagha Mudigonda,72.7,58,0,72,0,1.2,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Robin Leenders,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Sign API & Mobile,Anagha Mudigonda,80.88,71,3,22,0,1.08,Bottom (0-25 Percentile),Q3,Q2,Above company median
+Jordan Bardsley,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Sign API & Mobile,Anagha Mudigonda,90.73,54,2,154,0,1.09,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Pavel Cuchonski,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Sign API & Mobile,Anagha Mudigonda,117.33,115,0,100,0,1.05,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Tom Barnes,Q2,IC3,Software Engineering | Core GM,Sign API & Mobile,Anagha Mudigonda,50.4,40,64,72,,,,Q2,Q3,Below company median
+Pavel Cuchonski,Q3,IC4,Software Engineering | Core GM,Sign API & Mobile,Anagha Mudigonda,82.7,68,120,59,,,,Q3,Q4 (top 25%),Above company median
+John Spaetzel,Q3,IC4,Software Engineering | Core GM,Sign API & Mobile,Anagha Mudigonda,74.4,75,74,72,,,,Q2,Q4 (top 25%),Above company median
+Brian Erkkinen,Q2,IC4,Software Engineering | Core GM,Sign API & Mobile,Anagha Mudigonda,49.4,12,96,134,,,,Q1 (bottom 25%),Q3,Below company median
+Jordan Bardsley,Q2,IC4,Software Engineering | Core GM,Sign API & Mobile,Anagha Mudigonda,48.9,28,79,84,,,,Q1 (bottom 25%),Q3,Below company median
+Christopher French,Q2,IC4,Software Engineering | Core GM,Sign API & Mobile,Anagha Mudigonda,42.6,40,50,36,,,,Q1 (bottom 25%),Q3,Below company median
+Robin Leenders,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Sign API & Mobile,Anagha Mudigonda,36.3,38,40,15,,,,Q1 (bottom 25%),Q2,Below company median
+Dale Brown,Q3,IC3,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,62,73,52,26,,,,Q2,Q3,Below company median
+Parth Patel,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,7.2,8,6,6,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Harrison Engel,Q3,IC4,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,97.1,72,164,47,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Michael Tanjung,Q3,IC4,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,77.7,65,119,30,,,,Q4 (top 25%),Q3,Above company median
+Angel Gonzalez,Q2,IC4,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,71.3,54,108,65,,,,Q3,Q3,Above company median
+Tommy Li,Q2,IC4,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,70.8,41,120,102,,,,Q3,Q3,Above company median
+Aniruddh Rao,Q2,IC4,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,55,49,82,10,,,,Q2,Q2,Below company median
+Girish Jeyakumar,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Dash Engineering - Dash Identity and Permission,Anil Masakal,29.1,31,32,9,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jeff Shiau,Q3,IC5,Software Engineering | OTC - Eng,Dash Engineering - Enterprise,Anirudh Seth,80.2,64,112,82,,,,Q4 (top 25%),Q3,Above company median
+Sean-Michael Lewis,Q2,IC6,Software Engineering | OTC - Eng,Dash Engineering - Enterprise,Anirudh Seth,6.6,7,0,24,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Ruben Uribe,Q3,IC2,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,81,55,149,33,,,,Q2,Q3,Above company median
+Shaun Fowler,Q3,IC3,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,88.4,94,72,104,,,,Q3,Q4 (top 25%),Above company median
+Eric Ellingson,Q3,IC3,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,84.8,63,143,41,,,,Q2,Q3,Above company median
+Alexander Wang,Q3,IC3,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,76.5,50,129,78,,,,Q1 (bottom 25%),Q3,Above company median
+Yuchen Zou,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,18.3,20,20,3,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Gregory Benner,Q4 (top 25%),IC4,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,166.3,153,198,151,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Alexandru Grigoras,Q3,IC4,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,115,48,210,232,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Joe Carroll,Q3,IC4,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,106.1,71,135,230,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Max Kohne,Q3,IC4,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,94.1,74,92,221,,,,Q3,Q4 (top 25%),Above company median
+Kenny Li,Q3,IC4,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,82.4,59,121,107,,,,Q2,Q3,Above company median
+Andrew Apperley,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Surfaces & Foundation,Anna Neyzberg,40.2,36,50,36,,,,Q1 (bottom 25%),Q2,Below company median
+Rick Daniel,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,DocSend,Anselina Chia,107.65,95,0,124,0,1.07,Upper-Middle (50-75 Percentile),Q2,Q3,Above company median
+Helen Deng,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,DocSend,Anselina Chia,115.29,106,0,121,0,1.06,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Zafar Bootwala,Q3,IC4,Backend Product Software Engineering | Core Engineering | IC4,DocSend,Anselina Chia,111.64,101,0,106,0,1.09,Bottom (0-25 Percentile),Q2,Q2,Above company median
+Steven Harman,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,DocSend,Anselina Chia,199.57,87,0,414,0,1.31,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Hazel Bachrach,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,DocSend,Anselina Chia,216.89,131,1,429,0,1.11,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Monica Cowan,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend,Anselina Chia,175.52,126,0,233,0,1.19,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Stella Conyer,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,DocSend,Anselina Chia,140.54,132,0,130,0,1.07,Lower-Middle (25-50 Percentile),Q3,Q3,Above company median
+Chris Allen,Q3,IC3,Software Engineering | Core GM,Docsend - Expansion,Anselina Chia,98,91,75,209,,,,Q2,Q4 (top 25%),Above company median
+Jeb Coleman,Q3,IC3,Software Engineering | Core GM,DocSend,Anselina Chia,90,50,135,195,,,,Q1 (bottom 25%),Q4 (top 25%),Above company median
+Isley Gao,Q3,IC3,Software Engineering | Core GM,Docsend - Expansion,Anselina Chia,62,60,66,62,,,,Q1 (bottom 25%),Q4 (top 25%),Below company median
+Rick Daniel,Q3,IC3,Software Engineering | Core GM,DocSend,Anselina Chia,61.1,61,65,50,,,,Q1 (bottom 25%),Q3,Below company median
+Melanie Chin,Q4 (top 25%),IC4,Software Engineering | Core GM,Docsend - Expansion,Anselina Chia,141.1,113,159,256,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Ben Brook,Q4 (top 25%),IC4,Software Engineering | Core GM,Docsend - Expansion,Anselina Chia,131.7,110,142,231,,,,Q3,Q4 (top 25%),Above company median
+Steven Harman,Q4 (top 25%),IC4,Software Engineering | Core GM,DocSend,Anselina Chia,124.4,48,220,296,,,,Q3,Q4 (top 25%),Above company median
+Hazel Bachrach,Q3,IC4,Software Engineering | Core GM,DocSend,Anselina Chia,96,78,97,201,,,,Q2,Q4 (top 25%),Above company median
+Zafar Bootwala,Q3,IC4,Software Engineering | Core GM,DocSend,Anselina Chia,75.9,59,123,36,,,,Q1 (bottom 25%),Q4 (top 25%),Above company median
+Stella Conyer,Q2,IC4,Software Engineering | Core GM,DocSend,Anselina Chia,70.5,69,76,63,,,,Q1 (bottom 25%),Q4 (top 25%),Above company median
+Łukasz Więckowski,Q2,IC3,Software Engineering | New Initiatives,OCEO Paper Eng,Artur Rośczak,34,41,30,4,,,,Q3,Q3,Below company median
+Adam Kalinowski,Q1 (bottom 25%),IC3,Software Engineering | New Initiatives,OCEO Paper Eng,Artur Rośczak,33.2,36,35,11,,,,Q2,Q2,Below company median
+Przemek Danielski,Q1 (bottom 25%),IC3,Software Engineering | New Initiatives,OCEO Paper Eng,Artur Rośczak,18.7,9,31,40,,,,Q1 (bottom 25%),Q2,Below company median
+Kacper Parzęcki,Q1 (bottom 25%),IC3,Software Engineering | New Initiatives,OCEO Paper Eng,Artur Rośczak,13.5,13,12,21,,,,Q1 (bottom 25%),Q2,Below company median
+Bernhard Förster,Q2,IC4,Software Engineering | New Initiatives,OCEO Paper Eng,Artur Rośczak,55.2,61,55,21,,,,Q4 (top 25%),Q3,Below company median
+Daniel Antos,Q2,IC4,Software Engineering | New Initiatives,OCEO Paper Eng,Artur Rośczak,48.4,41,64,46,,,,Q4 (top 25%),Q3,Below company median
+Paweł Nowak,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,OCEO Paper Eng,Artur Rośczak,33.9,6,65,108,,,,Q2,Q3,Below company median
+Wojtek Sierotowicz,Q2,IC1,Software Engineering | OTC - Eng,Connectors,Christian Sondrup Bøegh,49.4,35,71,71,,,,Q2,Q2,Below company median
+Thor Olesen,Q3,IC3,Software Engineering | OTC - Eng,Connectors,Christian Sondrup Bøegh,102.5,99,112,95,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Benjamin Perche,Q2,IC3,Software Engineering | OTC - Eng,Connectors,Christian Sondrup Bøegh,59.1,64,51,54,,,,Q3,Q3,Below company median
+Jacek Kalamarz,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Connectors,Christian Sondrup Bøegh,20.3,16,32,11,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Dawid Szmidka,Q4 (top 25%),IC4,Software Engineering | OTC - Eng,Connectors,Christian Sondrup Bøegh,142.8,64,196,456,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Jonas Madsen,Q1 (bottom 25%),IC5,Software Engineering | OTC - Eng,Connectors,Christian Sondrup Bøegh,12.1,15,6,13,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Ninghe Zhang,Q2,IC3,Backend Product Software Engineering | Core Engineering | IC3,Growth Monetization,Colin Thompkins,57.69,56,0,33,0,1.12,Lower-Middle (25-50 Percentile),Q3,Q2,Below company median
+Jenny Huang,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Monetization,Colin Thompkins,74.85,67,0,62,0,1.13,Bottom (0-25 Percentile),Q3,Q2,Above company median
+Kevin Buffington,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Monetization,Colin Thompkins,92.15,55,0,224,0,1.04,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Weiting Sun,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Monetization,Colin Thompkins,112.84,92,1,145,0,1.05,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Eugene Che,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth Monetization,Colin Thompkins,106.8,83,0,202,0,1,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Michael Henretty,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth Monetization,Colin Thompkins,112.44,74,1,187,0,1.11,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Rosa Huang,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth Monetization,Colin Thompkins,149.89,107,0,301,0,1.03,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Reza Daliri,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Monetization,Colin Thompkins,36.51,19,0,2,0,2.34,Excluded: Recent Hire (<6mo),Q2,Q1 (bottom 25%),Below company median
+Loc Nguyen,Q3,IC2,Backend Product Software Engineering | Core Engineering | IC2,Growth Monetization,Colin Thompkins,72.57,28,0,203,0,1.15,Excluded: Small Cohort (<8),Q3,Q3,Above company median
+Akash Sondhi,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Monetization,Colin Thompkins,33.96,17,0,3,0,2.39,Excluded: Recent Hire (<6mo),Q2,Q1 (bottom 25%),Below company median
+Pasoon Azimi,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Monetization,Colin Thompkins,28.6,25,0,4,0,1.38,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jeremy Heaton,Q1 (bottom 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth Monetization,Colin Thompkins,18.33,7,0,2,0,3.06,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Tomiwa Olasoko,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Growth Monetization,Colin Thompkins,22.6,22,29,7,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jenny Huang,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Growth Monetization,Colin Thompkins,21.3,7,56,3,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Kevin Buffington,Q2,IC3,Software Engineering | Core GM,Growth Monetization,Colin Thompkins,46.2,20,84,90,,,,Q2,Q3,Below company median
+Weiting Sun,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Growth Monetization,Colin Thompkins,33.6,33,43,9,,,,Q2,Q2,Below company median
+Rosa Huang,Q2,IC4,Software Engineering | Core GM,Growth Monetization,Colin Thompkins,64,49,79,109,,,,Q3,Q4 (top 25%),Above company median
+Eugene Che,Q2,IC4,Software Engineering | Core GM,Growth Monetization,Colin Thompkins,44.1,27,78,45,,,,Q2,Q3,Below company median
+Michael Henretty,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Growth Monetization,Colin Thompkins,31.5,20,56,27,,,,Q1 (bottom 25%),Q2,Below company median
+Daniel Brito Sotelo,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Sign - Poland,Damian Zawada,30.46,35,0,4,0,1.06,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Kacper Nurek,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Sign - Poland,Damian Zawada,53.87,37,1,91,0,1.03,Bottom (0-25 Percentile),Q4 (top 25%),Q1 (bottom 25%),Below company median
+Jan Doliński,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Sign - Poland,Damian Zawada,42,36,0,45,0,1.11,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Michał Walenia,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Sign - Poland,Damian Zawada,42.69,41,1,9,0,1.09,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Vadzim Ramanenka,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Sign - Poland,Damian Zawada,46.37,41,0,32,0,1.18,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Michał Prochowski,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Sign - Poland,Damian Zawada,46.72,47,0,18,0,1.13,Bottom (0-25 Percentile),Q4 (top 25%),Q1 (bottom 25%),Below company median
+Grzegorz Biernacki,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Sign - Poland,Damian Zawada,116.67,93,0,100,0,1.24,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q3,Above company median
+Tomasz Piekarczyk,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Sign - Poland,Damian Zawada,77.94,57,1,82,0,1.17,Bottom (0-25 Percentile),Q4 (top 25%),Q1 (bottom 25%),Above company median
+Kacper Nurek,Q2,IC2,Software Engineering | Core GM,Sign - Poland,Damian Zawada,31.8,23,44,48,,,,Q2,Q2,Below company median
+Daniel Brito Sotelo,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Sign - Poland,Damian Zawada,18,22,16,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Grzegorz Biernacki,Q2,IC3,Software Engineering | Core GM,Sign - Poland,Damian Zawada,42.2,51,30,26,,,,Q3,Q3,Below company median
+Michał Prochowski,Q2,IC3,Software Engineering | Core GM,Sign - Poland,Damian Zawada,40.8,28,77,9,,,,Q2,Q3,Below company median
+Michał Walenia,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Sign - Poland,Damian Zawada,24,19,41,3,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Vadzim Ramanenka,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Sign - Poland,Damian Zawada,23.3,20,34,11,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jan Doliński,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Sign - Poland,Damian Zawada,18.6,21,12,24,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Tomasz Piekarczyk,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Sign - Poland,Damian Zawada,39.7,33,52,43,,,,Q2,Q2,Below company median
+Jordan Fox,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Team Formation,Dan Karney,68.92,56,0,83,0,1.12,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Michelle Tai,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Team Formation,Dan Karney,79.6,71,0,76,0,1.11,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Thomas Lowry,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Team Formation,Dan Karney,85.39,74,0,96,0,1.09,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q3,Above company median
+Jonathan Lam,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Formation,Dan Karney,41.86,31,0,52,0,1.19,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Tristan Pendergrass,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Formation,Dan Karney,60.26,51,0,48,0,1.2,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Tianqi Li,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Formation,Dan Karney,63.76,64,0,57,0,1.02,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Patrick Sun,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Formation,Dan Karney,64.65,31,5,67,0,1.06,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Zack Urben,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Formation,Dan Karney,101.86,62,1,148,0,1.22,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Gelber Giron,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Formation,Dan Karney,103.87,57,0,104,1,1.2,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Vincent West,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Formation,Dan Karney,149.64,127,1,156,0,1.09,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Andrew Wang-Hoyer,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Formation,Dan Karney,160,168,0,48,0,1.11,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Michelle Tai,Q2,IC2,Software Engineering | Core GM,Team Formation,Dan Karney,27.7,28,27,28,,,,Q1 (bottom 25%),Q2,Below company median
+Thomas Lowry,Q2,IC2,Software Engineering | Core GM,Team Formation,Dan Karney,26,26,26,26,,,,Q1 (bottom 25%),Q2,Below company median
+Zack Urben,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Team Formation,Dan Karney,33.7,21,43,82,,,,Q2,Q2,Below company median
+Jacob Anderson,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Team Formation,Dan Karney,32.8,29,51,1,,,,Q2,Q2,Below company median
+Tianqi Li,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Team Formation,Dan Karney,31.3,25,42,37,,,,Q2,Q2,Below company median
+Jonathan Lam,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Team Formation,Dan Karney,29.5,18,54,25,,,,Q1 (bottom 25%),Q2,Below company median
+Patrick Sun,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Team Formation,Dan Karney,22.6,12,41,31,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Tristan Pendergrass,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Team Formation,Dan Karney,18.7,19,21,10,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Vincent West,Q2,IC4,Software Engineering | Core GM,Team Formation,Dan Karney,69.3,73,70,45,,,,Q3,Q4 (top 25%),Above company median
+Andrew Wang-Hoyer,Q2,IC4,Software Engineering | Core GM,Team Formation,Dan Karney,58.2,63,63,15,,,,Q2,Q3,Below company median
+Gelber Giron,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Team Formation,Dan Karney,27.4,31,22,22,,,,Q1 (bottom 25%),Q2,Below company median
+Jian Chen,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,Core MAX,Ehab Elgohary,147.5,122,0,216,0,1.05,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Jacob Carpenter,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core MAX,Ehab Elgohary,71.03,70,0,59,0,1.05,Lower-Middle (25-50 Percentile),Q1 (bottom 25%),Q2,Above company median
+Edison Aviles,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core MAX,Ehab Elgohary,127.81,99,0,214,0,1.05,Upper-Middle (50-75 Percentile),Q2,Q4 (top 25%),Above company median
+Brandon Seamster,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core MAX,Ehab Elgohary,136.51,100,0,236,0,1.07,Top (75-100 Percentile),Q2,Q4 (top 25%),Above company median
+Adam Loo,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core MAX,Ehab Elgohary,107.6,88,2,96,0,1.09,Lower-Middle (25-50 Percentile),Q2,Q2,Above company median
+Christine Hartmann,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core MAX,Ehab Elgohary,136.85,88,0,71,0,1.62,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Pochao Yang,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core MAX,Ehab Elgohary,149.7,85,0,286,0,1.2,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Erick Rivas,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core MAX,Ehab Elgohary,301.05,207,0,472,0,1.16,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Adam LaFave,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Core MAX,Ehab Elgohary,186.88,145,2,147,0,1.21,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Bill Lucy,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Core MAX,Ehab Elgohary,225.74,146,1,455,0,1.06,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Nick McLaughlin,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Core MAX,Ehab Elgohary,249.04,219,0,256,0,1.1,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Redmond Tran,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core MAX,Ehab Elgohary,53.06,17,0,14,0,3.24,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Noah Wood,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core MAX,Ehab Elgohary,103.84,62,0,106,0,1.47,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q3,Above company median
+Srujan Reddy Gadila,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core MAX,Ehab Elgohary,72.33,51,0,59,0,1.38,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q2,Above company median
+Durgesh Patel,Q3,IC4,Backend Product Software Engineering | Core Engineering | IC4,Core Web Experience,Gennadiy Civil,114.86,108,1,41,0,1.16,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Catherine Lee,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core Web Experience,Gennadiy Civil,68.96,65,0,66,0,1.06,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Karen Choi,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core Web Experience,Gennadiy Civil,73.19,69,0,60,0,1.09,Lower-Middle (25-50 Percentile),Q2,Q2,Above company median
+Nathan Aun,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core Web Experience,Gennadiy Civil,92.73,91,1,64,0,1.03,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Swee Yong Chiah,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core Web Experience,Gennadiy Civil,93.41,47,0,71,0,1.8,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Summer Sheldon,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Core Web Experience,Gennadiy Civil,116.47,121,0,56,0,1.08,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Calvin Lee,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core Web Experience,Gennadiy Civil,92.04,97,0,22,0,1.12,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Ryan Ward,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core Web Experience,Gennadiy Civil,99.69,67,0,167,0,1.15,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Wyatt Richter,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core Web Experience,Gennadiy Civil,126.44,71,0,285,0,1.11,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q3,Above company median
+Nick Larson,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Core Web Experience,Gennadiy Civil,151.76,66,1,289,1,1.12,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Mike Moser,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Core Web Experience,Gennadiy Civil,152.34,135,0,149,0,1.11,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Xiaoxi Jin,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Core Web Experience,Gennadiy Civil,165.76,151,0,157,0,1.09,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Anthony Perello,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Core Web Experience,Gennadiy Civil,229.66,215,0,257,0,1.03,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Dipo Arowona,Q2,IC1,Fullstack Product Software Engineering | Core Engineering | IC1,Core Web Experience,Gennadiy Civil,68.78,59,0,61,0,1.16,Excluded: Small Cohort (<8),Q2,Q2,Above company median
+Albert Caldarelli,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core Web Experience,Gennadiy Civil,56.47,19,0,1,0,3.67,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Bree Devries,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core Web Experience,Gennadiy Civil,113.26,28,0,27,0,4.07,Excluded: Recent Hire (<6mo),Q3,Q2,Above company median
+Alex Yurowkin,Q1 (bottom 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Core Web Experience,Gennadiy Civil,33,11,0,1,0,3.67,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Mohammad Bayadse,Q2,IC2,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,28.9,20,50,19,,,,Q1 (bottom 25%),Q2,Below company median
+Calvin Lee,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,31.7,45,15,2,,,,Q1 (bottom 25%),Q2,Below company median
+Wyatt Richter,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,27.7,23,37,28,,,,Q1 (bottom 25%),Q2,Below company median
+Anthony Perello,Q3,IC4,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,77.8,69,100,64,,,,Q2,Q4 (top 25%),Above company median
+Xiaoxi Jin,Q3,IC4,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,77.2,68,96,76,,,,Q2,Q4 (top 25%),Above company median
+Mike Moser,Q3,IC4,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,73.2,46,125,81,,,,Q2,Q4 (top 25%),Above company median
+Nick Larson,Q2,IC4,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,57.4,38,78,112,,,,Q1 (bottom 25%),Q3,Below company median
+Durgesh Patel,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Core Web Experience,Gennadiy Civil,30.8,29,43,5,,,,Q1 (bottom 25%),Q2,Below company median
+Loc Nguyen,Q2,IC1,Software Engineering | OTC - Eng,Connectors Experience,Greg Szczygiel,53.4,14,116,102,,,,Q3,Q2,Below company median
+Juan Mrad,Q4 (top 25%),IC3,Software Engineering | OTC - Eng,Connectors Experience,Greg Szczygiel,107.4,64,157,219,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Grzegorz Ślązak,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Connectors Experience,Greg Szczygiel,33.2,35,28,38,,,,Q2,Q2,Below company median
+Jakub Dżon,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Connectors Experience,Greg Szczygiel,18,15,15,45,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Paul Selden,Q4 (top 25%),IC5,Software Engineering | OTC - Eng,Dash - Relevance,Hans Sayyadi,124.3,67,173,322,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Ryan Morlok,Q3,IC5,Software Engineering | OTC - Eng,Dash - Relevance,Hans Sayyadi,89.8,55,132,172,,,,Q3,Q4 (top 25%),Above company median
+Ritu Vincent,Q2,IC5,Software Engineering | OTC - Eng,Dash - Relevance,Hans Sayyadi,43.9,34,54,73,,,,Q2,Q2,Below company median
+Nishchal Arya,Q2,IC5,Software Engineering | OTC - Eng,Dash - Relevance,Hans Sayyadi,31.1,38,25,8,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Dmitriy Meyerzon,Q3,IC6,Software Engineering | OTC - Eng,Dash - Relevance,Hans Sayyadi,17.9,13,26,23,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Catherine Mei,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Dash Growth - Activation & Engagement,Jason Wang,323.25,241,0,329,0,1.25,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Lei Jiang,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Growth - Activation & Engagement,Jason Wang,164.46,143,0,183,0,1.09,Upper-Middle (50-75 Percentile),Q1 (bottom 25%),Q3,Above company median
+Kyle Van Vleck,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Growth - Activation & Engagement,Jason Wang,164.9,135,1,239,0,1.03,Upper-Middle (50-75 Percentile),Q2,Q3,Above company median
+Ryan Kara,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Growth - Activation & Engagement,Jason Wang,182.5,126,1,203,0,1.25,Top (75-100 Percentile),Q2,Q4 (top 25%),Above company median
+Marlen Knüsel,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Growth - Activation & Engagement,Jason Wang,225.09,189,0,216,0,1.16,Top (75-100 Percentile),Q3,Q4 (top 25%),Above company median
+Jacob Lee,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Growth - Activation & Engagement,Jason Wang,276.72,144,1,445,0,1.33,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Mike Boht,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Dash Growth - Activation & Engagement,Jason Wang,149.68,97,1,317,0,1.03,Upper-Middle (50-75 Percentile),Q1 (bottom 25%),Q3,Above company median
+ZIHAO YANG,Q2,IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,46.92,42,1,18,0,1.12,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Alexandru Nedelcu,Q2,IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,49.2,42,0,78,0,1,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Philip Lenzen,Q3,IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,64.44,47,1,79,0,1.11,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Elana Liskovich,Q3,IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,100.77,97,0,38,0,1.18,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q3,Above company median
+Eli Wilson,Q3,IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,103.92,74,0,138,0,1.2,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q3,Above company median
+Bartosz Nowaczyk,Q2,IC4,Backend Product Software Engineering | Core Engineering | IC4,Dash Experiences,Jeff Adler,68.38,43,0,58,0,1.49,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Matthew Wright,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,Dash Experiences,Jeff Adler,124.22,106,0,87,0,1.22,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Clarence Lee,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,Dash Experiences,Jeff Adler,149.77,55,1,465,0,1.06,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Mohamed Amr Abuelfoutouh,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Dash Experiences,Jeff Adler,78.73,57,0,137,0,1.08,Bottom (0-25 Percentile),Q3,Q2,Above company median
+Christopher Sullivan,Q3,IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,72.96,63,0,10,0,1.39,Excluded: Recent Hire (<6mo),Q3,Q2,Above company median
+Tiger Gao,Q3,IC2,Backend Product Software Engineering | Core Engineering | IC2,Dash Experiences,Jeff Adler,90.37,82,0,91,0,1.08,Excluded: Small Cohort (<8),Q4 (top 25%),Q4 (top 25%),Above company median
+Ting-Yuan Huang,Q1 (bottom 25%),IC5,Backend Product Software Engineering | Core Engineering | IC5,Dash Experiences,Jeff Adler,13.2,3,0,0,0,5.5,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jess Fisher,Q4 (top 25%),IC5,Backend Product Software Engineering | Core Engineering | IC5,Dash Experiences,Jeff Adler,164.89,40,1,559,0,1.11,Excluded: Small Cohort (<8),Q4 (top 25%),Q4 (top 25%),Above company median
+Caleb Gross,Q2,IC4,Backend Product Software Engineering | Core Engineering | IC4,Dash Experiences,Jeff Adler,48.67,34,0,10,0,1.67,Excluded: Recent Hire (<6mo),Q2,Q1 (bottom 25%),Below company median
+Robbie Paul,Q3,IC2,Backend Product Software Engineering | Core Engineering | IC2,Dash Experiences,Jeff Adler,62.92,57,0,58,0,1.1,Excluded: Small Cohort (<8),Q2,Q3,Below company median
+Josh Yunho Yang,Q3,IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,68.59,26,0,108,0,1.62,Excluded: Recent Hire (<6mo),Q3,Q2,Above company median
+Zachary Garwood,Q1 (bottom 25%),IC2,Backend Product Software Engineering | Core Engineering | IC2,Dash Experiences,Jeff Adler,21.69,10,0,29,0,1.57,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Dave Dao,Q1 (bottom 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,8.02,8,0,3,0,1.15,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Scott Fleener,Q1 (bottom 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Dash Experiences,Jeff Adler,33.65,19,0,2,0,2.16,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Alex Pelan,Q3,IC3,Software Engineering | OTC - Eng,Dash Experiences,Jeff Adler,86.6,68,108,134,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Kamil Tusznio,Q2,IC3,Software Engineering | OTC - Eng,Dash Experiences,Jeff Adler,58.5,46,71,96,,,,Q2,Q2,Below company median
+Andrew Viteri,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Dash Experiences,Jeff Adler,17.3,21,11,14,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Derek Billings,Q2,IC4,Software Engineering | OTC - Eng,Dash Experiences,Jeff Adler,48.1,38,54,91,,,,Q2,Q2,Below company median
+Leonardo Braga,Q3,IC5,Software Engineering | OTC - Eng,Dash Experiences,Jeff Adler,72.9,80,61,66,,,,Q3,Q3,Above company median
+Mike Lyons,Q3,IC5,Software Engineering | OTC - Eng,Dash Experiences,Jeff Adler,58.7,50,53,128,,,,Q2,Q3,Below company median
+Marius Bunescu,Q2,IC5,Software Engineering | OTC - Eng,Dash Experiences,Jeff Adler,31.8,36,29,15,,,,Q1 (bottom 25%),Q2,Below company median
+Andrew Viteri,Q2,IC3,Backend Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,51.06,55,0,26,0,1.04,Bottom (0-25 Percentile),Q1 (bottom 25%),Q2,Below company median
+Arash Koushkestani,Q3,IC3,Backend Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,64.5,51,1,31,0,1.25,Lower-Middle (25-50 Percentile),Q2,Q2,Above company median
+Daniel Tchorni,Q3,IC3,Backend Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,89.1,70,0,125,0,1.1,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Laura Neal,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,59.1,26,1,10,0,2.16,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Yu Zhou,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,83.69,67,0,101,0,1.13,Bottom (0-25 Percentile),Q2,Q2,Above company median
+Cathy Liu,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,148.97,87,0,263,1,1.05,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Dylan Barrison,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,160.91,154,0,152,0,1.05,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Helen Liang,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,162.54,147,0,173,0,1.07,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Cara Wolfe,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,170.82,88,0,340,1,1.08,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Josh Seides,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,245.7,142,0,627,0,1.03,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+James Dalessio,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Simplify Sharing,John Pillion,52.59,30,0,131,0,1.05,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Hao Li,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Simplify Sharing,John Pillion,97.7,66,0,149,0,1.18,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Dusty Payne,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Simplify Sharing,John Pillion,101.8,105,0,89,0,1,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Drew Limpasuvan,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Simplify Sharing,John Pillion,176.46,155,1,131,0,1.14,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Robby Balistreri,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Simplify Sharing,John Pillion,209.06,153,0,305,0,1.14,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Shawn Zhong,Q4 (top 25%),IC3,Mobile Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,142.17,111,0,241,0,1.04,Top (75-100 Percentile),Q3,Q4 (top 25%),Above company median
+Ani Torosyan,Q4 (top 25%),IC1,Mobile Software Engineering | Core Engineering | IC1,Simplify Sharing,John Pillion,118.09,97,0,181,0,1.04,Excluded: Small Cohort (<8),Q3,Q1 (bottom 25%),Above company median
+Robert Walker,Q1 (bottom 25%),IC4,Mobile Software Engineering | Core Engineering | IC4,Simplify Sharing,John Pillion,31.49,28,0,24,0,1.16,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Dillon Kerr,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Simplify Sharing,John Pillion,88,21,0,64,0,2.97,Excluded: Recent Hire (<6mo),Q3,Q2,Above company median
+Josh Seides,Q4 (top 25%),IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,167.4,73,275,411,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Dylan Barrison,Q3,IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,103.4,88,141,83,,,,Q3,Q4 (top 25%),Above company median
+Helen Liang,Q3,IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,87,71,109,117,,,,Q2,Q4 (top 25%),Above company median
+Cathy Liu,Q3,IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,73.9,37,114,175,,,,Q2,Q4 (top 25%),Above company median
+Shawn Zhong,Q3,IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,66.2,41,105,101,,,,Q2,Q4 (top 25%),Above company median
+Yu Zhou,Q2,IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,52.7,35,79,80,,,,Q2,Q3,Below company median
+Hao Li,Q2,IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,40.1,33,52,47,,,,Q1 (bottom 25%),Q2,Below company median
+Daniel Tchorni,Q2,IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,33.9,29,39,48,,,,Q1 (bottom 25%),Q2,Below company median
+Arash Koushkestani,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Simplify Sharing,John Pillion,31.4,32,34,20,,,,Q1 (bottom 25%),Q2,Below company median
+James Dalessio,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Simplify Sharing,John Pillion,41.3,18,84,53,,,,Q1 (bottom 25%),Q3,Below company median
+Robert Walker,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Simplify Sharing,John Pillion,10.5,8,17,6,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Rich Chan,Q2,IC6,Software Engineering | OTC - Eng,OTC - Eng,Josh Clemm,14.1,22,3,0,,,,Q3,Q1 (bottom 25%),Below company median
+Milan Saini,Q2,IC6,Software Engineering | OTC - Eng,OTC - Eng,Josh Clemm,8.2,10,6,4,,,,Q2,Q1 (bottom 25%),Below company median
+Jacob Hansen,Q1 (bottom 25%),IC6,Software Engineering | OTC - Eng,OTC - Eng,Josh Clemm,4.8,5,3,9,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Rene Schmidt,Q2,IC7,Software Engineering | OTC - Eng,OTC - Eng,Josh Clemm,178.7,90,276,419,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Derek Billings,Q4 (top 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,Organize,Julian Ramirez,134.93,124,0,148,0,1.05,Lower-Middle (25-50 Percentile),Q1 (bottom 25%),Q3,Above company median
+Kamil Tusznio,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Organize,Julian Ramirez,237.7,172,1,283,0,1.2,Top (75-100 Percentile),Q2,Q4 (top 25%),Above company median
+Alex Pelan,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Organize,Julian Ramirez,245.29,175,0,270,0,1.26,Top (75-100 Percentile),Q3,Q4 (top 25%),Above company median
+Jeff Shiau,Q4 (top 25%),IC5,Fullstack Product Software Engineering | Core Engineering | IC5,Organize,Julian Ramirez,299.52,269,0,231,0,1.15,Excluded: Small Cohort (<8),Q4 (top 25%),Q4 (top 25%),Above company median
+Marius Bunescu,Q4 (top 25%),IC5,Backend Product Software Engineering | Core Engineering | IC5,Organize,Julian Ramirez,155.8,147,2,145,0,1,Excluded: Small Cohort (<8),Q1 (bottom 25%),Q3,Above company median
+Jordan Bautista,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,DocSend Cobalt,K Wu,166.89,73,0,459,0,1.11,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Allan Tang,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Cobalt,K Wu,113.21,52,0,286,0,1.15,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Elijah Johnson,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Cobalt,K Wu,132.46,97,1,167,0,1.15,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Rohit Muralidharan,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Cobalt,K Wu,160.44,119,0,246,0,1.11,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Matt Viele,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Cobalt,K Wu,171.64,112,0,340,0,1.09,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Stephen Crosby,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,DocSend Cobalt,K Wu,211.94,110,0,533,0,1.09,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+John Gaskin,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Cobalt,K Wu,42.28,26,0,19,0,1.72,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Kennedy Ezumah,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,DocSend Cobalt,K Wu,37.13,25,0,8,0,1.72,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Matt Viele,Q4 (top 25%),IC3,Software Engineering | Core GM,DocSend Cobalt,K Wu,108.5,67,167,182,,,,Q2,Q4 (top 25%),Above company median
+Elijah Johnson,Q3,IC3,Software Engineering | Core GM,DocSend Cobalt,K Wu,84.4,55,138,100,,,,Q2,Q4 (top 25%),Above company median
+Allan Tang,Q3,IC3,Software Engineering | Core GM,DocSend Cobalt,K Wu,71.4,29,133,141,,,,Q1 (bottom 25%),Q4 (top 25%),Above company median
+Rohit Muralidharan,Q3,IC3,Software Engineering | Core GM,DocSend Cobalt,K Wu,71.3,55,98,89,,,,Q1 (bottom 25%),Q4 (top 25%),Above company median
+Stephen Crosby,Q3,IC4,Software Engineering | Core GM,DocSend Cobalt,K Wu,90.8,46,110,302,,,,Q2,Q4 (top 25%),Above company median
+Mateusz Wójcik,Q2,IC3,Backend Product Software Engineering | Core Engineering | IC3,Sign Core API & Integrations,Kamil Kaczmarczyk,49.2,34,1,49,0,1.18,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Michał Chatlas,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Sign Core API & Integrations,Kamil Kaczmarczyk,117.17,91,0,110,0,1.24,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Andrzej Daniłowski,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Sign Core API & Integrations,Kamil Kaczmarczyk,126.38,109,2,35,0,1.22,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Adrian Górny,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Sign Core API & Integrations,Kamil Kaczmarczyk,126.82,90,1,107,0,1.29,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Serhii Kovalenko,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Sign Core API & Integrations,Kamil Kaczmarczyk,28.96,30,0,9,0,1.12,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Marcin Puczko,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Sign Core API & Integrations,Kamil Kaczmarczyk,73.64,50,0,123,0,1.14,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Paweł Dąbrowski,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Sign Core API & Integrations,Kamil Kaczmarczyk,146,63,0,332,0,1.25,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Bartosz Cytrowski,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Sign Core API & Integrations,Kamil Kaczmarczyk,73.06,39,1,173,0,1.04,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Adam Suchcicki,Q2,IC2,Backend Product Software Engineering | Core Engineering | IC2,Sign Core API & Integrations,Kamil Kaczmarczyk,43.1,46,0,8,0,1.12,Excluded: Small Cohort (<8),Q2,Q2,Below company median
+Marcin Puczko,Q2,IC2,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,24.7,18,37,28,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Adam Suchcicki,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,16,16,20,4,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Serhii Kovalenko,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,15.7,17,16,7,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Adrian Górny,Q3,IC3,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,61.1,54,79,50,,,,Q3,Q3,Below company median
+Andrzej Daniłowski,Q2,IC3,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,46,56,31,31,,,,Q3,Q3,Below company median
+Michał Chatlas,Q2,IC3,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,38.2,38,41,31,,,,Q2,Q2,Below company median
+Paweł Dąbrowski,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,28.9,26,28,49,,,,Q1 (bottom 25%),Q2,Below company median
+Mateusz Wójcik,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,26.2,20,39,25,,,,Q1 (bottom 25%),Q2,Below company median
+Bartosz Cytrowski,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Sign Core API & Integrations,Kamil Kaczmarczyk,31.1,22,25,104,,,,Q2,Q2,Below company median
+Olaf Sozanski,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Churn,Karol Harabasz,53.31,48,0,60,0,1.06,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Szymon Pulut,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Churn,Karol Harabasz,55.12,36,0,79,0,1.24,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Helena Borak-Wejster,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Churn,Karol Harabasz,57.66,55,0,46,0,1.08,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Sarah Wollny,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Churn,Karol Harabasz,101.41,62,0,130,0,1.34,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Maciej Kocot,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,59.48,44,0,93,0,1.11,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Below company median
+Alex Mitar,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,72.31,70,0,75,0,1.02,Bottom (0-25 Percentile),Q4 (top 25%),Q2,Above company median
+Ernest Rudnicki,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,76.65,70,0,44,0,1.18,Bottom (0-25 Percentile),Q4 (top 25%),Q2,Above company median
+Maksym Teslia,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Churn,Karol Harabasz,131.78,58,0,367,0,1.1,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Jakub Szymion,Q2,IC3,Mobile Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,43.54,37,1,19,0,1.15,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Petro Ryzhov,Q3,IC3,Mobile Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,65.33,48,0,99,0,1.12,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Jan Posz,Q3,IC3,Mobile Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,102.17,78,0,171,0,1.06,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q3,Above company median
+Karol Kubicki,Q4 (top 25%),IC3,Mobile Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,132.22,69,2,279,0,1.1,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Szymon Klimaszewski,Q2,IC4,Mobile Software Engineering | Core Engineering | IC4,Churn,Karol Harabasz,70.13,57,0,78,0,1.15,Bottom (0-25 Percentile),Q4 (top 25%),Q1 (bottom 25%),Above company median
+Sebastian Menet,Q2,IC2,Backend Product Software Engineering | Core Engineering | IC2,Churn,Karol Harabasz,52.06,51,0,35,0,1.09,Excluded: Small Cohort (<8),Q3,Q2,Below company median
+Grażyna Starzec,Q1 (bottom 25%),IC3,Software Engineering | Core Engineering | IC3,Churn,Karol Harabasz,0,0,0,0,0,110,Excluded: Small Cohort (<8),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Michal Sadlej,Q1 (bottom 25%),IC1,Fullstack Product Software Engineering | Core Engineering | IC1,Churn,Karol Harabasz,15.44,18,0,1,0,1.06,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Antoni Strasz,Q1 (bottom 25%),IC1,Fullstack Product Software Engineering | Core Engineering | IC1,Churn,Karol Harabasz,10.37,12,0,1,0,1.06,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Sarah Wollny,Q2,IC2,Software Engineering | Core GM,Churn,Karol Harabasz,32.4,29,40,30,,,,Q2,Q2,Below company median
+Sebastian Menet,Q2,IC2,Software Engineering | Core GM,Churn,Karol Harabasz,25.5,32,18,9,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Helena Borak-Wejster,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Churn,Karol Harabasz,20.7,19,26,15,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Szymon Pulut,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Churn,Karol Harabasz,12.4,13,11,13,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Karol Kubicki,Q2,IC3,Software Engineering | Core GM,Churn,Karol Harabasz,59,39,68,152,,,,Q3,Q3,Below company median
+Jan Posz,Q2,IC3,Software Engineering | Core GM,Churn,Karol Harabasz,50,41,53,95,,,,Q2,Q3,Below company median
+Petro Ryzhov,Q2,IC3,Software Engineering | Core GM,Churn,Karol Harabasz,44.2,20,87,61,,,,Q2,Q3,Below company median
+Alex Mitar,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Churn,Karol Harabasz,30.2,19,50,38,,,,Q2,Q2,Below company median
+Ernest Rudnicki,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Churn,Karol Harabasz,29.6,27,38,20,,,,Q2,Q2,Below company median
+Maciej Kocot,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Churn,Karol Harabasz,23.3,24,23,20,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jakub Szymion,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Churn,Karol Harabasz,20,11,42,8,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Szymon Klimaszewski,Q2,IC4,Software Engineering | Core GM,Churn,Karol Harabasz,43.7,26,77,50,,,,Q2,Q3,Below company median
+Tiger Gao,Q2,IC2,Software Engineering | Core GM,Core Sync,Keith Chan,26.8,23,40,10,,,,Q2,Q2,Below company median
+Elana Liskovich,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Sync,Keith Chan,32.6,38,24,26,,,,Q3,Q2,Below company median
+Eli Wilson,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Sync,Keith Chan,32.1,35,29,24,,,,Q3,Q2,Below company median
+Philip Lenzen,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Sync,Keith Chan,31,24,43,37,,,,Q2,Q2,Below company median
+Alexandru Nedelcu,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Sync,Keith Chan,19.8,18,27,9,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+ZIHAO YANG,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Sync,Keith Chan,9,7,14,6,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Christopher Sullivan,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Sync,Keith Chan,8.1,8,11,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Dave Dao,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Core Sync,Keith Chan,2.4,1,5,3,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Clarence Lee,Q3,IC4,Software Engineering | Core GM,Core Sync,Keith Chan,78.8,17,164,194,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Jess Fisher,Q2,IC4,Software Engineering | Core GM,Core Sync,Keith Chan,45,9,85,141,,,,Q4 (top 25%),Q3,Below company median
+Matthew Wright,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Core Sync,Keith Chan,37.3,42,27,40,,,,Q4 (top 25%),Q2,Below company median
+Mohamed Amr Abuelfoutouh,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Core Sync,Keith Chan,36,35,38,36,,,,Q3,Q2,Below company median
+Bartosz Nowaczyk,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Core Sync,Keith Chan,25.2,25,21,39,,,,Q2,Q1 (bottom 25%),Below company median
+Catherine Mei,Q3,IC1,Software Engineering | OTC - Eng,Acquisition Monetization,kevintseng,107.8,66,194,100,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Marlen Knusel,Q3,IC3,Software Engineering | OTC - Eng,Acquisition Monetization,kevintseng,81.6,66,108,96,,,,Q3,Q3,Above company median
+Ryan Kara,Q3,IC3,Software Engineering | OTC - Eng,Dash Self-Serve Growth,kevintseng,81.4,42,142,136,,,,Q3,Q3,Above company median
+Lei Jiang,Q3,IC3,Software Engineering | OTC - Eng,Acquisition Monetization,kevintseng,75.8,59,104,92,,,,Q2,Q3,Above company median
+Jacob Lee,Q3,IC3,Software Engineering | OTC - Eng,Acquisition Monetization,kevintseng,73.9,41,119,136,,,,Q1 (bottom 25%),Q3,Above company median
+Kyle Van Vleck,Q2,IC3,Software Engineering | OTC - Eng,Acquisition Monetization,kevintseng,46.5,39,51,78,,,,Q1 (bottom 25%),Q2,Below company median
+Farhad Akbari,Q3,IC4,Software Engineering | OTC - Eng,Dash Self-Serve Growth,kevintseng,119.5,58,200,247,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Mike Boht,Q2,IC4,Software Engineering | OTC - Eng,Dash Self-Serve Growth,kevintseng,48.1,32,59,112,,,,Q2,Q2,Below company median
+Austin Sung,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Dash Self-Serve Growth,kevintseng,30.3,35,23,24,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Rich Chan,Q4 (top 25%),IC6,Fullstack Product Software Engineering | Core Engineering | IC6,Core Engineering,Khaled Sedky,127.09,123,0,51,0,1.17,Excluded: Small Cohort (<8),Q1 (bottom 25%),Q4 (top 25%),Above company median
+Daniel Reiter Horn,Q4 (top 25%),IC7,Fullstack Product Software Engineering | Core Engineering | IC7,Core Engineering,Khaled Sedky,367.47,158,0,1055,0,1.09,Excluded: Small Cohort (<8),Q4 (top 25%),Q1 (bottom 25%),Above company median
+Daniel Reiter Horn,Q1 (bottom 25%),IC7,Software Engineering | Core GM,Core Engineering,Khaled Sedky,161,101,145,569,,,,Q2,Q4 (top 25%),Above company median
+Óscar David Moreno,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Design Systems 2,Mark Shuster,18,19,20,6,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Scott Robertson,Q2,IC3,Software Engineering | Core GM,Design Systems 2,Mark Shuster,52.6,36,87,49,,,,Q2,Q3,Below company median
+Kuba Pawłot,Q2,IC3,Software Engineering | Core GM,Design Systems 2,Mark Shuster,42.9,45,43,30,,,,Q1 (bottom 25%),Q3,Below company median
+Jacob Ketcheson,Q3,IC4,Software Engineering | Core GM,Design Systems 2,Mark Shuster,111.4,79,127,259,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Adam Ranfelt,Q2,IC4,Software Engineering | Core GM,Design Systems 2,Mark Shuster,55.5,31,71,156,,,,Q3,Q3,Below company median
+Alei Ruiz,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,42.57,48,0,17,0,1.02,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Haoyang Zhong,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,69.06,58,0,107,0,1.02,Bottom (0-25 Percentile),Q2,Q2,Above company median
+Collin Wheeler,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,76.68,52,0,151,0,1.07,Lower-Middle (25-50 Percentile),Q2,Q2,Above company median
+Tsam Ying Lam,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,83.81,59,0,164,0,1.05,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Nikolai Krause,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,93.87,69,0,108,0,1.22,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Aaron Buck,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,129.84,80,0,282,0,1.08,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Kyle Enchill,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,134.2,87,0,201,0,1.22,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Lucy Beck,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth Lifecycle,Matthew Compton,315.64,154,0,747,0,1.16,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Mac-I Elson,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Lifecycle,Matthew Compton,218.22,126,0,478,0,1.11,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Rahul Monga,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Lifecycle,Matthew Compton,249.51,119,0,454,0,1.34,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Kenny Fitch,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth Lifecycle,Matthew Compton,76.79,59,0,127,0,1.06,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Ahmed Musse,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth Lifecycle,Matthew Compton,85,53,0,128,0,1.25,Bottom (0-25 Percentile),Q3,Q2,Above company median
+Mike Eastes,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth Lifecycle,Matthew Compton,401.59,183,1,970,0,1.16,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Pavel Lahutski,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Growth Lifecycle,Matthew Compton,57.88,48,0,79,0,1.07,Excluded: Recent Hire (<6mo),Q2,Q1 (bottom 25%),Below company median
+Collin Wheeler,Q2,IC2,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,32.2,26,32,70,,,,Q1 (bottom 25%),Q2,Below company median
+Alei Ruiz,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,14.1,17,12,3,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Mac-I Elson,Q3,IC3,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,89,56,95,269,,,,Q3,Q4 (top 25%),Above company median
+Rahul Monga,Q3,IC3,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,86.4,59,110,180,,,,Q3,Q4 (top 25%),Above company median
+Pavel Lahutski,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,22.2,22,21,27,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Mike Eastes,Q3,IC4,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,76.7,52,79,218,,,,Q2,Q4 (top 25%),Above company median
+Ahmed Musse,Q2,IC4,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,49.7,23,96,71,,,,Q1 (bottom 25%),Q3,Below company median
+Kenny Fitch,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Growth Lifecycle,Matthew Compton,28.6,17,45,49,,,,Q1 (bottom 25%),Q2,Below company median
+Jason Shang,Q3,IC1,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,76,69,93,67,,,,Q3,Q3,Above company median
+Richie Frost,Q3,IC3,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,75.8,82,81,23,,,,Q2,Q3,Above company median
+Yilin Ye,Q3,IC3,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,64.8,73,57,39,,,,Q1 (bottom 25%),Q3,Above company median
+Artem Nabirkin,Q3,IC4,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,84.9,91,95,18,,,,Q4 (top 25%),Q3,Above company median
+Gerrit van Doorn,Q3,IC4,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,80.4,74,112,24,,,,Q4 (top 25%),Q3,Above company median
+Khugan Shanmugeswaran,Q3,IC4,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,78,85,60,90,,,,Q3,Q3,Above company median
+Fan Zhao,Q3,IC4,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,73.3,42,143,52,,,,Q2,Q3,Above company median
+Frank Hsu,Q2,IC5,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,33.2,29,45,23,,,,Q1 (bottom 25%),Q2,Below company median
+Sean Chang,Q1 (bottom 25%),IC5,Software Engineering | OTC - Eng,ML Foundations,Michael Nilsson,18.8,12,34,14,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Yufei Zou,Q2,IC3,Backend Product Software Engineering | Core Engineering | IC3,Team Expansion,Nandan Sawant,46.55,35,0,61,0,1.16,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Frank Wang,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Team Expansion,Nandan Sawant,112.2,104,1,71,0,1.1,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Bozhen Lyu,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Team Expansion,Nandan Sawant,114.26,65,0,223,0,1.18,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Austin Willis,Q1 (bottom 25%),IC4,Backend Product Software Engineering | Core Engineering | IC4,Team Expansion,Nandan Sawant,26.31,27,0,8,0,1.13,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Angie Xu,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Team Expansion,Nandan Sawant,68.13,22,0,8,0,3.55,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Joyce Zhang,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Team Expansion,Nandan Sawant,71.44,51,0,111,0,1.13,Lower-Middle (25-50 Percentile),Q2,Q2,Above company median
+Jonathan Zinck,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Expansion,Nandan Sawant,93.13,50,0,54,0,1.83,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Meg Kline-Tuls,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Expansion,Nandan Sawant,115.66,86,0,187,0,1.09,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Owen Collins,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Expansion,Nandan Sawant,199.49,125,1,148,0,1.49,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Saumya Dwivedi,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Expansion,Nandan Sawant,53.74,33,0,39,0,1.57,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Juan Treminio,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Expansion,Nandan Sawant,72.12,60,0,78,0,1.13,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Julio Reynaga Galeas,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Expansion,Nandan Sawant,106.89,81,0,123,0,1.2,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Adam Hood,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Expansion,Nandan Sawant,148.44,79,0,252,1,1.11,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Eli Lauffenburger,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Team Expansion,Nandan Sawant,65.62,56,0,34,0,1.27,Excluded: Recent Hire (<6mo),Q2,Q1 (bottom 25%),Above company median
+David Orr,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Team Expansion,Nandan Sawant,45.83,24,0,29,0,1.83,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Teddy Bersentes,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Team Expansion,Nandan Sawant,50.18,29,0,14,0,1.93,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Joyce Zhang,Q2,IC2,Software Engineering | Core GM,Admin Experience,Nandan Sawant,29.4,26,35,33,,,,Q2,Q2,Below company median
+Yufei Zou,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Admin Experience,Nandan Sawant,18.9,10,36,21,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Eli Lauffenburger,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Admin Experience,Nandan Sawant,9.9,15,3,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Owen Collins,Q3,IC3,Software Engineering | Core GM,Admin Experience,Nandan Sawant,66.6,80,33,87,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Meg Kline-Tuls,Q2,IC3,Software Engineering | Core GM,Admin Experience,Nandan Sawant,53.3,37,71,98,,,,Q4 (top 25%),Q3,Below company median
+Bozhen Lyu,Q2,IC3,Software Engineering | Core GM,Admin Experience,Nandan Sawant,41.8,27,52,100,,,,Q3,Q3,Below company median
+Frank Wang,Q2,IC3,Software Engineering | Core GM,Admin Experience,Nandan Sawant,37.1,42,33,20,,,,Q3,Q2,Below company median
+Austin Willis,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Admin Experience,Nandan Sawant,4.3,2,10,1,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Adam Hood,Q2,IC4,Software Engineering | Core GM,Admin Experience,Nandan Sawant,51.8,17,98,122,,,,Q4 (top 25%),Q3,Below company median
+Julio Reynaga Galeas,Q2,IC4,Software Engineering | Core GM,Admin Experience,Nandan Sawant,47,33,73,53,,,,Q3,Q3,Below company median
+Juan Treminio,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Admin Experience,Nandan Sawant,27.4,20,45,19,,,,Q2,Q2,Below company median
+Luke Li,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Admin Experience,Nandan Sawant,19.6,15,23,37,,,,Q2,Q1 (bottom 25%),Below company median
+Saumya Dwivedi,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Admin Experience,Nandan Sawant,0.4,0,1,1,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Shawn Davis,Q1 (bottom 25%),IC6,Software Engineering | Core GM,Teams and Adjacencies,Nitin Mehra,3,5,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Greg Unrein,Q4 (top 25%),IC6,Software Engineering | New Initiatives,Reclaim,Patrick Lightbody,315,153,548,588,,,,Q1 (bottom 25%),Q4 (top 25%),Above company median
+Mateusz Grzonka,Q2,IC2,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,30.8,22,38,62,,,,Q3,Q1 (bottom 25%),Below company median
+Patryk Pogorzelczyk,Q3,IC3,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,98.8,51,150,232,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Barnaba Piotrowski,Q2,IC3,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,34.4,45,20,14,,,,Q3,Q2,Below company median
+Łukasz Bembenek,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,27.4,28,24,34,,,,Q2,Q1 (bottom 25%),Below company median
+Vlad Turlay,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,25.8,18,45,15,,,,Q2,Q1 (bottom 25%),Below company median
+Lukasz Dudek,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,13.4,17,7,11,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jerzy Pawlikowski,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,7,6,11,1,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Daniel Chmielowiec,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,5.7,7,4,3,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Mikolaj Korbanek,Q4 (top 25%),IC4,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,124.4,101,165,143,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Patryk Pogoda,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,30.9,23,42,45,,,,Q3,Q1 (bottom 25%),Below company median
+Mary Fesenko,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,25.1,17,27,68,,,,Q2,Q1 (bottom 25%),Below company median
+Grzegorz Łyczba,Q3,IC5,Software Engineering | OTC - Eng,Connectors Factory,Paweł Kukiełczyński,106.2,68,175,129,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Emma Iacono-Helser,Q3,IC2,Mobile Software Engineering | Core Engineering | IC2,Mobile Experience,Phil Scuderi,77.14,79,0,32,0,1.11,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Emily Costello,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Mobile Experience,Phil Scuderi,94.08,64,0,193,0,1.05,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Virginia Bao,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Mobile Experience,Phil Scuderi,104.39,86,0,121,0,1.12,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+James Yang,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Mobile Experience,Phil Scuderi,152.83,96,0,137,0,1.47,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Hugh Bromund,Q4 (top 25%),IC2,Mobile Software Engineering | Core Engineering | IC2,Mobile Experience,Phil Scuderi,156.18,81,1,299,0,1.21,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Alexio Mota,Q2,IC3,Mobile Software Engineering | Core Engineering | IC3,Mobile Experience,Phil Scuderi,55,56,0,26,0,1.1,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Stephen Salerno,Q3,IC3,Mobile Software Engineering | Core Engineering | IC3,Mobile Experience,Phil Scuderi,84.31,79,0,72,0,1.09,Lower-Middle (25-50 Percentile),Q2,Q2,Above company median
+Jonathan Hancock,Q3,IC3,Mobile Software Engineering | Core Engineering | IC3,Mobile Experience,Phil Scuderi,100.15,98,0,45,0,1.15,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Lucia Lu,Q4 (top 25%),IC3,Mobile Software Engineering | Core Engineering | IC3,Mobile Experience,Phil Scuderi,116.77,83,0,82,0,1.41,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Trevor Sabo,Q4 (top 25%),IC3,Mobile Software Engineering | Core Engineering | IC3,Mobile Experience,Phil Scuderi,132.63,108,0,198,0,1.05,Top (75-100 Percentile),Q3,Q4 (top 25%),Above company median
+Simon Li,Q3,IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,101.5,90,1,83,0,1.09,Bottom (0-25 Percentile),Q3,Q1 (bottom 25%),Above company median
+Alison Wyllie,Q3,IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,107.31,94,1,79,0,1.12,Bottom (0-25 Percentile),Q3,Q2,Above company median
+Dustin Burge,Q4 (top 25%),IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,159.01,123,1,215,0,1.09,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q2,Above company median
+Emmett Wilson,Q4 (top 25%),IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,169.2,106,0,322,0,1.13,Lower-Middle (25-50 Percentile),Q4 (top 25%),Q3,Above company median
+Kenny Li,Q4 (top 25%),IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,173.56,123,0,289,0,1.11,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Max Kohne,Q4 (top 25%),IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,241.78,168,0,449,0,1.08,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Joe Carroll,Q4 (top 25%),IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,299.24,222,0,445,0,1.12,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Chris Ballinger,Q4 (top 25%),IC4,Mobile Software Engineering | Core Engineering | IC4,Mobile Experience,Phil Scuderi,344.11,188,0,382,0,1.52,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Zac West,Q3,IC5,Mobile Software Engineering | Core Engineering | IC5,Mobile Experience,Phil Scuderi,110.22,53,0,299,0,1.08,Excluded: Small Cohort (<8),Q3,Q1 (bottom 25%),Above company median
+Jeffrey Forbes,Q4 (top 25%),IC5,Mobile Software Engineering | Core Engineering | IC5,Mobile Experience,Phil Scuderi,135.3,80,0,295,0,1.1,Excluded: Small Cohort (<8),Q3,Q2,Above company median
+Xingcan Cui,Q2,IC4,Software Engineering | OTC - Eng,Recommendations,Prasang Upadhyaya,43.8,30,58,84,,,,Q1 (bottom 25%),Q2,Below company median
+Ryan Harter,Q4 (top 25%),IC5,Mobile Software Engineering | Core Engineering | IC5,Core Experience,Pravi Garg,138.6,85,0,290,0,1.1,Excluded: Small Cohort (<8),Q4 (top 25%),Q4 (top 25%),Above company median
+Ben Potter,Q2,IC5,Backend Product Software Engineering | Core Engineering | IC5,Core Experience,Pravi Garg,42.9,17,0,10,0,2.75,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q2,Below company median
+Stephen Salerno,Q2,IC3,Software Engineering | Core GM,Mobile Experience,Pravi Garg,50.4,39,80,30,,,,Q2,Q3,Below company median
+Christine Hartmann,Q2,IC3,Software Engineering | Core GM,Core Experience,Pravi Garg,48.2,36,74,44,,,,Q2,Q3,Below company median
+Alexio Mota,Q2,IC3,Software Engineering | Core GM,Mobile Experience,Pravi Garg,40.4,21,89,11,,,,Q1 (bottom 25%),Q2,Below company median
+Kevin Cardenas,Q2,IC3,Software Engineering | Core GM,Mobile Experience,Pravi Garg,40.2,30,65,27,,,,Q1 (bottom 25%),Q2,Below company median
+Jonathan Hancock,Q2,IC3,Software Engineering | Core GM,Mobile Experience,Pravi Garg,38.8,34,56,16,,,,Q1 (bottom 25%),Q2,Below company median
+Lucia Lu,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Mobile Experience,Pravi Garg,30.8,29,32,38,,,,Q1 (bottom 25%),Q2,Below company median
+Chris Ballinger,Q3,IC4,Software Engineering | Core GM,Mobile Experience,Pravi Garg,87.7,75,84,175,,,,Q2,Q4 (top 25%),Above company median
+Emmett Wilson,Q3,IC4,Software Engineering | Core GM,Mobile Experience,Pravi Garg,79.1,48,122,137,,,,Q2,Q4 (top 25%),Above company median
+Dustin Burge,Q2,IC4,Software Engineering | Core GM,Mobile Experience,Pravi Garg,45.8,39,50,74,,,,Q1 (bottom 25%),Q3,Below company median
+Simon Li,Q2,IC4,Software Engineering | Core GM,Mobile Experience,Pravi Garg,44.5,33,65,52,,,,Q1 (bottom 25%),Q3,Below company median
+Alison Wyllie,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Mobile Experience,Pravi Garg,40.5,30,68,21,,,,Q1 (bottom 25%),Q2,Below company median
+Ryan Harter,Q3,IC5,Software Engineering | Core GM,Core Experience,Pravi Garg,69.2,55,73,143,,,,Q3,Q4 (top 25%),Above company median
+Jeffrey Forbes,Q3,IC5,Software Engineering | Core GM,Mobile Experience,Pravi Garg,62.5,33,106,109,,,,Q2,Q4 (top 25%),Below company median
+Zac West,Q2,IC5,Software Engineering | Core GM,Mobile Experience,Pravi Garg,46.9,17,77,136,,,,Q1 (bottom 25%),Q3,Below company median
+Abbey Truong,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Growth and Customer Acquisition,Rahul Ashok,143.12,114,0,136,0,1.21,Top (75-100 Percentile),Q3,Q4 (top 25%),Above company median
+Ross Pearlman,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Growth and Customer Acquisition,Rahul Ashok,78.2,70,1,88,0,1,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Mike Lyons,Q4 (top 25%),IC5,Fullstack Product Software Engineering | Core Engineering | IC5,Growth and Customer Acquisition,Rahul Ashok,281.2,192,2,592,0,1,Excluded: Small Cohort (<8),Q4 (top 25%),Q4 (top 25%),Above company median
+Josh Poritz,Q2,IC4,Backend Product Software Engineering | Core Engineering | IC4,Growth and Customer Acquisition,Rahul Ashok,71.5,18,0,58,0,2.75,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Above company median
+Josh Griffiths,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Growth and Customer Acquisition,Rahul Ashok,27.4,31,18,34,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Colin Weinshenker,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,FormSwift - Eng 2,Reaaz Silva,125.58,102,3,71,0,1.15,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Tina Huang,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,FormSwift - Eng 2,Reaaz Silva,131.79,86,0,279,0,1.06,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Austin Yau,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,FormSwift - Eng 2,Reaaz Silva,157.81,76,0,69,0,2.12,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Vikram Patwardhan,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,FormSwift - Eng 2,Reaaz Silva,186.15,210,0,40,0,1.06,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Albert Tran,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,FormSwift - Eng 2,Reaaz Silva,218.13,180,0,331,0,1.04,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Omar Sharif,Q4 (top 25%),IC3,Infrastructure Software Engineering | Core Engineering | IC3,FormSwift - Eng 2,Reaaz Silva,110,89,0,144,0,1.1,Excluded: Small Cohort (<8),Q3,Q4 (top 25%),Above company median
+Alex Sycamore,Q4 (top 25%),IC4,Infrastructure Software Engineering | Core Engineering | IC4,FormSwift - Eng 2,Reaaz Silva,135.8,91,0,315,0,1,Excluded: Small Cohort (<8),Q4 (top 25%),Q4 (top 25%),Above company median
+Tristan Havelick,Q2,IC5,Fullstack Product Software Engineering | Core Engineering | IC5,FormSwift - Eng 2,Reaaz Silva,44,33,0,88,0,1,Excluded: Small Cohort (<8),Q2,Q1 (bottom 25%),Below company median
+Omar Sharif,Q2,IC3,Software Engineering | Core GM,FormSwift - Eng 2,Reaaz Silva,35.7,26,47,60,,,,Q1 (bottom 25%),Q2,Below company median
+Alex Sycamore,Q2,IC4,Software Engineering | Core GM,FormSwift - Eng 2,Reaaz Silva,70.2,44,81,195,,,,Q2,Q4 (top 25%),Above company median
+Albert Tran,Q2,IC4,Software Engineering | Core GM,FormSwift - Eng 2,Reaaz Silva,53.3,54,46,71,,,,Q2,Q3,Below company median
+Tina Huang,Q2,IC4,Software Engineering | Core GM,FormSwift - Eng 2,Reaaz Silva,52.8,37,74,84,,,,Q2,Q3,Below company median
+Colin Weinshenker,Q2,IC4,Software Engineering | Core GM,FormSwift - Eng 2,Reaaz Silva,42.3,44,41,36,,,,Q1 (bottom 25%),Q3,Below company median
+Vikram Patwardhan,Q1 (bottom 25%),IC4,Software Engineering | Core GM,FormSwift - Eng 2,Reaaz Silva,25.5,22,37,12,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Tristan Havelick,Q1 (bottom 25%),IC5,Software Engineering | Core GM,FormSwift - Eng 2,Reaaz Silva,22,20,22,34,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Abbey Truong,Q2,IC2,Software Engineering | OTC - Eng,Find & Discover,Ross Pearlman,57.1,49,76,49,,,,Q2,Q2,Below company median
+Daniel Griffiths,Q3,IC3,Software Engineering | OTC - Eng,Find & Discover,Ross Pearlman,72,52,90,138,,,,Q3,Q3,Above company median
+Nastya Kholodova,Q2,IC3,Software Engineering | OTC - Eng,Find & Discover,Ross Pearlman,49.8,24,108,30,,,,Q1 (bottom 25%),Q2,Below company median
+Matt Owens,Q3,IC4,Software Engineering | OTC - Eng,Find & Discover,Ross Pearlman,102.8,83,123,161,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Adam Arbree,Q3,IC6,Fullstack Product Software Engineering | Core Engineering | IC6,Engineering Core,Rupa Nandi,25.08,18,0,34,0,1.18,Excluded: Small Cohort (<8),Q2,Q1 (bottom 25%),Below company median
+JJ Ruth,Q2,IC3,Software Engineering | Core GM,Engineering Core,Rupa Nandi,56.7,36,54,189,,,,Q4 (top 25%),Q3,Below company median
+Jason Tsao,Q2,IC3,Software Engineering | Core GM,Engineering Core,Rupa Nandi,48.1,31,67,94,,,,Q2,Q3,Below company median
+Ignacio Piantanida,Q2,IC4,Software Engineering | Core GM,Engineering Core,Rupa Nandi,72.8,45,69,251,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Akila Amaratunga,Q2,IC4,Software Engineering | Core GM,Engineering Core,Rupa Nandi,56.1,46,77,54,,,,Q3,Q3,Below company median
+David Wilson,Q2,IC4,Software Engineering | Core GM,Engineering Core,Rupa Nandi,51.3,37,79,54,,,,Q3,Q3,Below company median
+Yuguan Li,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Engineering Core,Rupa Nandi,16.5,20,10,15,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Corey Grief,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Engineering Core,Rupa Nandi,13.7,16,10,11,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Adam Arbree,Q3,IC6,Software Engineering | Core GM,Engineering Core,Rupa Nandi,20.7,15,31,24,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jayden McNab,Q1 (bottom 25%),IC1,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,10.1,9,12,11,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Kai Lee,Q4 (top 25%),IC3,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,115.8,77,194,114,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Guillermo Valenzuela Gallegos,Q2,IC3,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,52.1,38,75,68,,,,Q2,Q2,Below company median
+Edward Cheung,Q1 (bottom 25%),IC3,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,31.8,26,41,39,,,,Q1 (bottom 25%),Q2,Below company median
+Chris Knorowski,Q3,IC4,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,96.1,88,115,88,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Rohit Verma,Q3,IC4,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,79.7,101,53,32,,,,Q4 (top 25%),Q3,Above company median
+Joe Balistreri,Q3,IC4,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,77.1,85,63,72,,,,Q3,Q3,Above company median
+Kevin Hwang,Q2,IC4,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,54.2,67,40,20,,,,Q3,Q2,Below company median
+Jay Howe,Q2,IC4,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,44.4,38,55,51,,,,Q2,Q2,Below company median
+Eric Cunningham,Q1 (bottom 25%),IC5,Software Engineering | OTC - Eng,Intel - Knowledge Platform,Sanath Ramesh,26.9,20,44,17,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Alan Shieh,Q2,IC5,Software Engineering | OTC - Eng,Dash Intelligence (Intel),Saurabh Ganeriwal,52.1,38,83,44,,,,Q3,Q2,Below company median
+Rani Mathur,Q1 (bottom 25%),IC5,Software Engineering | OTC - Eng,Dash Intelligence (Intel),Saurabh Ganeriwal,26.3,14,53,20,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Jesper Børlum,Q4 (top 25%),IC6,Software Engineering | OTC - Eng,Dash Intelligence (Intel),Saurabh Ganeriwal,177.6,241,83,81,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Kishore Senji,Q4 (top 25%),IC6,Software Engineering | OTC - Eng,Dash Intelligence (Intel),Saurabh Ganeriwal,38.4,41,34,36,,,,Q2,Q2,Below company median
+Xitang Zhao,Q3,IC3,Software Engineering | New Initiatives,Reclaim.ai engineering Team,Scott Seely,61.2,57,58,96,,,,Q3,Q3,Below company median
+Nick Ball,Q3,IC4,Software Engineering | New Initiatives,Reclaim.ai engineering Team,Scott Seely,82,100,55,55,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Christopher Kessel,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,Reclaim.ai engineering Team,Scott Seely,23,33,8,8,,,,Q2,Q2,Below company median
+Darren Bridenbeck,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,Reclaim.ai engineering Team,Scott Seely,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Kamil Rafałko,Q2,IC3,Backend Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,45.76,36,0,64,0,1.1,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Christian Olbrich,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,198.98,104,0,298,1,1.22,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Andrzej Skrzynski,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,231.46,177,0,302,0,1.15,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Witold Wasilewski,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,349.83,202,0,321,0,1.55,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Wojciech Kasperek,Q4 (top 25%),IC3,Backend Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,495.93,335,1,508,0,1.33,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Marcin Kasznia,Q2,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Smart Storage Management,Stefan Wollny,50.71,39,0,33,0,1.34,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Bartosz Zagrodzki,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Smart Storage Management,Stefan Wollny,70.57,64,0,84,0,1.04,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Katsiaryna Alshannikava,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Smart Storage Management,Stefan Wollny,75.7,73,0,28,0,1.18,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Szymon Bednarski,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Smart Storage Management,Stefan Wollny,112.63,110,0,31,0,1.2,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Fabian Hauser,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Smart Storage Management,Stefan Wollny,140.75,116,1,44,0,1.33,Top (75-100 Percentile),Q3,Q4 (top 25%),Above company median
+Adrian Rydzyński,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Smart Storage Management,Stefan Wollny,159.44,131,0,179,0,1.13,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Aliaksandr Antaniuk,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,55.82,29,0,54,0,1.64,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Below company median
+Maciej Ciesinski,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,95.65,78,0,88,0,1.2,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Andrea Baumann,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,129.78,107,0,97,0,1.24,Lower-Middle (25-50 Percentile),Q3,Q3,Above company median
+Paweł Wolak,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,135.43,97,0,126,0,1.32,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Dariusz Markiewicz,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,181.74,121,0,86,0,1.59,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Dominik Chmielarz,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Smart Storage Management,Stefan Wollny,217.98,183,0,130,0,1.26,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Katsiaryna Alshannikava,Q2,IC2,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,32.5,32,39,16,,,,Q1 (bottom 25%),Q2,Below company median
+Bartosz Zagrodzki,Q2,IC2,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,25.9,25,30,19,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Marcin Kasznia,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,13.5,14,12,15,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Wojciech Kasperek,Q4 (top 25%),IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,148.4,143,163,137,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Dominik Chmielarz,Q3,IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,67.2,87,42,24,,,,Q2,Q4 (top 25%),Above company median
+Dariusz Markiewicz,Q3,IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,61.9,65,61,46,,,,Q2,Q4 (top 25%),Below company median
+Paweł Wolak,Q2,IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,57.3,23,124,63,,,,Q2,Q3,Below company median
+Mateusz Bukowicz,Q2,IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,47.1,24,77,96,,,,Q2,Q3,Below company median
+Andrea Baumann,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,30.6,49,4,0,,,,Q1 (bottom 25%),Q2,Below company median
+Kamil Rafałko,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,22.1,15,38,17,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Christian Olbrich,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,15.9,1,47,12,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Maciej Ciesinski,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,13.3,19,6,1,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Aliaksandr Antaniuk,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Smart Storage Management,Stefan Wollny,11.8,13,10,10,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Tomasz Smolarek,Q4 (top 25%),IC4,Software Engineering | OTC - Eng,Dash Capabilities,Steve Cox,151.7,163,141,116,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Radosław Szwarc,Q3,IC4,Software Engineering | OTC - Eng,Dash Capabilities,Steve Cox,79.2,56,138,42,,,,Q4 (top 25%),Q3,Above company median
+Fahid Enver,Q2,IC4,Software Engineering | OTC - Eng,Dash Capabilities,Steve Cox,51.3,38,93,6,,,,Q3,Q2,Below company median
+Leo Zan,Q2,IC4,Software Engineering | OTC - Eng,Dash Capabilities,Steve Cox,50.7,44,76,15,,,,Q2,Q2,Below company median
+Mark van Seventer,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Dash Capabilities,Steve Cox,31.7,33,35,14,,,,Q1 (bottom 25%),Q2,Below company median
+Justin Klubnik,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Dash Capabilities,Steve Cox,23.9,14,51,2,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Thiago Diniz Maia,Q3,IC3,Software Engineering | OTC - Eng,Agent Platform,Sundar Saiprasad,87.4,72,105,127,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Judicael Briand Djoko,Q2,IC3,Software Engineering | OTC - Eng,Agent Platform,Sundar Saiprasad,46.9,29,73,76,,,,Q2,Q2,Below company median
+Pei He,Q2,IC4,Software Engineering | OTC - Eng,Agent Platform,Sundar Saiprasad,51.1,70,23,22,,,,Q3,Q2,Below company median
+Josh Wilson,Q2,IC4,Software Engineering | OTC - Eng,Agent Platform,Sundar Saiprasad,46.1,35,63,62,,,,Q1 (bottom 25%),Q2,Below company median
+Akshay Bapat,Q1 (bottom 25%),IC4,Software Engineering | OTC - Eng,Agent Platform,Sundar Saiprasad,29,22,37,47,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Revan Fajardo,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,DocSend Expansion,Tanvi Patel,106.89,99,0,85,0,1.11,Upper-Middle (50-75 Percentile),Q1 (bottom 25%),Q3,Above company median
+Jiaqi Gu,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,DocSend Expansion,Tanvi Patel,134.95,112,0,147,0,1.13,Top (75-100 Percentile),Q2,Q4 (top 25%),Above company median
+Chirac Manoukian,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,DocSend Expansion,Tanvi Patel,149.74,84,0,297,0,1.18,Top (75-100 Percentile),Q2,Q4 (top 25%),Above company median
+Jeb Coleman,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Expansion,Tanvi Patel,154.63,97,0,350,0,1.05,Upper-Middle (50-75 Percentile),Q2,Q3,Above company median
+Isley Gao,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Expansion,Tanvi Patel,159.08,147,1,94,0,1.13,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Chris Allen,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,DocSend Expansion,Tanvi Patel,249.73,141,0,276,0,1.49,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Ben Brook,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,DocSend Expansion,Tanvi Patel,244.78,180,1,403,0,1.07,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Melanie Chin,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,DocSend Expansion,Tanvi Patel,317.33,218,0,556,0,1.11,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Amantina Rossi,Q4 (top 25%),IC1,Fullstack Product Software Engineering | Core Engineering | IC1,DocSend Expansion,Tanvi Patel,201.76,107,0,410,0,1.2,Excluded: Small Cohort (<8),Q3,Q4 (top 25%),Above company median
+Kunle Oyedele,Q1 (bottom 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,DocSend Expansion,Tanvi Patel,0,0,0,0,0,18.33,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+John Park,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,DocSend Expansion,Tanvi Patel,82.65,26,0,35,0,2.97,Excluded: Recent Hire (<6mo),Q1 (bottom 25%),Q2,Above company median
+Jason Tsao,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,147.38,119,0,214,0,1.07,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Shweta Kode,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,165.32,158,0,142,0,1.07,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+Daniel Griffiths,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,166.2,124,0,335,0,1,Upper-Middle (50-75 Percentile),Q3,Q4 (top 25%),Above company median
+JJ Ruth,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,225.5,154,0,368,0,1.15,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Adam Botsford,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,259.97,140,0,279,0,1.55,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Yuguan Li,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,55.94,54,1,28,0,1.05,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Corey Grief,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,61.4,61,0,63,0,1,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Akila Amaratunga,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,167.44,151,0,218,0,1.02,Upper-Middle (50-75 Percentile),Q3,Q3,Above company median
+David Wilson,Q4 (top 25%),IC4,Infrastructure Software Engineering | Core Engineering | IC4,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,124.04,103,0,118,0,1.17,Excluded: Small Cohort (<8),Q2,Q2,Above company median
+Ignacio Piantanida,Q4 (top 25%),IC5,Fullstack Product Software Engineering | Core Engineering | IC5,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,250.8,140,0,637,0,1.05,Excluded: Small Cohort (<8),Q4 (top 25%),Q3,Above company median
+Leonardo Braga,Q4 (top 25%),IC5,Fullstack Product Software Engineering | Core Engineering | IC5,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,197.73,135,0,179,0,1.38,Excluded: Small Cohort (<8),Q4 (top 25%),Q2,Above company median
+Cole Wolk,Q3,IC1,Software Engineering | OTC - Eng,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,85.7,66,118,107,,,,Q2,Q4 (top 25%),Above company median
+Alan Chu,Q3,IC2,Software Engineering | OTC - Eng,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,79.9,55,107,148,,,,Q1 (bottom 25%),Q3,Above company median
+Shweta Kode,Q3,IC3,Software Engineering | OTC - Eng,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,98.8,65,175,73,,,,Q2,Q4 (top 25%),Above company median
+William Adamowicz,Q3,IC3,Software Engineering | OTC - Eng,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,85.2,68,108,120,,,,Q1 (bottom 25%),Q4 (top 25%),Above company median
+Yong Chen,Q3,IC4,Software Engineering | OTC - Eng,Dash Engineering - Stacks & Start Page Experiences,Tony Xu,94.8,87,86,168,,,,Q2,Q4 (top 25%),Above company median
+James Yang,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,14.5,14,17,10,,,,Q4 (top 25%),Q4 (top 25%),Below company median
+Oleksandr Malakhov,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,13.7,17,9,8,,,,Q4 (top 25%),Q4 (top 25%),Below company median
+Miłosz Piłat,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,13.3,12,19,4,,,,Q3,Q4 (top 25%),Below company median
+Noah Wood,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,3.6,6,0,0,,,,Q3,Q3,Below company median
+Cody Guldner,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,3,5,0,0,,,,Q3,Q3,Below company median
+Srujan Reddy Gadila,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,1.8,3,0,0,,,,Q2,Q3,Below company median
+James Robinson,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,0.6,1,0,0,,,,Q2,Q2,Below company median
+Kennedy Ezumah,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,0.3,0,1,0,,,,Q2,Q2,Below company median
+Zheng Chu,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Zachary Garwood,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Paul Shen,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Angie Xu,Q1 (bottom 25%),IC2,Software Engineering | No Level 1 Team | IC2,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Adam Botsford,Q3,IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,87.3,68,103,156,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Witold Wasilewski,Q2,IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,54.1,43,80,43,,,,Q4 (top 25%),Q4 (top 25%),Below company median
+Shaohui Liu,Q2,IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,34.3,45,22,7,,,,Q4 (top 25%),Q4 (top 25%),Below company median
+Michael Allred,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,27.5,6,59,62,,,,Q4 (top 25%),Q4 (top 25%),Below company median
+Boian Kolev,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,25.3,32,20,1,,,,Q4 (top 25%),Q3,Below company median
+Jonathan Zinck,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,13.6,13,18,4,,,,Q3,Q3,Below company median
+Laura Neal,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,8,7,12,2,,,,Q3,Q3,Below company median
+Kurt Nelson,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,5.1,8,1,0,,,,Q3,Q3,Below company median
+Dylan Terry,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,2.9,1,7,2,,,,Q3,Q2,Below company median
+Andrew Wang,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,1.7,1,3,2,,,,Q2,Q2,Below company median
+Hongyi Shen,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,1.2,1,2,0,,,,Q2,Q2,Below company median
+Christian Hughes,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,0.9,1,1,0,,,,Q2,Q2,Below company median
+John Gaskin,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,0.6,1,0,0,,,,Q2,Q1 (bottom 25%),Below company median
+Josh Yunho Yang,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,0.4,0,1,1,,,,Q2,Q1 (bottom 25%),Below company median
+Grażyna Starzec,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Tiffany Fong,Q1 (bottom 25%),IC3,Software Engineering | No Level 1 Team | IC3,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Scott Seely,Q4 (top 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,124.3,103,154,163,,,,Q4 (top 25%),Q4 (top 25%),Above company median
+Ross Pearlman,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,31.8,23,57,9,,,,Q4 (top 25%),Q4 (top 25%),Below company median
+Austin Yau,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,22,34,4,4,,,,Q4 (top 25%),Q4 (top 25%),Below company median
+Tejas Patel,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,19.4,23,17,5,,,,Q4 (top 25%),Q3,Below company median
+Caleb Gross,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,7.2,12,0,0,,,,Q3,Q3,Below company median
+Bryant Bost,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,1.6,1,1,7,,,,Q2,Q2,Below company median
+Piotr Gabryjeluk,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,0.6,0,2,0,,,,Q2,Q2,Below company median
+Sahil Agarwal,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Krishelle Hardson-Hurley,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+James Zhang,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+K Wu,Q1 (bottom 25%),IC4,Software Engineering | No Level 1 Team | IC4,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Fangfei Shen,Q1 (bottom 25%),IC5,Software Engineering | No Level 1 Team | IC5,,Unknown,7.3,6,7,16,,,,Q3,Q1 (bottom 25%),Below company median
+Brian Romanko,Q1 (bottom 25%),IC6,Software Engineering | No Level 1 Team | IC6,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Rob Hicks,Q1 (bottom 25%),IC6,Software Engineering | No Level 1 Team | IC6,,Unknown,0,0,0,0,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Ashwin Kumar,Q1 (bottom 25%),Unknown,Software Engineering | No Level 1 Team | Unknown,,Unknown,2,0,6,2,,,,Q3,Q1 (bottom 25%),Below company median
+Brian Kim,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Bridge FSS and Dash,Vaibhav Khandelwal,81.71,67,0,122,0,1.05,Lower-Middle (25-50 Percentile),Q2,Q2,Above company median
+Melanie Tai,Q4 (top 25%),IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Bridge FSS and Dash,Vaibhav Khandelwal,135.71,75,0,286,0,1.16,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Christian Hughes,Q1 (bottom 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,12.27,11,0,2,0,1.33,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Aleksander Dash,Q2,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,38.77,23,0,86,0,1.09,Bottom (0-25 Percentile),Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Nastya Kholodova,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,89.59,84,0,59,0,1.13,Bottom (0-25 Percentile),Q2,Q2,Above company median
+Maggie Crocamo,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,90.16,72,0,87,0,1.2,Bottom (0-25 Percentile),Q3,Q2,Above company median
+Anthony Pietrofeso,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,95.74,88,0,118,0,1.02,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Benjamin Kwak,Q3,IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,98.7,63,0,80,0,1.49,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Alan Chu,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,125.83,80,0,292,0,1.03,Lower-Middle (25-50 Percentile),Q3,Q3,Above company median
+Kevin Jeong,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,127.3,91,0,232,0,1.07,Lower-Middle (25-50 Percentile),Q3,Q3,Above company median
+Andrew Wang,Q4 (top 25%),IC3,Fullstack Product Software Engineering | Core Engineering | IC3,Bridge FSS and Dash,Vaibhav Khandelwal,197.29,80,0,236,0,1.77,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Anusha Balasubramaniam,Q2,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Bridge FSS and Dash,Vaibhav Khandelwal,66.41,76,0,22,0,1.02,Bottom (0-25 Percentile),Q2,Q1 (bottom 25%),Above company median
+Theo Champlin,Q3,IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Bridge FSS and Dash,Vaibhav Khandelwal,90.37,56,0,95,1,1.08,Lower-Middle (25-50 Percentile),Q3,Q2,Above company median
+Maor Bar Asher,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Bridge FSS and Dash,Vaibhav Khandelwal,175.78,143,0,243,0,1.08,Upper-Middle (50-75 Percentile),Q4 (top 25%),Q3,Above company median
+Will Adamowicz,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Bridge FSS and Dash,Vaibhav Khandelwal,201.2,192,0,238,0,1,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Matt Owens,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Bridge FSS and Dash,Vaibhav Khandelwal,248.04,198,0,358,0,1.08,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Yong Chen,Q4 (top 25%),IC4,Fullstack Product Software Engineering | Core Engineering | IC4,Bridge FSS and Dash,Vaibhav Khandelwal,267.42,199,1,433,0,1.07,Top (75-100 Percentile),Q4 (top 25%),Q4 (top 25%),Above company median
+Cole Wolk,Q4 (top 25%),IC1,Fullstack Product Software Engineering | Core Engineering | IC1,Bridge FSS and Dash,Vaibhav Khandelwal,190.58,137,1,200,0,1.24,Excluded: Small Cohort (<8),Q4 (top 25%),Q3,Above company median
+James Robinson,Q3,IC2,Fullstack Product Software Engineering | Core Engineering | IC2,Bridge FSS and Dash,Vaibhav Khandelwal,84.59,45,0,68,0,1.71,Excluded: Recent Hire (<6mo),Q2,Q3,Above company median
+Mohammad Bayadse,Q4 (top 25%),IC2,Backend Product Software Engineering | Core Engineering | IC2,Bridge FSS and Dash,Vaibhav Khandelwal,116.67,94,0,149,0,1.11,Excluded: Small Cohort (<8),Q3,Q4 (top 25%),Above company median
+Melanie Tai,Q2,IC2,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,29.3,29,28,35,,,,Q1 (bottom 25%),Q2,Below company median
+Benjamin Kwak,Q1 (bottom 25%),IC2,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,22,28,12,16,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Maggie Crocamo,Q2,IC3,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,43.3,35,64,31,,,,Q2,Q3,Below company median
+Kevin Jeong,Q2,IC3,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,41.6,26,63,71,,,,Q2,Q3,Below company median
+Anthony Pietrofeso,Q2,IC3,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,39.1,38,40,43,,,,Q1 (bottom 25%),Q2,Below company median
+Aleksander Dash,Q1 (bottom 25%),IC3,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,21,15,23,51,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median
+Maor Bar Asher,Q2,IC4,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,72.6,60,91,93,,,,Q2,Q4 (top 25%),Above company median
+Theo Champlin,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,38.1,26,51,72,,,,Q1 (bottom 25%),Q2,Below company median
+Anusha Balasubramaniam,Q1 (bottom 25%),IC4,Software Engineering | Core GM,Bridge FSS and Dash,Vaibhav Khandelwal,31.9,32,40,7,,,,Q1 (bottom 25%),Q2,Below company median
+Nick Asch,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,CompanyOS,Youcef Es-skouri,19,26,8,10,,,,Q4 (top 25%),Q2,Below company median
+Melody Truong,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,CompanyOS,Youcef Es-skouri,14.6,10,23,17,,,,Q3,Q2,Below company median
+Kyle Shay,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,CompanyOS,Youcef Es-skouri,11.7,11,9,24,,,,Q2,Q1 (bottom 25%),Below company median
+Matthew Fabian,Q1 (bottom 25%),IC4,Software Engineering | New Initiatives,CompanyOS,Youcef Es-skouri,10.5,10,14,3,,,,Q1 (bottom 25%),Q1 (bottom 25%),Below company median

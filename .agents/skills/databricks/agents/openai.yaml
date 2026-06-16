@@ -1,0 +1,3 @@
+interface:
+  display_name: "Databricks"
+  short_description: "Run Databricks SQL, saved reports, and Genie prompts"

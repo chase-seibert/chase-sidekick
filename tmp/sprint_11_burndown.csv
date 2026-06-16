@@ -1,0 +1,593 @@
+,,,,Core Sprint Review Dashboard link
+https://dropbox-kms.atlassian.net/l/cp/S2b4xCfe
+Group & Squads,Engineering,Jira Sprint Report Link,Sprint IDs,Total Q2 Capacity for the Group (HC) - Actual Brains in Seats,"Total Q2 Capacity for the Group in Hours
+- (6 sprints in a quarter * ( 6 hrs of work per day*10 days)* No. of Engineers*0.9)",Block Capacity in Hours - Total Q2 Capacity for the Group /2,"Capacity at the Start of the Sprint
+(In hours) - [Column E*0.9*60]","Issues Completed in the Sprint
+(In hours)","Issues Not Completed 
+(In hours)","Issues Removed From Sprint
+(In hours)",Initial Scope at the start of the sprint (Burnup chart),Final Scope from Burnup chart,Change in Scope,"% of Completed Scope
+(Issues Completed in the Sprint/Final Scope from Burnup chart)",[NEW] Sprint Volatility,"Capacity Usage %
+(Issues Completed/ Capacity at the start of the sprint)", % of Hours Completed vs initially Committed,Sprint Retrospection doc link,"- Briefly state what went well, key learnings & what are you planning to change.
+- Share any additional observations or explanations related to the metrics.
+"," - Was the Sprint Goal achieved?Yes/No (partial is not a valid option). Add additional context if the answer is a 'No':
+- What did we ship?: List the deliverables, features, or improvements that were actually completed during this sprint.
+- Did we achieve the impact we were looking for? Describe the outcomes or changes we observed and how they compare to the impact we anticipated.",HC related Comments,Jira Board Link
+,,,,226.15
+Core Experience,Pravi Garg (GL),,,58.25,,,,,,,,,,,,,,,"- The most significant insights from the sprint (Filled by GLs)
+* Chat Bug bash was automated
+* Communication push is required
+* B&N team needs a process change
+* Logging requirements came in very late
+* Team needs a stabilization sprint
+* Quarterly planning is at odds with customer releases
+
+- Any emerging trend, risk, or systemic issue requiring attention
+* "
+Desktop Experience,Aisha Ferrazares,Sprint 11 Report,58419,13.5,4374,2187,729,764,12,99,690,788,98,96.95%,14.35%,104.80%,110.72%,https://dropbox.atlassian.net/wiki/spaces/DEX/pages/3819014033/Sprint+Retro+-+2026+SP11,"What went well
+- [Bridge V2] Early releases of V2_LIMITED (Chat-only) and 30 user derisking release went out successfully, helping build higher confidence in our upcoming 6/23 launch. The majority of feature work completed in SP11, leaving most of SP12 for bug fixing, polish, and other emerging issues.
+- [Team Adaptability] The team snapped back to our typical delivery, capacity utilization, and volatility metrics the first full sprint after our recent reorg.
+- [Bridge v2 Web] We were able to support resourcing of web Bridge v2 work and help keep that on track for DPR by lending 1 engineer to support web connector linking for SP11 and SP12.
+- [AI Enablement] The team is seeing significant productivity gains leveraging Codex, particularly with the addition of automations and Atlassian plugins.
+
+Learnings
+- [Collaboration] The team needs to more proactively coordinate with web teams and horizontal PM owners upfront. Both our product and foundational efforts required reconciliation that resulted in extra overhead.
+- [Escalation] A mid-sprint legal flag caused thrash as we turned off Dash Suggestions before realizing that there was a misunderstanding. In the future, the team should escalate more quickly to get issues like these resolved more quickly and decisively.
+
+Share any additional observations or explanations related to the metrics
+- Metrics looked healthy across the board. No major concerns.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+Yes
+
+What did we ship?
+- [Dash Answers, C2.2, CDX-960] Dash Answers successfully released to internal users, derisking the use of mirage services directly from MEV. While this feature is not expected to go out with our upcoming Design Partner release, this marks a major foundational milestone that will support our ability to pull richer search and chat directly into the Tray.
+- [Foreground App, C2.2, DBX-5768] Desktop foreground surface now includes a full webview Home and UEP Search and Chat. Polish has brought us closer to DPR scope with largely only bug fixing remaining.
+- [Quick Access, C2.2, DBX-5767] Connector results, visual matches, AI disclaimers, and Dash Answers integration all landed in SP11. Most restyling for removing the sidebar is complete with internal release expected in the first week of SP12.
+- [Reliability & Quality, CDX-983] Continued investment in automated test quality, manual test cases in TestRail for DPR, and concerted effort in reducing quarantined tests.
+- [Legacy Tray Deprecation, CDX-1152] We’ve stopped instantiation of the Legacy Tray, which is the last blocker for code deletion. Forced migration to reTray is on track to reach 100% on 6/15.
+
+Did we achieve the impact we were looking for?
+- Successful releases of V2_LIMITED (chat-only) and initial external (30 user) de-risking milestones.
+- The team remains on track for our 6/12 freeze and 6/23 DPR launch.","1 eng on leave through July
+3 eng lost or transfered in the reorg and 3 eng moved over from Dash (flat overall HC)",https://dropbox.atlassian.net/jira/software/c/projects/CDX/boards/5285/reports/sprint-retrospective?sprint=58419,CDX
+Engineering Mobile,Phil Scuderi,Sprint 11 Report,56101,17.5,5670,2835,945,1171.5,114,127,1104,1298,194,90.25%,11.50%,123.97%,106.11%,https://dropbox.atlassian.net/wiki/spaces/CMX/pages/3852763168/CMX+Sprint+11+Retro+Summary,"What went well
+- Bridge v2 remains on track for the 6/18 branch cut and 6/30 DPR release. UEP is the only significant known risk, but it is currently tracking slightly ahead of the 6/30 release plan.
+- The team completed 161 / 174 tracked issues, with most work tied to Bridge v2: UEP, Tabbed Home, Up Next, Files/Library, Stacks-in-DBApp, Version History/Restore, Cowork, Bottom Bar, and File Actions. The team also made progress on MTI, Aluminium compatibility, and mobile quality/operational work including deep-link logging, FCM alerting/AutoSEV, permissions, crash fixes, and accessibility/media fixes.
+- Early signals from the new pod model are positive. Completion rebounded after last sprint’s transition, and pod retros indicate that smaller context-rich groups are improving local coordination and reducing large-meeting overhead.
+
+Learnings
+- UEP remains the long tail for DPR, but the current execution pattern is positive. The work is still the biggest body of the remaining Bridge v2 scope, so we should keep tight visibility through the branch cut even though it is tracking slightly ahead of the 6/30 release plan.
+- MTI ticket volatility remains expected. Some MTI work carried over because implementation surfaced prerequisite API/model, account-info, and paired-user cleanup work. This is consistent with last sprint’s learning: ticket-level sequencing may change as dependencies are uncovered, but the overall MTI timeline has not changed.
+- The pod model is showing positive early signals. Retros indicate that smaller context-rich groups are improving local coordination and reducing large-meeting overhead. Next operational priorities are improving sprint/project tracking and working with Product on the Q3 roadmap so teams have better visibility into upcoming priorities.
+
+Share any additional observations or explanations related to the metrics
+- Sprint 11 completed 161 / 174 tracked issues. Carryover was concentrated in dependency-heavy or follow-up areas: MTI, UFL follow-up, keyboard/focus management, and bug-bash compatibility work.
+- MTI carryover reflects dependency discovery and changed sequencing, not a change to the overall timeline.","Was the Sprint Goal achieved?
+Yes. Bridge v2 mobile remains on track for the planned 6/18 branch cut and 6/30 DPR release. UEP is the only significant known risk and is still the long tail, but it is currently tracking slightly ahead of the 6/30 release plan.
+
+What did we ship?
+- Bridge v2: UEP implementation progress on iOS and Android, Tabbed Home polish, Up Next cards/actions, Files/Library and UFL progress, Stacks-in-DBApp integration, Cowork updates, Version History/Restore work, File Action improvements, and Bottom Bar updates.
+- Other mobile work: MTI progress, Aluminium compatibility work, deep-link logging, FCM alerting/AutoSEV, permission-flow work, crash fixes, memory leak fixes, accessibility/media fixes, and cleanup/deprecation work.
+
+Did we achieve the impact we were looking for?
+Yes. Sprint 11 reduced risk for the 6/18 branch cut and kept Bridge v2 mobile on track for the 6/30 DPR release. UEP remains the largest remaining body of work and the only significant known risk, but it is tracking slightly ahead of plan. The sprint also provided early evidence that the new pod model is improving local coordination without slowing delivery. The next step is improving the instrumentation and planning around the model — sprint health, milestone tracking, lightweight risk reporting, and Q3 roadmap alignment with Product.",,https://dropbox.atlassian.net/jira/software/c/projects/MFIFA/boards/2353/reports/sprint-retrospective?sprint=56101,MFIFA
+Bridge Web experience,Vaibhav Khandelwal,Sprint 11 Report,63907,14.5,4698,2349,783,1109,47,132,760,1192,432,93.04%,17.37%,141.63%,145.92%,https://dropbox.atlassian.net/wiki/spaces/bfd/pages/3828285855/2026-06-08+Bridge+Web+Experience+Retro,"What went well
+- [Search] Fast pivot from FSS search to Dash search to the Bridge V2 redesign culminated in the internal release of the redesigned search page. SERP polish, grid/list layout fixes, filter behavior, file/folder metadata fixes, and hydration latency work all moved quickly.
+- [UEP+Chat] The team completed 33 UEP/Chat polish issues ahead of the DPR cut, including the disclaimer modal, expanded UEP focus and visual polish, typeahead fixes, recents preview behavior, and Background/Raised surface updates.
+- Chat bug bash was automated and completed ahead of schedule. Broad team participation helped find and report issues, and the automation pattern is now repeatable for future release hardening.
+- Connectors workstream went from limited definition to clear progress in one sprint, with Connect Your Apps FTUX, connector management in Bridge V2, feature gating, and the UEP connector upsell banner all landing.
+
+Learnings
+- The sprint survey hit a 7-month low on “I am working at a sustainable pace” at 3.38. The team is accumulating technical debt while still working toward aggressive DPR timelines. We are planning to improve intake for foundation work, create clearer paths for tech-debt tickets, and make this work more visible during planning.
+- Timelines have been pulled in after estimation, which compresses scope into a smaller execution window. We need tighter estimation discipline and more explicit tradeoff conversations when dates move.
+- We're doing throwaway work because product, design, and DS work are happening in parellel with engineering. Several workstreams resolved requirements mid-flight, which helped us make progress but contributed to scope churn.
+
+Share any additional observations or explanations related to the metrics
+- The team delivered strongly, but the metrics show we did so by absorbing significant scope growth and operating above planned capacity.
+- Scope growth was driven by DPR-readiness pull-ins across UEP, SERP, Connectors, and Onboarding as requirements firmed up mid-sprint:","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes. Bridge V2 Web reached internal release for the redesigned search page and stayed on track for DPR readiness across UEP Chat, SERP, Connectors, and Onboarding.
+
+What did we ship?
+- Search: Internal release of the redesigned search page, including SERP grid/list layout adjustments, filter modal behavior, favorite-icon positioning, folder/file type fixes, FSS metadata hydration improvements, and DCS/FSS comparison instrumentation.
+- UEP: Disclaimer modal and related research, Background/Raised surface treatment, expanded UEP focus and visual polish, inset focus rings, IconButton sizing, collapsed search-bar polish, typeahead fixes, and recents preview-vs-download behavior fixes.
+- Chat: New chat empty state, “Ask Dash” enabled for non-FSS files, message-send logic update to avoid loading-state frame, video/audio summarize hang fix, and overall styling brush-up. Chat bug bash was also automated end-to-end.
+- Connector Management: Apps tab listing of Dash connectors, individual connector connect flow, foundational tech spike, and feature gating.
+- Onboarding and Activation: Connect Your Apps FTUX modals, privacy view, connector-specific eligibility logic, OAPulsarCampaign support in App Shell, and connector upsell banner in UEP.
+
+Did we achieve the impact we were looking for?
+- It kept us roughly on track for DPR feature complete timelines.",1 eng last day is 6/12 so we'll be down one HC.,https://dropbox.atlassian.net/jira/software/c/projects/BFD/boards/2637/reports/sprint-retrospective?sprint=63907,BFD
+Browse & Navigate Web experience,Gennadiy Civil,Sprint 11 Report,64747,12.75,4131,2065.5,688.5,945,57,96,726,1002,276,94.31%,13.22%,137.25%,130.17%,https://dropbox.atlassian.net/wiki/spaces/CBN/whiteboard/3819013877?atl_f=PAGETREE,"What went well
+* Bridge V2 execution reached a working/demoable product stage instead of staying hidden until late in the cycle.
+* Feedback-channel responsiveness improved, and the Home squad had more space during the sprint.
+* AI tools continued to help development workflows, while also creating new expectations around code-review hygiene.
+
+Learnings
+* On-call and KTLO/MMR capacity need stronger protection; the team was doing less than 20% KTLO work compared with a previously approved 40% combined KTLO/foundational allocation.
+* Bridge V2 needs proactive push communication and a maintained source of truth. The team called out too many channels, too many docs/DMs, unclear PM/design decision ownership, and engineers having to pull together dates/status from scattered sources.
+* Sprint intake needs a higher readiness bar: if DPR or cross-workstream requirements are not ready before sprint planning, they should either stay out of the sprint or enter with explicit capacity tradeoffs.
+* AI-generated or AI-assisted PRs need stronger owner self-review before broader review, including a plan/summary for large or complex PRs.
+
+Share any additional observations or explanations related to the metrics
+* The sprint started with 726h of planned scope and ended with 1002h of final scope: a 276h increase.
+* The team completed 137.25% of planned starting capacity.
+* Final/completed workload was far above planned starting capacity.
+* The team is feeling the strain from sustained over-capacity execution, on-call load, and Bridge V2 coordination overhead.:
+ACTION TAKEN: Proposal to change Scrum process to Kanban, currently under review.
+TL;DR: 
+We should pilot Kanban because Bridge V2 execution is not stable enough for sprint planning to act as a real commitment mechanism. Product, UX, customer/DPR, and partner-team feedback can still change direction mid-sprint, which means the plan often has to be re-litigated after work starts. Adding capacity does not fix that unless we reserve a large bucket for unknown work; at that point, we are really managing flow, readiness, WIP, and tradeoffs, not running a committed sprint.","Was the Sprint Goal achieved?Yes/No (partial is not a valid option). Add additional context if the answer is a 'No':
+* Yes. The Sprint Goal was achieved for the SP11 stage: Bridge V2 Web moved toward code-ready / bug-bash / initial external design partner readiness across Library, Previews, Home, App Shell, Recommendation Engine, MTI, and KTLO/MMR.
+
+What did we ship?
+* DBX-3181 — C3.2.2 App IA / Chrome / Home UI/UX
+    - Goal C: Home — Team-space cards, Catch Me Up work, sparse/zero states, responsive Up Next patterns, home-page performance, and Bridge V2 feedback fixes.
+    - Goal D: App Shell — Account-menu updates, quota bar, avatar/photo update support, team invite movement, new starred-section backend/frontend work, resizable left nav, account-page spike, and campaign audit work.
+    - Goal E: Recommendation Engine — DPR support for unmounted shared content, Dash connector content, shared-content API/proto follow-through, ranking/notification work, and backend open-question de-risking.
+
+* DBX-3182 — C3.2.3 Browse / Retrieval UI/UX
+    - Goal A: Library — DPR bug bash and Library fast follows across context-menu/file actions, folder settings actions, file activity sidebar, breadcrumbs, deleted-files support, organize submenu actions, content-tile fixes, TTVC logging, and bug-bash fixes.
+
+* DBX-4133 — C3.2.4 Previews UI/UX
+    - Goal B: Previews — Helix previews polish across fullscreen controls/overlay, URL compatibility, editor ports, responsive breadcrumbs, gated SCL/FI support, and Bridge V2 preview alignment.
+
+* DBX-3834 — C6 Non-Strategy / KTLO / MMR
+    - Goal F: MTI — Manual testing for MTI key areas.
+    - Goal G: KTLO/MMR — MMR AI follow-ups, metric/report updates, custom thresholds, route availability/latency investigations, code coverage, SUSI/AutoSEV alert review, and previews MMR cleanup.
+
+Did we achieve the impact we were looking for?
+* Yes for the SP11 stage. The team advanced Bridge V2 Web toward code-ready / bug-bash / initial DPR readiness across the main product surfaces and supporting KTLO/MMR work.
+* The sprint also surfaced follow-up operating needs around sprint intake readiness, source-of-truth ownership, on-call/KTLO protection, and review hygiene for AI-assisted work.",,https://dropbox.atlassian.net/jira/software/c/projects/WEBXP/boards/6848/reports/sprint-retrospective?sprint=64747,WEBXP
+Core Growth,Brian Y. (GL),,,32.2,,,,,,,,,,,,,,,"Top Two Most Significant Insights
+
+* 
+
+
+Top Two Emerging Trends, Risks, or Concerns
+
+* "
+Engineering Growth Lifecycle,Matthew Compton,Sprint 11 Report,58283,13,4212,2106,702,668,48,18,747,734,13,91.01%,2.41%,95.16%,89.42%,,"What went well
+- 
+
+Learnings
+- 
+
+Share any additional observations or explanations related to the metrics
+- ","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- 
+Did we achieve the impact we were looking for?
+- ","What are the key items coming up in the next sprint?
+- C4.4: MCP foundation-building (Gemini, test intelligence plugin, E2E testing)
+- C4.1: OQ experiments (Personalized Messaging, file restore blocking)
+- C4.4: Sign Cross-sell
+- Foundational: Bazel optimization, component cleanup",https://dropbox.atlassian.net/jira/software/c/projects/LIFE/boards/5267/reports/sprint-retrospective?sprint=58283,LIFE
+Engineering Churn & International Growth Web,Karol Harabasz,Sprint 11 Report,63532,6.4,2073.6,1036.8,345.6,365,3,0,368,368,0,99.18%,0.00%,105.61%,99.18%,,"What went well
+- 
+
+Learnings
+- 
+
+Share any additional observations or explanations related to the metrics
+- ","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- 
+Did we achieve the impact we were looking for?
+- ",,https://dropbox.atlassian.net/jira/software/c/projects/IGROW/boards/2392/reports/sprint-retrospective?sprint=63532,IGROW
+Engineering Churn & International Growth Mobile,Karol Harabasz,Sprint 11 Report,63566,4.3,1393.2,696.6,232.2,242,0,0,236,242,6,100.00%,0.00%,104.22%,102.54%,,"What went well
+- 
+
+Learnings
+- 
+
+Share any additional observations or explanations related to the metrics
+- ","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- 
+Did we achieve the impact we were looking for?
+- ",,https://dropbox.atlassian.net/jira/software/c/projects/IGROW/boards/5321/reports/sprint-retrospective?sprint=63566
+Engineering Monetization,Colin Thompkins,Sprint 11 Report,63034,8.5,2754,1377,459,479,1,12,454,480,26,99.79%,2.64%,104.36%,105.51%,Retro,"What went well
+- Continuing to onboard and ramp three new SWEs
+- Bug bashed [C4.5.2] Trial-first flow exit intent experiment, [C2.5] Bridge Activation - Connected Apps Status, and [C4.2.2] Basic User SKU routing V2
+- Q2 projects on track: [C4.5.3] Centralized value prop personalization, [C4.2.2] File imports for Teams. File Imports Foundational work, [C4.5.2] Sign-up experience optimization, and C4.5.4] Coframe powered experimentation pilot
+- Supported Bridge trial experiments
+- Supported Simplified P&P
+
+Learnings
+- Doing an every 2 week MMR review the day before sprint planning has allowed us to keep the MMR-AI backlog bouncing to 0 every sprint.
+
+Share any additional observations or explanations related to the metrics
+- Overall sprint metrics look great - high completed / committed scope + capacity usage, and low sprint volatility.","Was the Sprint Goal achieved?
+- Yes
+
+What did we ship?
+- Started ramping [C4.5.2] Trial-first flow exit intent experiment.
+
+Did we achieve the impact we were looking for?
+- Yes, we started ramping one experiment and have two more ready for the next sprint.  Remaining Q2 project are on track and we are starting to plan for Q3 projects and the shift to Bridge V2.",Started recruiting backfill IC2.,https://dropbox.atlassian.net/jira/software/c/projects/GMONY/boards/5323/reports/sprint-retrospective?sprint=63034,GMONY
+Cloud Activation & Onboarding,Jason Wang,,,5.5,1782,891,297,,,,,,0,#DIV/0!,#DIV/0!,0.00%,#DIV/0!,,,,,,AIG
+Maintain Customer Trust,Abraham V. (GL),,,45,,,,,,,,,,,,,,,"- The most significant insights from the sprint (Filled by GLs)
+* 
+
+- Any emerging trend, risk, or systemic issue requiring attention
+* "
+Smarter Storage Management,Stefan Wollny,Sprint 11 Report,58175,15,4860,2430,810,706,57,36,705,763,58,92.53%,5.11%,87.16%,100.14%,http://dbx.link/core-smrt-retro,"What went well
+* Storage Reports (Storage Report Enhancements, Team Folders Report, Shared Folders Report) reached code complete and entered product review across all three workstreams, with bug bash and consistency testing closed.
+* Heal and Improve Data Governance — Policies Activation advanced into core implementation; the underlying ATF migration delivered its first integration milestones (proto, job skeleton, namespace discovery), de-risking the Q3 governance roadmap.
+* Secret Rotation for Admin Alerting MSK closed end-to-end with the IAM auth migration delivered across producer, consumer, deployment, and production validation — a long-running operational hardening item completed.
+* Afterlife Implementation for Teams Without External Collaborators shipped the team-status RPC, Team Walker script, and key progress-state handlers; the project rebaselined to 07/24 to absorb scope discovered during implementation and dependent communication work.
+* Team Disband: Fix Existing Orphaned Folders delivered the placeholder fix and a remediation pathway agreed with legal, materially advancing recovery operations on an active SEV.
+* Improvements to AI Review (Q2) shipped team-wide enablement, by-team settings, and cross-team alignment with Core, Security, and Audit — moving the project from build into adoption.
+
+Learnings
+* Four projects (Shared Folders Reports, Team Folders Report, AI Review, MSK Secret Rotation) reached completion or product review this sprint — rollout pacing is now set by cross-team review capacity (PM, filesystem, legal) rather than engineering throughput.
+* Estimation misses on exploratory work in Heal and Improve Data Governance (ATF history scan) and Legal Hold Dashboards point to a recurring pattern on first-of-its-kind tasks that warrants tighter pre-sprint sizing or explicit spike framing.
+* Afterlife and SFD pipeline projects rebaselined timelines into Q3 to reflect dependency-driven slippage (filesystem sign-off, Growth Lifecycle communication work) and discovered scope; framing these as planned rebaselines preserves portfolio predictability.
+* Mid-sprint inflow continued to be dominated by A11y Improvements and Team Folders Limit polish — cumulatively material, absorbed without scope removals, but a steady tax on planned project work.
+
+
+Share any additional observations or explanations related to the metrics
+* Capacity usage of 87% reflects a public holiday and unplanned sick leave reducing effective capacity below the nominal 810h baseline; against that adjusted reality, the team delivered the full original commitment plus net mid-sprint inflow.
+* Scope grew by 58h with volatility at 3.15% — a healthy pattern of absorbing unplanned operational and accessibility work while protecting committed deliverables, with the single removed planning item (tech spec) cleanly deferred.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+* Storage Reports (Storage Report Enhancements, Team Folders Report, Shared Folders Report) — code complete and in product review.
+* Heal and Improve Data Governance — Policies Activation — ATF migration milestones (proto, job skeleton, namespace discovery) shipped; legal-hold dashboards rolling.
+* Secret Rotation for Admin Alerting MSK — IAM auth migration delivered end-to-end; epic closed.
+* Shared Folder Deletion Pipeline (implementation + release epics) — Validation #1 happy-path team rolled out, deployment and permission issues resolved; release rebaselined to 07/17.
+* Afterlife Implementation for Teams Without External Collaborators — team-status RPC, Team Walker, progress-state handlers, and onboarding shipped; rebaselined to 07/24.
+* Team Disband: Fix Existing Orphaned Folders — stop the bleeding fix shipped, remediation pathway agreed with legal on an active SEV.
+* WOPI Migrate File Routes to Cypress — M1.2 GenericFileInfo cleanup completed across all file routes.
+* Promote Individual Space Pack — Initial Analyse — strategy, quota indicator, and tech-spec review landed.
+* Team Folders Limit — Content Manager bug bash and a11y findings closed; in-app notifications awaiting product approval.
+* A11y Improvements — Admin Console (App Permissions, Alerts) and Advanced Encryption accessibility findings closed.
+
+Did we achieve the impact we were looking for?
+Yes. Three projects reached completion or product review this sprint (Storage Reports, Improvements to AI Review, Secret Rotation for Admin Alerting MSK), and Heal and Improve Data Governance, Afterlife, and Team Disband: Fix Existing Orphaned Folders advanced material milestones — translating into improved governance, supportability, and operational maturity for admin-facing surfaces. Rollout pacing for Sprint 12 will be set by cross-team review and validation capacity rather than engineering throughput, with timeline rebaselines on SFD and Afterlife already factored into Q3 planning.",,https://dropbox.atlassian.net/jira/software/c/projects/SMRT/boards/5264/reports/sprint-retrospective?sprint=58175,SMRT
+MAX,Ehab E.,Sprint 11 Report,64442,10.5,3402,1701,567,771,105,33,819,912,93,84.54%,4.03%,135.98%,94.14%,http://dbx.link/core-max-retro,"What went well
+- We made strong progress across the checkout surface, especially mobile web checkout, Stripe Link, unified checkout eligibility, and legacy checkout cleanup.
+- The team improved operational reliability by stabilizing a broad set of checkout, billing, subscription, and developer-site tests that had been flaky or quarantined.
+- We advanced admin-facing security work by adding Security Center tracking and tightening the upgrade path from security recommendations.
+- Accessibility improvements landed in checkout and account recovery flows, giving screen reader users clearer feedback during payment and sign-in steps.
+- The team expanded production detection coverage by adding more useful SLOs for checkout, and a critical background worker.
+
+Learnings
+- Checkout experiments will become easier to launch safely as more eligibility and redirect logic moves into shared configuration. This will make regression coverage and rollout discipline even more important.
+- Stripe Link and Apple Pay work reinforced that payment-method experiments need pricing, address, tax, and field-visibility handling to move together.
+
+Share any additional observations or explanations related to the metrics
+- The completed work was weighted toward platform reliability, checkout experimentation, and operational cleanup.
+- KTLO and un-parented cleanup work were substantial this sprint; that work improves future delivery confidence even when it is less visible in product dashboards.
+- The sprint had broad contributor coverage across checkout, security, accessibility, SLOs, and migration work, which helped keep several parallel work-streams moving.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+Yes.
+- We delivered meaningful progress against the main sprint themes: checkout reliability, unified checkout experimentation, mobile checkout optimization, Security Center, SLO coverage, and team-type cleanup.
+- We reduced operational risk by stabilizing key tests, improving route and billing behavior, and adding more targeted production detection.
+- We advanced multiple Q2/Q3 experiment paths, including Stripe Link, mobile web checkout, trial pricing, trial add-ons, and checkout eligibility configuration.
+- Some impact will land in later sprints because several items were groundwork, gated rollout, or experiment-enablement work rather than final GA outcomes.
+
+What did we ship?
+- Mobile web checkout improvements, including richer order-summary details, portable checkout alignment, and Apple Pay ZIP-code handling groundwork.
+- Core Stripe Link support in Unified Checkout, including Link selection/defaulting, checkout handoff, eligibility handling, address pricing refresh, and supporting helper utilities.
+- Security Center improvements, including admin action tracking and an updated Advanced upgrade flow from the security page.
+- Additional SLO coverage for checkout, unified checkout, and a background worker service to improve production issue detection.
+- Legacy checkout cleanup, including removal of obsolete Selenium coverage, updates to Playwright flows, and pricing CTA redirect alignment.
+- Reverse-trial exclusion handling so teams already marked out of the new-team trial are not repeatedly evaluated for existing-team reverse trial eligibility.
+- Accessibility fixes for checkout payment method labels and account recovery/security-key error messages.
+
+Did we achieve the impact we were looking for?
+- We achieved the expected engineering progress and risk reduction for this sprint, especially around checkout reliability, experiment readiness, and production detection.
+- The most immediate impact is improved confidence in checkout validation, clearer admin/security upgrade instrumentation, better accessibility behavior, and stronger operational monitoring.
+- We will continue watching mobile checkout, Stripe Link, Security Center, and unified checkout eligibility as they move from implementation groundwork into measurable rollout outcomes.",,https://dropbox.atlassian.net/jira/software/c/projects/MAX/boards/5282/reports/sprint-retrospective?sprint=64442,MAX
+Core Sync,Jeff Adler,Sprint 11 Report,63193,15.5,5022,2511,837,856,111,78,1009,967,42,88.52%,7.73%,102.27%,84.84%,http://dbx.link/core-sync-retro," What went well
+  - Customizable Context Menu reached 1% stable with healthy metrics, on track for 100% stable by end of quarter.
+  - P2P advanced on both tracks: FP P2P to 50% internal alpha and non-FP P2P continuing its stable rollout, with a feature flag added to cleanly separate the two.
+  - Anomaly Detection shipped an AI oncall-triage bot for Vortex2 and Monte Carlo alerts, plus a reusable triage skill the data-observability team is adopting.
+  - Multi-Team expanded N-accounts support across context menus, sync icons, and Preferences, and validated the simpler subaccount path.
+  - Overquota cleared its final bug bash with no modal regressions and hit code freeze on schedule; CI/CD recovered from last sprint's Foundation-rotation and hardware disruption and finalized the Playwright migration.
+
+  Learnings
+  - The implicit-local-file blocker is structural, not incremental: materialization tweaks have not moved it, so we are deciding between eager-pinning and accepting OS eviction rather than tuning further.
+  - ~53k inactive hosts cannot migrate on the current path; we need a convergence or exclusion strategy rather than counting them against the conversion target.
+  - Relink flows remain brittle and N-accounts amplifies pre-existing breakage, so we are keeping relink narrowly scoped and filing issues as we find them rather than expanding scope mid-project.
+  - FP individual-host conversion is at goal while team-host is behind; we are treating team-host conversion as the metric that matters and not letting the healthy individual number mask the gap.
+
+  Share any additional observations or explanations related to the metrics
+  - Completed 81.7% of a 1048h final scope with committed delivery at 84.8%, a stable and productive sprint.
+  - Volatility was low at 7.7% with only +39h scope change, indicating minimal mid-sprint churn.
+  - Capacity usage ran at 102.3% (full), and 8 tickets went unestimated; closing that estimation gap will sharpen next sprint's planning.
+"," Was the Sprint Goal achieved? Yes/No
+  - FP Rollout: No. Team-host conversion is behind the end-of-quarter target (305k vs 335k goal); the implicit-local-file blocker and ~53k inactive hosts remain unresolved.
+  - FP Features (Context Menu, P2P): Yes. Context Menu reached 1% stable and FP P2P reached 50% internal alpha.
+  - Sync Reliability: Yes. Anomaly Detection shipped its oncall bot and CI/CD finalized the Playwright migration.
+  - Dependencies (Multi-Team, Overquota): Yes. N-accounts support expanded and Overquota hit code freeze after a clean bug bash.
+
+  What did we ship?
+  - FP migration reached 305k team hosts; shipped a dryrun-timeout fix so dryruns run unbounded, stopped counting improving hosts as failures, and started a healthy paired-account rollout.
+  - Customizable Context Menu rolled to 1% stable with polish-bug fixes.
+  - P2P: fixed a P2P bug, added an FP-only feature flag to separate the FP and non-FP rollouts, and advanced FP P2P to 50% internal alpha.
+  - Anomaly Detection onboarded an AI oncall-triage bot for Vortex2 and Monte Carlo alerts that posts sessions to PagerDuty, plus a reusable core-sync triage skill.
+  - CI/CD finalized the Playwright migration, expanded dashboards, and removed Apogee deadcode.
+  - Multi-Team shipped N-accounts support across context menus, sync icons (including Windows mounted sync roots), and the Preferences Sync tab, and began subaccount-based validation.
+  - Overquota shipped over-quota errors in sync issues, a tray sticky, and per-file error states, and cleared its second bug bash before the 6/5 code freeze.
+  - E2E testing identified fixes for 51% of quarantined nucleus tests (29 tests), pending merge and Bazel migration.
+
+  Did we achieve the impact we were looking for?
+  Team-host conversion landed behind the 335k end-of-quarter target at 305k because the implicit-local-file blocker proved structural, not incremental; individual hosts are at goal but do not offset the team-host gap. The feature and reliability workstreams delivered as
+  intended: Context Menu, P2P, Anomaly Detection, CI/CD, Multi-Team, and Overquota all met their sprint commitments. The clearest gap is FP conversion, where we now need a decision on the implicit-local-file path rather than more tuning, plus a strategy for the ~53k
+  inactive hosts.",Zihao Yang began parental leave on 6/4 (through approximately 9/1);,https://dropbox.atlassian.net/jira/software/c/projects/CRSYNC/boards/1358/reports/sprint-retrospective?sprint=63193,CRSYNC
+Core Test Team,Krzysztof,Sprint 11 Report,63367,4,1296,648,216,296,77,110,419,373,46,79.36%,26.25%,137.04%,70.64%,http://dbx.link/core-test-retro,"What went well
+- Desktop automation was further unblocked through a new network control utility and an additional e2e test.
+- OWNERS migration work progressed efficiently, with M0 requirements completed across 8 areas.
+- Audit work reduced expected effort and clarified missing test coverage.
+- MMR performance improvements, Confluence export work, and Bridge V2 test suite creation all progressed within sprint scope.
+Learnings
+- Keep changes narrowly scoped and treat linter warnings carefully when they point into larger cleanup efforts.
+- Validate ownership scope with team leads before committing tickets, especially when work may already be owned or completed by another team.
+- Checkout vs. non-checkout ownership and scope needs clearer upfront alignment.
+- Split larger tickets into smaller units under 24 hours where possible.
+
+
+Share any additional observations or explanations related to the metrics
+- Code Reviews were heavily dependant on other teams which introduced delays, also multiple carryovers were modified during sprint which increased volatility","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+Yes
+What did we ship?
+- Desktop network control utility enabling throttling or full network disablement at the WebDebugger level without  impacting platform behavior or unrelated tests.
+- Advanced Settings Online-Only e2e test across all platforms.
+- M0 ownership requirements for 8 areas: Mobile Experience, BFD, Core Media Intel, Mobile AEM, Team Expansion, Team Formation, Growth Monetization, and Core Mobile iOS.
+- Duplicate/out-of-scope ownership work closed or cancelled, including Core Growth Lifecycle and Bridge clone work.
+- Audit document fully pruned.
+- MMR performance improvements and Confluence export functionality.
+- Initial Bridge V2 test suite created and submitted for review.
+Did we achieve the impact we were looking for?
+- Desktop automation impact was achieved: tests requiring offline status or upload observation are now possible to automate.
+- Ownership migration impact was achieved across 8 M0 areas, while scope validation remains an improvement area.
+- Audit impact was achieved by reducing expected effort and improving clarity on missing test cases.","An engineer just went on leave, so we are reducing the HC by one",https://dropbox.atlassian.net/jira/software/c/projects/CTE/boards/1801/reports/sprint-retrospective?sprint=63367,CTE
+Core Media & Intelligence,Rupa (Interim),,,5,,,,,,,,,,,,,,,"- The most significant insights from the sprint (Filled by GLs)
+
+- Any emerging trend, risk, or systemic issue requiring attention"
+Core Media & Intelligence,TBH./ Tony Xu,Sprint 11 Report,65461,5,1620,810,270,,,,,,0,#DIV/0!,#DIV/0!,0.00%,#DIV/0!,,"Briefly state what went well, key learnings & what are you planning to change
+- 
+Learnings
+- 
+Share any additional observations or explanations related to the metrics
+- ","Was the Sprint Goal achieved?Yes/No (partial is not a valid option) 
+
+What did we ship?
+* 
+Did we achieve the impact we were looking for? 
+* ",,https://dropbox.atlassian.net/jira/software/c/projects/REPLAY/boards/3171/reports/sprint-retrospective?sprint=65461,REPLAY
+Teams & Sharing,Chase S.(GL),,,40.7,,,,,,,,,,,,,,,"- The most significant insights from the sprint (Filled by GLs)
+* 
+
+- Any emerging trend, risk, or systemic issue requiring attention
+* "
+Team Expansion,Nandan Sawant,Sprint 11 Report,60908,15,4860,2430,810,918.04,97.02,144.02,854,1020,166,90.00%,16.86%,113.34%,107.50%,,"What went well
+- The team swarmed together for launch blockers for M1 Monthly Licenses release
+- The team launched viral set experiment
+- The team has gotten better at launch checklists, experiment set up rigor, etc.
+
+Learnings
+- n/a this time
+
+Share any additional observations or explanations related to the metrics
+- We have a new intern on the team, ramping up, leading to some mixed metrics on capacity","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- Getting Monthly licneses launch ready - is launching this sprint
+
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/TEXP/boards/1399/reports/sprint-retrospective?sprint=60908,TEXP
+Simplify Sharing,John Pillion,Sprint 11 Report,64007,14.7,4762.8,2381.4,793.8,766,84,24,826,863,37,88.76%,2.91%,96.50%,92.74%,"Used retro for a 1-off team goal setting exercise, no retro notes to share this sprint","What went well
+- LTSM wrapping up, SM26 launch is on track - the two major initiatives of Q2.  
+
+Learnings
+- From the team goal setting session (modified retro), two friction points areas were highlighted - Cross team collaboration/communication, and team engagement and inner-team collaboration in larger teams.  Goals were set around better organization of communication, tracking cross team dependancies. 
+
+Share any additional observations or explanations related to the metrics
+- A handfull of compliance tickets got blocked by discussion/decision with the compliance team on path forward, and ended up having to roll over.  Lesson learned - the tickets were pulled into the sprint prematurely when there were too manh open questions around the path forward. ","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- SM26 Share Modal GA: ramped to 100% of self-serve and CSM users across web, desktop, and mobile.
+- Mobile rollouts: overquota project to 90% and the cloud doc sharing migration gate ramping to 10%.
+- The SM26 Grant Access experience was rolled out internally
+- Ramped the iOS cloud doc migration from 1% to 10%
+- Block Shortcut Share - Launched across iOS and Android
+- LTSM Stack cross-team policy rolled out internally
+- Bridge v2 shared folder preview - App Shell (body and header to follow)
+- SM26 Link Settings Parity on Android
+
+Did we achieve the impact we were looking for?
+- Yes","1 Eng continues to be on Medical Leave.  New Hire is fully onboarded, contributing at a full capacity.  1 engineer tracking MTI contributon on CTO sprint board as part of MTI foundation work, so not reflected here.",https://dropbox.atlassian.net/jira/software/c/projects/SHARE/boards/1861/reports/sprint-retrospective?sprint=64007,SHARE
+Team Formation,Dan Karney,Sprint 11 Report,57315,11,3564,1782,594,423,51,37,466,474,8,89.24%,7.94%,71.21%,90.77%,drl/tfm-retro,"What went well
+- We acheived all of our sprint goals and made major progress on two of our largest epics: launching Team Join Flow Iteration and get code complete on Limit Password Sharing.
+
+Learnings
+- A couple engineers on the team developed a new process of sharing Nova sessions collaboratively to increase productivity.
+
+Share any additional observations or explanations related to the metrics
+- We had a few folks out on PTO which reduced our capacity.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- Launched Team Join Flow to 1%
+- Code Complete on Limit Password Sharing M3.4
+- Bug Bashed Team Member Trials
+- Raised team code coverage to 80+%
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/TFM/boards/5262/reports/sprint-retrospective?sprint=57315,TFM
+Stacks,Julian Ramirez,Sprint 11 Report,64110,2.5,810,405,135,259.5,10,123,111,269.5,158.5,96.29%,110.81%,192.22%,233.78%,Zoom Whiteboard Retro,"What went well
+- This was the first sprint after having been on kanban. The team did a great job with estimating given this was their first time adopting Core planning processes.
+- Strong Delivery Despite Volatility: Team delivered 103% despite high scope change
+
+Learnings
+- Oncall + Feature Overload: Reduce feature load for oncall engineers (cap at 15-20h)
+- Some duplicate tickets were present due to a mix up while breaking out a very large epic into several smaller epics. This was a one-time effort and shoulnd't happen again.
+
+Share any additional observations or explanations related to the metrics
+- High volatility was expected given the team was finalizing the plan for revamping the Stacks API for Bridge v2 readiness. The plan has been reviewed and is now being implemented. We expect future sprints to have significantly lower volatility.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- We completed Group-level Eng Review for ERP-99 - Stacks Bridge V2 Readiness and started implementation.
+
+Did we achieve the impact we were looking for?
+- Yes. The Bridge V2 readiness work has been ratified and engineering work has started.
+",,https://dropbox.atlassian.net/jira/software/c/projects/STACKS/boards/9224/reports/sprint-retrospective?sprint=64110,STACKS
+
+Adjacencies - Sign,"Anagha - Sign
+",,,45,,,,,,,,,,,,,,,"- The most significant insights from the sprint (Filled by GLs)
+* Since exiting Code Red, the team is focussing heavily on finishing P0 roadmap items and high priority CX tickets that customers have been waiting on. 
+
+- Any emerging trend, risk, or systemic issue requiring attention
+* "
+Sign NAMER,@Anagha Mudigonda,Sprint Report -SP11,63189,6,1944,972,324,349,0,110,420,344,76,101.45%,26.19%,107.72%,83.10%,,"What went well
+- MMR automation well underway.
+- We completed specs for Self Sign via API
+- Several Sev AIs and other CX tickets we had postponed because of Code Red got worked on.
+- The basic implementation of the Sign MCP server is in place. 
+
+Learnings
+- Team enjoys being back on regular work.
+- All of the Code Red work that the team put in is paying off with increased stability
+
+Share any additional observations or explanations related to the metrics
+- ","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- 
+Did we achieve the impact we were looking for?
+- ",,https://dropbox.atlassian.net/jira/software/c/projects/SIGN/boards/902/reports/sprint-retrospective?sprint=63189,SIGN
+Sign Core & API ,Kamil Kaczmarczyk,Sprint report - SP11,64243,8.5,2754,1377,459,299,48,0,347,347,0,86.17%,0.00%,65.14%,86.17%,https://dropbox.atlassian.net/wiki/spaces/SIGNAPI/pages/3833922703/2026-06-08+Sign+Core+API+Integrations+retrospective,"What went well
+- made incremental progress on e2e tests and FSS users onboarding
+Learnings
+- completion was lower due to blocking PRs from US team members (on documentation tasks) - we plan to front load work that heavily depends on reviews going forward
+Share any additional observations or explanations related to the metrics
+- lower sprint capacity (and commitment) due to long weekend in Poland (Corpus Christi and briding day being off) and multiple team members taking whole week as PTO","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+What did we ship?
+- onboarding modals for FSS users (not released yet)
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/SIGN/boards/3205/reports/sprint-retrospective?sprint=64243
+Sign Services & Billing,@ Damian Zawada,Sprint report - SP11,63940,7.5,2430,1215,405,383,22,22,408,405,3,94.57%,5.39%,94.57%,93.87%,https://dropbox.atlassian.net/wiki/spaces/SIGNDEVS/pages/3806167058/03.06.2026+Retrospective,"What went well
+- Auto field placement is progressing according to plan. Performance work for private beta was finalized and work for feedback loop backend was started.
+
+Learnings
+- H100s will be of better use on LLMs than OCR.
+
+Share any additional observations or explanations related to the metrics
+- There were two additional days of PTO in Poland which lowered the capacity of the team.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+What did we ship?
+- Some bugfixes, performance improvements for auto field placement, runbook for eventbus and alert for Stripe unavailability.
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/SIGN/boards/3336/reports/sprint-retrospective?sprint=63940
+DocSend,Anselina - DocSend,,,,,,,,,,,,,,,,,,"- The most significant insights from the sprint (Filled by GLs)
+* Strong accomplishments this sprint, including launching our AI Support Agent, being code complete on a P&P experiment, having the MCP RFC out for review, and having the OpenSearch PoC cluster live and working.
+* Ensure tasks pulled into a sprint are sufficiently scoped out with Product & Design requirements ready and no big open questions outstanding, to avoid unnecessary stress/pressure for the team.
+* Red/yellow metrics have clear explanations, and do not seem like systemic issues:
+   1) Cobalt had two new ICs onboarding to the team's oncall rotation (but did not have a task to capture this time spent), which lowered capacity. Completed scope was lower due to the team intentionally deciding to spend more time de-risking a potential memory issue on a rollout.
+   2) Platform had 3 engineers on PTO in the second half of the sprint, which also caused PR review bottlenecks on non-parallelizable work. Adjusted for actual PTO, capacity usage would have been 95%. Team is taking action to broaden review coverage going forward.
+
+- Any emerging trend, risk, or systemic issue requiring attention
+* No action required - flagging that for next sprint (SP12), sprint metrics across DocSend will be red and show significantly reduced capacity/completion rates, due to a DocSend-wide offsite the week of 6/8."
+DocSend Expansion (Comet),Tanvi Patel,Comet SP11 Report,63217,4.5,1458,729,243,224,12,12,236,236,0,94.92%,5.08%,92.18%,94.92%,,"What went well
+- Strong collaboration across the team to gather context, feedback, and alignment on the Space Analytics RFC
+- Close to completing the Delligence Tracker comments work
+- Preparing for H2 planning discussions and prioritization during the upcoming offsite
+- Delivered a screenshot protection POC in under a week
+- Actively supporting Product and Data Science discussions for Pricing & Packaging UAT setup and helping drive alignment toward completion
+
+Learnings
+- We learned that pulling product work into a sprint while key product and design discussions are still in progress is not the best time to break work into tasks during storytime
+- This created some unnecessary pressure and made the team feel rushed. Going forward, we will aim for a better balance between starting product work when requirements are sufficiently mature and investing in foundational, platform, and technical debt work when product direction is still being finalized
+
+Share any additional observations or explanations related to the metrics
+- ","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- Code complete for the Pricing & Packaging experiment; UAT planning with Product and Data Science is ongoing
+- Code complete for the Single Page Application (SPA) initiative
+- Delivered a working prototype for screenshot protection
+- Completed the first draft of the Space Analytics RFC
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/COMET/boards/7113/reports/sprint-retrospective?sprint=63217,COMET
+DocSend Expansion (Prism),Tanvi Patel,Prism SP11 Report ,63218,4.5,1458,729,243,255,3,0,234,258,24,98.84%,0.00%,104.94%,108.97%,,"What went well
+- We were unblocked on Email Observability (STAMP) work and made meaningful progress
+- Our new hire joined the team this week, and we were able to onboard them effectively ahead of the in-person offsite
+- The team prepared an in-depth MCP RFC for review with the broader DocSend organization during in person offsite
+- Made progress on the standard user permissions redesign
+- Completed the hard deletion project, including rolling alerts into the team's on-call rotation
+Learnings
+- Early results from the GroupEx experiment are promising. GroupEx improved Spaces group creation by 26%
+- We transitioned Dash integration work to the Platform team so we can remain focused on improving ADR engagement
+
+Share any additional observations or explanations related to the metrics
+Heads up on sprint metrics for the next few weeks: our new hire is currently onboarding, so we do not expect them to be operating at full capacity immediately. This is planned and expected as they ramp up","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- We got the RFC out for DocSend MCP OAuth, rate limiting and required foundation to break down the execution tasks
+- Bulk space amangement code complete
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/PRISM/boards/7115/reports/sprint-retrospective?sprint=63218,PRISM
+DocSend Cobalt,@Katherine Wu,SP11 Report,63772,7.5,2430,1215,405,319,93,0,339,412,73,77.43%,0.00%,78.77%,94.10%,,"What went well
+- Launched several experiments to improve user onboarding!
+- Amazing educational session with our designer on improving collaboration and design handoff process, via Figma and otherwise
+
+Learnings
+- We need to build in more slack into a sprint when we have multiple launches going on, in order to account for post-launch adjustments as needed. Particularly with the team's more recent focus on launching new features as experiments!
+
+Share any additional observations or explanations related to the metrics
+- The sprint planning should have taken into consideration that the two newer ICs on the team were focusing on onboarding to our team oncall rotation. If we attribute the additional 1 eng FTE for that onboarding (0.5 per person), the actual sprint capacity, with the holiday included, would be 318 hours. Capacity usage would then be 100.3%.
+- % of Completed Scope is lower than usual due to investing more investigation into rolling out ActionCable, which AI Organize V2 Milestone 2 (conversational prompting) would be built upon. We had some concerns with memory performance on our staging servers and decided to spend some more time to reduce risk of causing any issues in production.
+- We saw more oncall noise generally after it was discovered in the previous sprint that our Sentry error reporting was missing a connection to our alerting.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- Launched AI Support Agent! (Decagon)
+- Launched experiment for Wizard-style onboarding to Spaces
+- Launched experiment for Dropbox Waffle Menu Copy Experiment, including set-based segment to exclude existing Dropbox-managed account users
+
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/COBALT/boards/7116/reports/sprint-retrospective?sprint=63772,COBALT
+DocSend Platform,@Anselina Chia,SP11 Report,63187,6.5,2106,1053,351,309,24,42,344,333,11,92.79%,12.21%,88.03%,89.83%,,"What went well
+- Completed many on-call improvements to reduce the number of high-urgency pages for the team
+- Finally had the OpenSearch PoC cluster setup fully working after ~2 months working cross-team with DBX Platform and Dash teams, which unblocks our implementation work from being able to ship
+- E2EU work is paying off, with numerous improvements we will be prioritizing in Q3 to speed up uploads for customers and improve activation
+
+Learnings
+- PR reviews can become a challenge/bottleneck on projects that cannot really be parallelized (since other people on the team don't naturally have context on the work). Try to be intentional about assigning 1-2 other engineers to keep up to date with the work.
+
+Share any additional observations or explanations related to the metrics
+- Capacity usage % was lower than usual because of 3 engineers being out on PTO the second half of the sprint. If actual PTO were taken into account, capacity would have been 95%. With half the team out, some tasks also had to be carried over (despite largely being done) because the remaining team members did not have enough context to do PR reviews on one workstream.","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- On-call improvements to reduce toil & the number of high-urgency pages for the team
+- OpenSearch PoC cluster connection is live
+- E2EU M2: Decomposes the document upload journey into individual spans that track key steps of an upload across the frontend and backend, so we can diagnose and make targeted changes to improve upload speed
+
+Did we achieve the impact we were looking for?
+- Yes",,https://dropbox.atlassian.net/jira/software/c/projects/DSPLAT/boards/6914/reports/sprint-retrospective?sprint=63187,DSPLAT
+Sales Led Growth,Rahul Ashok
+SLG,,SP11 Report,65189,4,1296,648,216,,,,,,0,#DIV/0!,#DIV/0!,0.00%,#DIV/0!,,"What went well
+- 
+
+Learnings
+- 
+
+Share any additional observations or explanations related to the metrics
+- ","Was the Sprint Goal achieved? Yes/No (partial is not a valid option)
+- Yes
+
+What did we ship?
+- 
+Did we achieve the impact we were looking for?
+- ",,https://dropbox.atlassian.net/jira/software/c/projects/SLG/boards/11580/reports/sprint-retrospective?sprint=65189,SLG

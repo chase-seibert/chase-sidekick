@@ -281,6 +281,46 @@ def get_dropbox_config() -> dict:
     }
 
 
+def get_databricks_config() -> dict:
+    """Get Databricks configuration from .env file or environment variables.
+
+    Returns:
+        dict with keys: host, token, warehouse_id, catalog, schema, genie_space_id
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    host = _get_env("DATABRICKS_HOST", env_file_vars) or _get_env("DATABRICKS_URL", env_file_vars)
+    token = (
+        _get_env("DATABRICKS_TOKEN", env_file_vars)
+        or _get_env("DATABRICKS_API_KEY", env_file_vars)
+    )
+    warehouse_id = (
+        _get_env("DATABRICKS_WAREHOUSE_ID", env_file_vars)
+        or _get_env("DATABRICKS_SQL_WAREHOUSE_ID", env_file_vars)
+    )
+    catalog = _get_env("DATABRICKS_CATALOG", env_file_vars)
+    schema = _get_env("DATABRICKS_SCHEMA", env_file_vars)
+    genie_space_id = _get_env("DATABRICKS_GENIE_SPACE_ID", env_file_vars)
+
+    if not all([host, token]):
+        raise ValueError(
+            "Missing required Databricks configuration. "
+            "Set DATABRICKS_HOST and DATABRICKS_TOKEN in .env file or environment variables."
+        )
+
+    return {
+        "host": host,
+        "token": token,
+        "warehouse_id": warehouse_id,
+        "catalog": catalog,
+        "schema": schema,
+        "genie_space_id": genie_space_id
+    }
+
+
 def get_google_config() -> dict:
     """Get Google configuration from .env file or environment variables.
 
