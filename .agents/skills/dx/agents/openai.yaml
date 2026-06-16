@@ -1,0 +1,3 @@
+interface:
+  display_name: "DX"
+  short_description: "Run DX Data Studio SQL, datafeeds, and downloads"

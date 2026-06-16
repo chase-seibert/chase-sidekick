@@ -321,6 +321,45 @@ def get_databricks_config() -> dict:
     }
 
 
+def get_dx_config() -> dict:
+    """Get DX configuration from .env file or environment variables.
+
+    Returns:
+        dict with keys: api_base_url, web_base_url, token
+
+    Raises:
+        ValueError: If required environment variables are missing
+    """
+    env_file_vars = _load_env_file()
+
+    api_base_url = (
+        _get_env("DX_API_BASE_URL", env_file_vars)
+        or _get_env("DX_API_URL", env_file_vars)
+        or "https://api.getdx.com"
+    )
+    web_base_url = (
+        _get_env("DX_WEB_BASE_URL", env_file_vars)
+        or _get_env("DX_WEB_URL", env_file_vars)
+        or "https://app.getdx.com"
+    )
+    token = (
+        _get_env("DX_API_TOKEN", env_file_vars)
+        or _get_env("DX_ACCESS_TOKEN", env_file_vars)
+    )
+
+    if not token:
+        raise ValueError(
+            "Missing required DX configuration. "
+            "Set DX_API_TOKEN in .env file or environment variables."
+        )
+
+    return {
+        "api_base_url": api_base_url,
+        "web_base_url": web_base_url,
+        "token": token
+    }
+
+
 def get_google_config() -> dict:
     """Get Google configuration from .env file or environment variables.
 

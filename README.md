@@ -53,6 +53,7 @@ Current skills in `.agents/skills`:
 - **codex-cost-report** - Generate local Codex cost reports with charts, annual projections, coding/cowork split, and HTML output.
 - **dependency-escalation** - Draft a document for an escalation of a dependency request.
 - **dropbox** - Manage Dropbox files and Paper docs.
+- **dx** - Run DX Data Studio SQL queries, saved query datafeeds, and CSV downloads.
 - **epic-assignment** - Assign active Epics to Roadmap Initiatives based on recent activity.
 - **gcalendar** - Manage Google Calendar events.
 - **gmail** - Search and manage Gmail messages.
