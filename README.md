@@ -390,7 +390,6 @@ chase-sidekick/
 │   └── skills -> ../.agents/skills
 ├── tools/
 │   ├── email_trigger_watcher.py  # Phone-to-desktop Claude/Codex email triggers
-│   ├── check_codex_mcp_auth_bug.py # Weekly Codex MCP auth bug watch
 │   ├── miclog_meeting_notes_watcher.py # Calendar/miclog meeting-note drafts
 │   ├── omnifocus_trigger_watcher.py # OmniFocus Inbox Codex triggers
 │   ├── prep_tomorrow_meetings.py # Open meeting docs in browser
@@ -606,19 +605,9 @@ The scheduler does not keep a state file. If cron calls it during a configured s
 
 ## Codex MCP Auth Bug Watch
 
-`tools/check_codex_mcp_auth_bug.py` watches the public OpenAI Codex issues for the MCP OAuth refresh-token/auth persistence bug. It polls GitHub, records status under `memory/codex-mcp-auth-bug-watch.json`, and emails you once when a watched issue first looks fixed.
+The Codex MCP auth bug watch is a native Codex Automation, not a cron job. Its definition lives outside this repo under `$CODEX_HOME/automations/codex-mcp-auth-bug-watch/automation.toml`.
 
-Preview without writing state or sending mail:
-
-```bash
-python3 tools/check_codex_mcp_auth_bug.py --dry-run
-```
-
-Installed cron example:
-
-```cron
-20 9 * * 1 cd /Users/cseibert/projects/chase-sidekick && /usr/local/bin/python3 tools/check_codex_mcp_auth_bug.py >> /Users/cseibert/.crontab/logs/codex-mcp-auth-bug-watch.log 2>&1
-```
+The prompt watches the public OpenAI Codex issues for the MCP OAuth refresh-token/auth persistence bug, records status under `memory/codex-mcp-auth-bug-watch.json`, and emails you once when a watched issue first looks fixed.
 
 ## Adding New Skills
 

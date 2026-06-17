@@ -2,6 +2,7 @@
 local
 settings.local.json
 /.claude/scheduled_tasks.json
+tmp
 
 __pycache__/
 *.py[cod]
