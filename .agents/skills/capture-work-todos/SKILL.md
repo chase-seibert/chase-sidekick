@@ -47,7 +47,7 @@ PY
 4. Gather leadership meetings:
    - Use `local/meetings.md` and include docs whose title or description clearly marks them as leadership forums, such as engineering leadership team notes, LT/XLT vibe checks, manager staff meetings, and leader-plus-manager forums.
    - Use the same Confluence/Paper precedence as 1:1 docs.
-   - If docs cannot be read, inspect recent leadership-meeting summaries in `memory/miclog.txt`, `memory/other_meetings_notes.txt`, or `local/miclog-summaries.md` only for entries inside the lookback window.
+   - If docs cannot be read, inspect recent leadership-meeting summaries in `local/miclog/` using `local/miclog/AGENTS.md`; use matching transcripts in `memory/miclog/` only when the summaries are insufficient. Stay inside the lookback window.
    - Skip project status docs and broad all-hands style docs unless they contain an explicit action assigned to the user.
 
 ## Extraction Rules

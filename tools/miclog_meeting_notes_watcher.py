@@ -2,7 +2,7 @@
 """Launch Codex meeting-note drafts from recent calendar events and miclog activity.
 
 This watcher is intended for cron. It looks for the latest timed calendar event
-that ended recently or is in its final minutes, confirms that memory/miclog.txt
+that ended recently or is in its final minutes, confirms that memory/miclog/
 has transcript lines for that event window, and launches Codex with the
 meeting-notes-from-miclog skill.
 
@@ -37,7 +37,9 @@ DEFAULT_EXECUTION_TIMEOUT = 1800
 DEFAULT_CALENDAR_LOOKBACK_HOURS = 12
 
 MICLOG_LINE_RE = re.compile(r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s*(.*)")
+MICLOG_TRANSCRIPT_FILE_RE = re.compile(r"^\d{8}-\d{6}-transcript-.+\.md$")
 URL_RE = re.compile(r"https?://[^\s<>\"]+")
+MiclogLine = Tuple[datetime, str, str, Path]
 
 
 def log(message: str) -> None:
@@ -57,13 +59,13 @@ def positive_int(value: str) -> int:
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Watch Google Calendar and memory/miclog.txt for meetings ready to summarize."
+        description="Watch Google Calendar and memory/miclog/ transcripts for meetings ready to summarize."
     )
     parser.add_argument("--calendar-id", default="primary")
     parser.add_argument(
         "--miclog-path",
-        default=str(REPO_ROOT / "memory" / "miclog.txt"),
-        help="Path to miclog.txt.",
+        default=str(REPO_ROOT / "memory" / "miclog"),
+        help="Path to a miclog transcript file or directory of timestamped transcript Markdown files.",
     )
     parser.add_argument(
         "--state-path",
@@ -225,15 +227,28 @@ def save_state(path: Path, state: dict) -> None:
     temp_path.replace(path)
 
 
-def iter_miclog_lines(path: Path) -> Iterable[Tuple[datetime, str, str]]:
-    with path.open("r", errors="replace") as miclog:
-        for raw_line in miclog:
-            match = MICLOG_LINE_RE.search(raw_line)
-            if not match:
-                continue
-            timestamp = parse_miclog_datetime(match.group(1))
-            text = match.group(2).strip()
-            yield timestamp, text, raw_line.rstrip("\n")
+def miclog_source_paths(path: Path) -> List[Path]:
+    if path.is_file():
+        return [path]
+    if not path.is_dir():
+        return []
+    return sorted(
+        child
+        for child in path.iterdir()
+        if child.is_file() and MICLOG_TRANSCRIPT_FILE_RE.match(child.name)
+    )
+
+
+def iter_miclog_lines(path: Path) -> Iterable[MiclogLine]:
+    for source_path in miclog_source_paths(path):
+        with source_path.open("r", errors="replace") as miclog:
+            for raw_line in miclog:
+                match = MICLOG_LINE_RE.search(raw_line)
+                if not match:
+                    continue
+                timestamp = parse_miclog_datetime(match.group(1))
+                text = match.group(2).strip()
+                yield timestamp, text, raw_line.rstrip("\n"), source_path
 
 
 def miclog_excerpt_for_event(
@@ -241,18 +256,21 @@ def miclog_excerpt_for_event(
     event: dict,
     now: datetime,
     buffer: timedelta,
-) -> Tuple[List[Tuple[datetime, str, str]], datetime, datetime]:
+) -> Tuple[List[MiclogLine], datetime, datetime]:
     start, end = event_start_end(event)
     if start is None or end is None:
         return [], now, now
 
     lower = start - buffer
     upper = min(end + buffer, now)
-    lines = [
-        line
-        for line in iter_miclog_lines(miclog_path)
-        if lower <= line[0] <= upper
-    ]
+    lines = sorted(
+        [
+            line
+            for line in iter_miclog_lines(miclog_path)
+            if lower <= line[0] <= upper
+        ],
+        key=lambda line: (line[0], str(line[3])),
+    )
     return lines, lower, upper
 
 
@@ -265,7 +283,7 @@ def last_processed_miclog_ts(state: dict, event: dict) -> Optional[datetime]:
 def has_new_miclog_activity(
     state: dict,
     event: dict,
-    miclog_lines: List[Tuple[datetime, str, str]],
+    miclog_lines: List[MiclogLine],
 ) -> bool:
     if not miclog_lines:
         return False
@@ -336,15 +354,33 @@ def truncate_excerpt(text: str, max_chars: int) -> Tuple[str, bool]:
     omitted = len(text) - max_chars
     return (
         text[:head_chars].rstrip()
-        + f"\n\n[... {omitted} characters omitted from the middle; read memory/miclog.txt if needed ...]\n\n"
+        + f"\n\n[... {omitted} characters omitted from the middle; read the selected miclog source files if needed ...]\n\n"
         + text[-tail_chars:].lstrip(),
         True,
     )
 
 
+def display_path(path: Path) -> str:
+    if path.is_relative_to(REPO_ROOT):
+        return str(path.relative_to(REPO_ROOT))
+    return str(path)
+
+
+def miclog_selected_source_paths(miclog_lines: List[MiclogLine]) -> List[Path]:
+    selected: List[Path] = []
+    seen = set()
+    for line in miclog_lines:
+        source_path = line[3]
+        if source_path in seen:
+            continue
+        seen.add(source_path)
+        selected.append(source_path)
+    return selected
+
+
 def build_prompt(
     event: dict,
-    miclog_lines: List[Tuple[datetime, str, str]],
+    miclog_lines: List[MiclogLine],
     miclog_path: Path,
     excerpt_lower: datetime,
     excerpt_upper: datetime,
@@ -354,12 +390,16 @@ def build_prompt(
     attendees = [attendee_label(attendee) for attendee in event.get("attendees") or []]
     description = clean_description(event.get("description") or "")
     links = event_links(event)
-    raw_excerpt = "\n".join(raw_line for _, _, raw_line in miclog_lines)
+    raw_excerpt = "\n".join(raw_line for _, _, raw_line, _ in miclog_lines)
     excerpt, truncated = truncate_excerpt(raw_excerpt, max_miclog_chars)
     truncation_note = (
         "\nThe miclog excerpt was truncated; read the source file and the stated time window if more detail is needed."
         if truncated
         else ""
+    )
+    selected_source_paths = miclog_selected_source_paths(miclog_lines)
+    selected_sources = "\n".join(
+        f"- {display_path(source_path)}" for source_path in selected_source_paths
     )
 
     return f"""Use $meeting-notes-from-miclog to produce draft-only meeting notes.
@@ -382,7 +422,9 @@ Event links:
 {chr(10).join(f"- {link}" for link in links) if links else "- (none found)"}
 
 Miclog source:
-- Path: {miclog_path.relative_to(REPO_ROOT) if miclog_path.is_relative_to(REPO_ROOT) else miclog_path}
+- Input path: {display_path(miclog_path)}
+- Selected files:
+{selected_sources or "- (none)"}
 - Selected window: {excerpt_lower.strftime('%Y-%m-%d %H:%M:%S %Z')} to {excerpt_upper.strftime('%Y-%m-%d %H:%M:%S %Z')}
 - Lines selected: {len(miclog_lines)}{truncation_note}
 
@@ -399,7 +441,7 @@ def select_event_with_miclog(
     now: datetime,
     buffer: timedelta,
     state: dict,
-) -> Optional[Tuple[dict, List[Tuple[datetime, str, str]], datetime, datetime]]:
+) -> Optional[Tuple[dict, List[MiclogLine], datetime, datetime]]:
     for event in events:
         lines, lower, upper = miclog_excerpt_for_event(miclog_path, event, now, buffer)
         if not lines:
@@ -415,7 +457,7 @@ def select_event_with_miclog(
 def update_state_for_success(
     state: dict,
     event: dict,
-    miclog_lines: List[Tuple[datetime, str, str]],
+    miclog_lines: List[MiclogLine],
     result: CodexRunResult,
 ) -> None:
     event_id = event.get("id") or ""
@@ -442,8 +484,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     log(f"Dry run: {args.dry_run}")
 
     if not miclog_path.exists():
-        log(f"No miclog file found at {miclog_path}")
+        log(f"No miclog path found at {miclog_path}")
         return 0
+
+    miclog_sources = miclog_source_paths(miclog_path)
+    if not miclog_sources:
+        log(f"No miclog transcript files found at {miclog_path}")
+        return 0
+    log(f"Miclog source file(s): {len(miclog_sources)}")
 
     state = load_state(state_path)
     ended_window = timedelta(minutes=args.window_ended_minutes)

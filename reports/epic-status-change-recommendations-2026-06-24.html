@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Epic Status Change Recommendations</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #1f2933;
+      --muted: #5c6875;
+      --rule: #d6d9de;
+      --header: #eef3f7;
+      --link: #075985;
+    }
+    html {
+      background: var(--bg);
+    }
+    body {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 40px 28px 64px;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 2rem;
+      line-height: 1.15;
+    }
+    h2 {
+      margin-top: 2.4rem;
+      padding-top: 1.2rem;
+      border-top: 2px solid var(--rule);
+      font-size: 1.45rem;
+    }
+    h3 {
+      margin-top: 1.7rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+    a,
+    a:visited {
+      color: var(--link);
+    }
+    p {
+      max-width: 900px;
+    }
+    table {
+      display: table;
+      width: 100%;
+      margin: 0.75rem 0 1.5rem;
+      overflow: visible;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+    thead {
+      background: var(--header);
+    }
+    tbody {
+      border: 0;
+    }
+    th,
+    td {
+      padding: 0.55rem 0.7rem;
+      border-top: 1px solid var(--rule);
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      border-top: 0;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+    td:first-child,
+    th:first-child {
+      white-space: nowrap;
+      width: 9rem;
+    }
+    td:nth-child(3),
+    th:nth-child(3) {
+      white-space: nowrap;
+      width: 8rem;
+    }
+    code {
+      color: #343a40;
+      background: #f0f2f4;
+      border-radius: 4px;
+      padding: 0.08rem 0.22rem;
+    }
+    @media (max-width: 760px) {
+      body {
+        padding: 24px 14px 48px;
+      }
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+    @media print {
+      body {
+        max-width: none;
+        padding: 0;
+      }
+      table {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1 id="epic-status-change-recommendations">Epic Status Change
+Recommendations</h1>
+<p>Generated: 2026-06-24</p>
+<p>Heuristic used: recommend <code>Done</code> when all direct children
+are Done/Cancelled, recommend <code>In Progress</code> when any direct
+child is in an active status, and recommend <code>Delayed</code> when no
+direct child work has started. I only used <code>Delayed</code>, not
+<code>Canceled</code>, where there was no explicit child-status evidence
+of cancellation.</p>
+<h2 id="simplify-sharing">Simplify Sharing</h2>
+<h3 id="recommended-delayed">Recommended: Delayed</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Epic</th>
+<th>Summary</th>
+<th>Current status</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/SHARE-8428">SHARE-8428</a></td>
+<td>Inband Email Consolidation</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = SHARE-8428</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/SHARE-8439">SHARE-8439</a></td>
+<td>Inband Performance Improvements for Folders</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = SHARE-8439</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/SHARE-8449">SHARE-8449</a></td>
+<td>Mobile web on mobile app spike</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = SHARE-8449</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/SHARE-8706">SHARE-8706</a></td>
+<td>[Web] SM26 Create Folder Flow</td>
+<td>Product Review</td>
+<td>No direct child issues were returned by
+<code>parent = SHARE-8706</code>; child-status evidence does not support
+Product Review.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/SHARE-9138">SHARE-9138</a></td>
+<td>[iOS] SM26 Modernize In Band Flows Rollout</td>
+<td>To Do</td>
+<td>No direct child issues were returned by
+<code>parent = SHARE-9138</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/SHARE-9149">SHARE-9149</a></td>
+<td>[Android] SM26 MVP GA Rollout</td>
+<td>Product Review</td>
+<td>No direct child issues were returned by
+<code>parent = SHARE-9149</code>; child-status evidence does not support
+Product Review.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="team-expansion">Team Expansion</h2>
+<h3 id="recommended-done-1">Recommended: Done</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Epic</th>
+<th>Summary</th>
+<th>Current status</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-3403">TEXP-3403</a></td>
+<td>Everyone Group Exclusion</td>
+<td>Product Review</td>
+<td><code>parent = TEXP-3403 AND statusCategory != Done</code> returned
+no issues; moved children found were Done or Cancelled.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommended-delayed-1">Recommended: Delayed</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Epic</th>
+<th>Summary</th>
+<th>Current status</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-4075">TEXP-4075</a></td>
+<td>Unification FSS MPE [IMM M5]</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = TEXP-4075</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-4076">TEXP-4076</a></td>
+<td>Unification FSS MPE [R2J]</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = TEXP-4076</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-4281">TEXP-4281</a></td>
+<td>[Foundation] MLM v1 deprecation [M2 Q3]</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = TEXP-4281</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-4301">TEXP-4301</a></td>
+<td>Unification FSS MPE Q3</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = TEXP-4301</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-4398">TEXP-4398</a></td>
+<td>[Foundation] Growthbook/Stormcrow/Kiev Clean up for Q3</td>
+<td>Triage</td>
+<td>Direct children were present, but the returned children were still
+To Do/Triage; no child had moved out of To Do.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-4409">TEXP-4409</a></td>
+<td>[Q3/M1][Foundation]Improve Code Test Coverage</td>
+<td>Triage</td>
+<td>Direct children <code>TEXP-4167</code> and <code>TEXP-4502</code>
+are both Triage; no child had moved out of To Do.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TEXP-4542">TEXP-4542</a></td>
+<td>[KTLO] Team Expansion KTLO [2026-Q3-Block-6]</td>
+<td>Triage</td>
+<td>No direct child issues were returned by
+<code>parent = TEXP-4542</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="team-formation">Team Formation</h2>
+<h3 id="recommended-in-progress-1">Recommended: In Progress</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Epic</th>
+<th>Summary</th>
+<th>Current status</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TFM-1327">TFM-1327</a></td>
+<td>Team Formation Cleanup Dead Routes 2026 Q2</td>
+<td>At Risk</td>
+<td>Direct children include one active child (<code>TFM-1745</code> In
+Progress) and several Open children (<code>TFM-1743</code>,
+<code>TFM-1744</code>, <code>TFM-1746</code>); child statuses support In
+Progress rather than At Risk.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommended-delayed-2">Recommended: Delayed</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Epic</th>
+<th>Summary</th>
+<th>Current status</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TFM-1328">TFM-1328</a></td>
+<td>TFM Q3: Improve Production Debugging by Completing Self Identified
+Projects to Address Team Pain Points</td>
+<td>Open</td>
+<td>No direct child issues were returned by
+<code>parent = TFM-1328</code>, so there is no child-status evidence
+that work has started.</td>
+</tr>
+<tr>
+<td><a
+href="https://dropbox.atlassian.net/browse/TFM-1544">TFM-1544</a></td>
+<td>Limit Password Sharing: Enforcement M3.5</td>
+<td>On Hold</td>
+<td>No direct child issues were returned by
+<code>parent = TFM-1544</code>; with no started child work, Delayed is
+the clearer status.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

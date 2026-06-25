@@ -1,4 +1,4 @@
 interface:
   display_name: "Miclog Meeting Notes"
   short_description: "Summarize recent meetings from miclog and calendar context"
-  default_prompt: "Use $meeting-notes-from-miclog to summarize the latest concluded or ending calendar meeting from memory/miclog.txt."
+  default_prompt: "Use $meeting-notes-from-miclog to summarize the latest concluded or ending calendar meeting from memory/miclog/."
