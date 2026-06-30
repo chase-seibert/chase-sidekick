@@ -1,20 +1,20 @@
 ---
 name: weekly-report
-description: Generate summary of 1:1 and meeting notes organized by audience
+description: Generate summary of 1:1 and meeting notes organized by audience, wins, and kudos
 argument-hint: [weeks]
 auto-approve: true
 ---
 
 # Weekly Report Agent
 
-Generate am executive summary of notes from your 1:1 docs, meeting docs, and Slack conversations for the past week(s), organized by audience. With references. Aim for 20+ total docs or channels.
+Generate an executive summary of notes from your 1:1 docs, meeting docs, and Slack conversations for the past week(s), organized by staff-meeting audience, local team emphasis, broad communication, wins, and kudos. With references. Aim for 20+ total docs or channels.
 
 ## Overview
 
 This agent helps you:
 1. Review recent notes from all your 1:1 and recurring meeting docs, and Slack
 2. Identify key topics that need communication
-3. Categorize items by audience (leadership, direct reports, everyone)
+3. Categorize items by audience (leadership staff meeting, local team, everyone), wins, and kudos
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ Process all documents in batches of 12-15 documents at a time. For each batch:
 
 1. **Fetch documents** for this batch (continue on errors - see Error Handling below)
 2. **Immediately extract notes** from recent time period (last 7 days by default)
-3. **Categorize extracted notes** into the 4 categories (see Category Definitions below)
+3. **Categorize extracted notes** into the 5 categories (see Category Definitions below)
 4. **Append categorized notes** to `$TMP_DIR/notes_batch_N.md` (where N is batch number). Create `$TMP_DIR` with `mktemp -d "${TMPDIR:-/tmp}/weekly-report.XXXXXX"` and clean it up with a trap.
 5. **Discard full document content** from context (only keep extracted notes file)
 
@@ -97,7 +97,7 @@ Other errors:
 After processing all batches:
 
 1. **Read all batch notes files** (`$TMP_DIR/notes_batch_*.md`)
-2. **Merge notes by category** (combine all "Leadership" items, all "Direct Reports" items, etc.)
+2. **Merge notes by category** (combine all "Leadership Staff Meeting" items, all "Local Team" items, all "Wins" items, etc.)
 3. **Deduplicate similar notes** across batches:
    - If same topic appears in multiple docs, consolidate into ONE note
    - Keep ALL `[ref]` links from all sources
@@ -115,8 +115,21 @@ Sort extracted notes into the following categories. Each category should be a bu
 - Multiple sources: Topic X happened [ref1](url1) [ref2](url2)
 ```
 
-#### Things to Communicate to Leadership
-Items that require escalation, alignment, or visibility at leadership level:
+#### Writing Style and Link Hygiene
+The final report should be easy to copy/paste into meeting notes or Slack without sounding generated.
+
+- Write in Chase's normal operating voice: direct, plain, concise, and specific.
+- Use first person when Chase owns the action or ask: "I'm proposing...", "I need approval...", "I'm creating...", "We're actively working on...".
+- State the practical implication, not just the synthesized theme. Prefer "MTI is in danger of not making the Q3 cut line because Sharing capacity is the blocker" over abstract phrasing like "MTI and Sharing have become the main Q3 cut-line decision."
+- Call roadmap slips, staffing asks, explicit approvals needed, and decision points directly.
+- Keep bullets short enough to paste into staff-meeting notes: usually 1-2 sentences, with links at the end.
+- Avoid consultant or artifact-heavy language when a simpler phrase works. Examples to avoid: "has become the main decision," "leadership-level call," "live leadership issue," "one-time calibration artifact," "shifting into a management system."
+- Prefer shareable links in the copy/paste sections: unrestricted or broadly accessible Paper docs, Confluence docs, Google Drive docs/sheets, Jira issues, and Slack channels when the target audience can access them.
+- Avoid personal DMs, private 1:1 docs, and local miclog/memory file links in the copy/paste sections unless no shareable source exists. Use those private/local sources for synthesis, but link to a broader shareable source that supports the point when possible.
+- Never invent a URL. If no shareable link is available, omit the link or include the best broader shareable source and keep private/local details out of the paste-ready text.
+
+#### Things to Report to Your Leadership Staff Meeting
+Items that require escalation, alignment, approval, or visibility in the user's manager's-manager staff meeting:
 - Roadmap changes or delays
 - Cross-team dependencies or blockers
 - Resource needs (headcount, budget)
@@ -126,8 +139,8 @@ Items that require escalation, alignment, or visibility at leadership level:
 - Business wins
 - Recognition and wins to share
 
-#### Things to Communicate to Direct Reports
-Items relevant to your team members:
+#### Things to Emphasize to Your Team
+Items relevant to the user's local team, managers, and direct reports:
 - Feedback from leadership
 - Changes to team priorities or roadmap
 - Process updates
@@ -143,6 +156,14 @@ Items for broad communication:
 - Demos or show-and-tells
 - Policy or process changes
 - Team wins worth celebrating
+
+#### Wins
+Concrete positive outcomes from the reporting period. Prefer outcomes that are already shipped, launched, completed, unblocked, improved, or measurably trending better:
+- Product launches, rollouts, ramps, and GA milestones
+- Revenue, growth, adoption, reliability, performance, or cost-savings impact
+- Operational improvements or process wins
+- Technical debt reductions, platform migrations, or tooling improvements
+- Planning, dependency, or alignment breakthroughs
 
 #### Kudos
 Thank yous for specific people: 
@@ -167,15 +188,18 @@ Thank yous for specific people:
 ```markdown
 # Weekly Report - [Date Range]
 
-## Things to Communicate to Leadership
+## Things to Report to Your Leadership Staff Meeting
 - Item 1 [[ref]](url)
 - Item 2 [[ref1]](url1) [[ref2]](url2)
 
-## Things to Communicate to Direct Reports
+## Things to Emphasize to Your Team
 - Item 1 [[ref]](url)
 
 ## Things to Communicate to Everyone
 - Item 1 [[ref]](url)
+
+## Wins
+- Win 1 [[ref]](url)
 
 ## Kudos
 - Person X for Y [[ref]](url)
