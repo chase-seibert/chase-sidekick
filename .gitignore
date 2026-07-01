@@ -1,5 +1,6 @@
 /AGENTS.override.md
 local
+spotlight_awards_log.csv
 settings.local.json
 /.claude/scheduled_tasks.json
 tmp

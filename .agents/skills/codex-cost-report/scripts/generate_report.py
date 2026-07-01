@@ -29,6 +29,9 @@ SESSIONS_ROOT = CODEX_ROOT / "sessions"
 REPORT_DIR = REPO_ROOT / "memory"
 GENERATED_AT = datetime.now().astimezone()
 REPORT_PATH = REPORT_DIR / f"codex-cost-report-{GENERATED_AT.date().isoformat()}.qmd"
+COST_FILE_NAME = "COSTS.md"
+COST_TRACKER_START = "<!-- codex-cost-report:start -->"
+COST_TRACKER_END = "<!-- codex-cost-report:end -->"
 
 # USD prices are standard short-context API rates per 1M tokens.
 # Codex credits are token-based credit rates per 1M tokens.
@@ -66,6 +69,29 @@ MODEL_ALIASES = {
 
 USER_SOURCES = {"vscode", "exec"}
 TOKEN_KEYS = ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_output_tokens", "total_tokens")
+LAST_USD_KEYS = {
+    "last_cost_usd",
+    "last_charge_usd",
+    "last_billed_usd",
+    "last_usage_usd",
+    "last_token_cost_usd",
+}
+TOTAL_USD_KEYS = {
+    "total_cost_usd",
+    "total_charge_usd",
+    "total_billed_usd",
+    "total_usage_usd",
+    "cumulative_cost_usd",
+    "cumulative_charge_usd",
+}
+AMBIGUOUS_USD_KEYS = {
+    "cost_usd",
+    "charge_usd",
+    "billed_usd",
+    "usage_usd",
+    "amount_usd",
+    "usd",
+}
 PATCH_PATH_RE = re.compile(r"^\*\*\* (?:Add File|Update File|Delete File):\s+(.+)$")
 PATCH_MOVE_RE = re.compile(r"^\*\*\* Move to:\s+(.+)$")
 REDIRECT_RE = re.compile(r"(?:^|\s)(?:\d*)>{1,2}\s*([^\s;&|>]+)")
@@ -84,6 +110,12 @@ NON_REPO_PATH_PREFIXES = (
     "$TMPDIR/",
     "${TMPDIR}/",
 )
+SKIP_COST_FILE_ROOTS = (
+    CODEX_ROOT,
+    Path("/tmp"),
+    Path("/private/tmp"),
+    Path("/var/folders"),
+)
 
 
 @dataclass
@@ -99,8 +131,27 @@ class SessionUsage:
     work_type: str = "cowork"
     work_type_reason: str = "no local non-memory write signal"
     usd: float = 0.0
+    estimated_usd: float = 0.0
+    actual_usd: float | None = None
+    actual_usd_event_count: int = 0
     credits: float = 0.0
     unknown_usd_models: set[str] = field(default_factory=set)
+
+    @property
+    def usd_basis(self) -> str:
+        return "actual" if self.actual_usd is not None else "estimated"
+
+
+@dataclass
+class ProjectCostFileResult:
+    project: str
+    path: Path
+
+
+@dataclass
+class ProjectCostFileUpdate:
+    updated: list[ProjectCostFileResult] = field(default_factory=list)
+    skipped: dict[str, str] = field(default_factory=dict)
 
 
 def as_local_datetime(ms: int | None) -> datetime:
@@ -122,6 +173,75 @@ def fmt_money(value: float | None) -> str:
     if value is None or math.isnan(value):
         return "n/a"
     return f"${value:,.2f}"
+
+
+def parse_usd(value) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)) and math.isfinite(value):
+        return float(value)
+    if isinstance(value, str):
+        cleaned = value.strip().replace("$", "").replace(",", "")
+        if not cleaned:
+            return None
+        try:
+            parsed = float(cleaned)
+        except ValueError:
+            return None
+        return parsed if math.isfinite(parsed) else None
+    return None
+
+
+def find_usd_values(value, key_names: set[str], path: tuple[str, ...] = ()) -> list[tuple[tuple[str, ...], float]]:
+    matches = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = path + (str(key),)
+            if str(key).lower() in key_names:
+                parsed = parse_usd(child)
+                if parsed is not None:
+                    matches.append((child_path, parsed))
+            matches.extend(find_usd_values(child, key_names, child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            matches.extend(find_usd_values(child, key_names, path + (str(index),)))
+    return matches
+
+
+def infer_ambiguous_usd_values(values: list[float]) -> tuple[float | None, int]:
+    if not values:
+        return None, 0
+    if all(current >= previous for previous, current in zip(values, values[1:])):
+        total = values[0]
+        for previous, current in zip(values, values[1:]):
+            total += max(0.0, current - previous)
+        return total, len(values)
+    return sum(values), len(values)
+
+
+def actual_usd_from_token_infos(token_infos: list[dict]) -> tuple[float | None, int]:
+    last_values = []
+    total_values = []
+    ambiguous_values = []
+
+    for info in token_infos:
+        last_values.extend(value for _, value in find_usd_values(info, LAST_USD_KEYS))
+        total_values.extend(value for _, value in find_usd_values(info, TOTAL_USD_KEYS))
+        for path, value in find_usd_values(info, AMBIGUOUS_USD_KEYS):
+            lowered_path = {part.lower() for part in path}
+            if any("last" in part for part in lowered_path):
+                last_values.append(value)
+            elif any(part in {"total", "cumulative"} or "total" in part or "cumulative" in part for part in lowered_path):
+                total_values.append(value)
+            else:
+                ambiguous_values.append(value)
+
+    if last_values:
+        return sum(last_values), len(last_values)
+    if total_values:
+        inferred, count = infer_ambiguous_usd_values(total_values)
+        return inferred, count
+    return infer_ambiguous_usd_values(ambiguous_values)
 
 
 def fmt_number(value: int | float) -> str:
@@ -228,6 +348,58 @@ def compact_path(raw_path: str | None) -> str:
     if path.startswith(home + "/"):
         return "~/" + path[len(home) + 1 :]
     return path
+
+
+def expand_compact_path(raw_path: str | None) -> Path | None:
+    path = (raw_path or "").strip()
+    if not path or path == "(unknown cwd)":
+        return None
+    if path == "~":
+        return Path.home()
+    if path.startswith("~/"):
+        return Path.home() / path[2:]
+    return Path(path).expanduser()
+
+
+def is_within(path: Path, root: Path) -> bool:
+    resolved_path = path.resolve(strict=False)
+    resolved_root = root.resolve(strict=False)
+    try:
+        return resolved_path == resolved_root or resolved_path.is_relative_to(resolved_root)
+    except AttributeError:
+        return resolved_path == resolved_root or str(resolved_path).startswith(str(resolved_root) + os.sep)
+
+
+def should_skip_cost_dir(path: Path) -> bool:
+    return any(is_within(path, root) for root in SKIP_COST_FILE_ROOTS)
+
+
+def git_root_for(path: Path) -> Path | None:
+    result = subprocess.run(
+        ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if result.returncode:
+        return None
+    root = result.stdout.strip()
+    return Path(root).resolve(strict=False) if root else None
+
+
+def canonical_cost_dir(path_counts: Counter) -> tuple[Path | None, str | None]:
+    for raw_path, _ in path_counts.most_common():
+        candidate = expand_compact_path(raw_path)
+        if candidate is None:
+            continue
+        if not candidate.exists() or not candidate.is_dir():
+            continue
+        cost_dir = git_root_for(candidate) or candidate
+        if should_skip_cost_dir(cost_dir):
+            continue
+        return cost_dir, None
+    return None, "no existing non-Codex project directory"
 
 
 def project_from_origin(raw_origin: str | None) -> str | None:
@@ -394,13 +566,16 @@ def read_threads() -> dict[str, dict]:
     return {row["id"]: dict(row) for row in rows}
 
 
-def read_session_usage(path: Path) -> tuple[str | None, dict[str, Counter], datetime | None, datetime | None, list[str]]:
+def read_session_usage(
+    path: Path,
+) -> tuple[str | None, dict[str, Counter], datetime | None, datetime | None, list[str], float | None, int]:
     session_id = None
     current_model = None
     usage_by_model: dict[str, Counter] = defaultdict(Counter)
     first_seen = None
     last_seen = None
     coding_reasons = []
+    token_infos = []
 
     for line in path.read_text(errors="replace").splitlines():
         try:
@@ -423,6 +598,10 @@ def read_session_usage(path: Path) -> tuple[str | None, dict[str, Counter], date
             current_model = payload.get("model") or current_model
         elif record_type == "event_msg" and payload.get("type") == "token_count":
             info = payload.get("info") or {}
+            if isinstance(info, dict):
+                token_infos.append(info)
+            else:
+                continue
             last_usage = info.get("last_token_usage") or {}
             if not last_usage or not current_model:
                 continue
@@ -431,7 +610,8 @@ def read_session_usage(path: Path) -> tuple[str | None, dict[str, Counter], date
                 if isinstance(value, int):
                     usage_by_model[current_model][key] += value
 
-    return session_id, usage_by_model, first_seen, last_seen, coding_reasons
+    actual_usd, actual_usd_event_count = actual_usd_from_token_infos(token_infos)
+    return session_id, usage_by_model, first_seen, last_seen, coding_reasons, actual_usd, actual_usd_event_count
 
 
 def build_sessions() -> tuple[list[SessionUsage], Counter]:
@@ -440,7 +620,15 @@ def build_sessions() -> tuple[list[SessionUsage], Counter]:
     sessions: list[SessionUsage] = []
 
     for path in sorted(SESSIONS_ROOT.glob("**/*.jsonl")):
-        session_id, usage_by_model, first_seen, last_seen, coding_reasons = read_session_usage(path)
+        (
+            session_id,
+            usage_by_model,
+            first_seen,
+            last_seen,
+            coding_reasons,
+            actual_usd,
+            actual_usd_event_count,
+        ) = read_session_usage(path)
         if not session_id:
             counters["missing_session_id"] += 1
             continue
@@ -477,9 +665,13 @@ def build_sessions() -> tuple[list[SessionUsage], Counter]:
             if usd is None:
                 session.unknown_usd_models.add(MODEL_ALIASES.get(model, model))
             else:
-                session.usd += usd
+                session.estimated_usd += usd
             if credits is not None:
                 session.credits += credits
+
+        session.actual_usd = actual_usd
+        session.actual_usd_event_count = actual_usd_event_count
+        session.usd = actual_usd if actual_usd is not None else session.estimated_usd
 
         sessions.append(session)
 
@@ -504,11 +696,138 @@ def add_mermaid(lines: list[str], chart_lines: list[str]) -> None:
     lines.append("")
 
 
-def report() -> str:
-    sessions, counters = build_sessions()
+def cost_basis_summary(sessions: list[SessionUsage]) -> str:
     if not sessions:
-        raise SystemExit("No user-created Codex sessions with token usage found.")
+        return "No completed sessions in this period."
+    actual_sessions = sum(1 for session in sessions if session.actual_usd is not None)
+    if actual_sessions == len(sessions):
+        return "Actual recorded USD from local Codex logs."
+    if actual_sessions:
+        estimated_sessions = len(sessions) - actual_sessions
+        return (
+            f"Mixed: actual recorded USD for {actual_sessions} session(s) and API-equivalent "
+            f"estimates for {estimated_sessions} session(s) without recorded USD."
+        )
+    return "Estimated API-equivalent USD from local token usage; no actual USD fields were present in local logs."
 
+
+def month_range_descending(first_month: str, last_month: str) -> list[str]:
+    first = datetime.strptime(first_month, "%Y-%m")
+    cursor = datetime.strptime(last_month, "%Y-%m")
+    months = []
+    while cursor >= first:
+        months.append(cursor.strftime("%Y-%m"))
+        if cursor.month == 1:
+            cursor = cursor.replace(year=cursor.year - 1, month=12)
+        else:
+            cursor = cursor.replace(month=cursor.month - 1)
+    return months
+
+
+def tracker_block(project: str, sessions: list[SessionUsage], last_complete_month: str) -> str:
+    completed_sessions = [
+        session for session in sessions if session.created_at.strftime("%Y-%m") <= last_complete_month
+    ]
+    if completed_sessions:
+        first_month = min(session.created_at.strftime("%Y-%m") for session in completed_sessions)
+        months = month_range_descending(first_month, last_complete_month)
+    else:
+        months = [last_complete_month]
+
+    monthly: dict[str, Counter] = defaultdict(Counter)
+    for session in completed_sessions:
+        month = session.created_at.strftime("%Y-%m")
+        monthly[month]["usd"] += session.usd
+        monthly[month]["sessions"] += 1
+        monthly[month][session.work_type] += 1
+        monthly[month]["tokens"] += sum(usage["total_tokens"] for usage in session.models.values())
+        monthly[month][session.usd_basis] += 1
+
+    total_usd = sum(monthly[month]["usd"] for month in months)
+    total_sessions = sum(monthly[month]["sessions"] for month in months)
+    total_tokens = sum(monthly[month]["tokens"] for month in months)
+
+    lines = [
+        COST_TRACKER_START,
+        f"_Last updated: {GENERATED_AT.strftime('%Y-%m-%d %H:%M:%S %Z')} by `codex-cost-report`._",
+        "",
+        f"Project: `{project}`",
+        f"Cost basis: {cost_basis_summary(completed_sessions)}",
+        "",
+        "## Total",
+        "",
+        "| Through Month | Total USD | Sessions | Tokens |",
+        "| --- | ---: | ---: | ---: |",
+        f"| {last_complete_month} | {fmt_money(total_usd)} | {fmt_number(total_sessions)} | {fmt_number(total_tokens)} |",
+        "",
+        "## Monthly Totals",
+        "",
+        "| Month | USD | Sessions | Coding | Cowork | Tokens | Cost Basis |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for month in months:
+        row = monthly[month]
+        actual_count = row["actual"]
+        estimated_count = row["estimated"]
+        if actual_count and estimated_count:
+            basis = "mixed"
+        elif actual_count:
+            basis = "actual"
+        else:
+            basis = "estimated"
+        lines.append(
+            f"| {month} | {fmt_money(row['usd'])} | {fmt_number(row['sessions'])} | "
+            f"{fmt_number(row['coding'])} | {fmt_number(row['cowork'])} | {fmt_number(row['tokens'])} | {basis} |"
+        )
+    lines.append(COST_TRACKER_END)
+    return "\n".join(lines) + "\n"
+
+
+def upsert_tracker_block(existing: str, block: str) -> str:
+    if COST_TRACKER_START in existing and COST_TRACKER_END in existing:
+        start = existing.index(COST_TRACKER_START)
+        end = existing.index(COST_TRACKER_END, start) + len(COST_TRACKER_END)
+        updated = existing[:start].rstrip() + "\n\n" + block.rstrip() + "\n" + existing[end:].lstrip()
+        return updated if updated.endswith("\n") else updated + "\n"
+    if existing.strip():
+        return existing.rstrip() + "\n\n" + block
+    return "# Codex Costs\n\n" + block
+
+
+def update_project_cost_files(sessions: list[SessionUsage]) -> ProjectCostFileUpdate:
+    update = ProjectCostFileUpdate()
+    current_month = GENERATED_AT.strftime("%Y-%m")
+    last_complete_month = (GENERATED_AT.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+    project_sessions: dict[str, list[SessionUsage]] = defaultdict(list)
+    project_paths: dict[str, Counter] = defaultdict(Counter)
+
+    for session in sessions:
+        project_sessions[session.project].append(session)
+        project_paths[session.project][session.project_path] += 1
+
+    for project, project_session_list in sorted(project_sessions.items()):
+        completed_sessions = [
+            session for session in project_session_list if session.created_at.strftime("%Y-%m") < current_month
+        ]
+        if not completed_sessions:
+            update.skipped[project] = "no completed-month sessions yet"
+            continue
+
+        cost_dir, reason = canonical_cost_dir(project_paths[project])
+        if cost_dir is None:
+            update.skipped[project] = reason or "no cost file location"
+            continue
+
+        cost_path = cost_dir / COST_FILE_NAME
+        existing = cost_path.read_text(errors="replace") if cost_path.exists() else ""
+        block = tracker_block(project, project_session_list, last_complete_month)
+        cost_path.write_text(upsert_tracker_block(existing, block))
+        update.updated.append(ProjectCostFileResult(project=project, path=cost_path))
+
+    return update
+
+
+def report(sessions: list[SessionUsage], counters: Counter) -> str:
     model_usage: dict[str, Counter] = defaultdict(Counter)
     model_sessions = Counter()
     by_day = Counter()
@@ -547,8 +866,9 @@ def report() -> str:
         project_paths[session.project][session.project_path] += 1
         total_usd += session.usd
         total_credits += session.credits
-        for model in session.unknown_usd_models:
-            unknown_usd_models[model] += 1
+        if session.actual_usd is None:
+            for model in session.unknown_usd_models:
+                unknown_usd_models[model] += 1
         for model, usage in session.models.items():
             canonical_model = MODEL_ALIASES.get(model, model)
             model_sessions[canonical_model] += 1
@@ -572,6 +892,8 @@ def report() -> str:
     top_session_values = [session.usd for session in top_sessions]
     top_project_values = [project_usd[project] for project in top_projects]
     top_project_name = top_projects[0] if top_projects else "n/a"
+    cost_basis = cost_basis_summary(sessions)
+    actual_usd_sessions = sum(1 for session in sessions if session.actual_usd is not None)
 
     lines = [
         "---",
@@ -597,8 +919,10 @@ def report() -> str:
         f"- Sessions included: {len(sessions)} user-created sessions",
         f"- Sessions excluded: {counters['excluded_internal_sessions']} internal/subagent sessions",
         f"- Projects included: {len(project_sessions)}",
-        f"- Top project by estimated cost: {top_project_name} ({fmt_money(project_usd[top_project_name])})",
-        f"- Estimated API-equivalent total: {fmt_money(total_usd)}",
+        f"- Cost basis: {cost_basis}",
+        f"- Sessions with actual recorded USD: {actual_usd_sessions}",
+        f"- Top project by USD: {top_project_name} ({fmt_money(project_usd[top_project_name])})",
+        f"- Total USD: {fmt_money(total_usd)}",
         f"- Estimated Codex credits: {total_credits:,.1f}",
         f"- Average per included session: {fmt_money(average_session_usd)}",
         f"- Cache hit rate: {fmt_percent(total_usage['cached_input_tokens'], total_usage['input_tokens'])}",
@@ -607,16 +931,17 @@ def report() -> str:
         f"- Projected full-year Codex credits at current pace: {projected_yearly_credits:,.1f}",
         "",
         "## Notes",
-        "- Dollar amounts are API-equivalent estimates from local token usage, not invoices.",
+        "- Dollar amounts prefer actual recorded USD from local Codex token logs when present; sessions without recorded USD use API-equivalent estimates.",
         "- Reasoning tokens are shown separately in model tables, but are not added again because they are already included in output tokens.",
         "- Credential material, raw prompts, and transcript content are intentionally omitted.",
-        "- Pricing sources checked on 2026-04-30: OpenAI API Pricing and OpenAI Codex rate card.",
+        "- Pricing sources checked on 2026-07-01: OpenAI API Pricing and OpenAI Codex rate card.",
         "- Coding versus cowork is a best-effort classification based on local non-memory write signals in the Codex session log.",
         "- Project is derived from the thread git origin repo name when present, otherwise from the thread current working directory.",
+        "- Each successful run updates `COSTS.md` in each tracked project with completed-month project totals.",
         "",
         "## Charts",
         "",
-        "### Top Projects By Estimated Cost",
+        "### Top Projects By USD",
         "",
         "Bars are labeled by rank; the project details table below maps each rank to project name.",
         "",
@@ -626,7 +951,7 @@ def report() -> str:
         lines,
         [
             "xychart-beta",
-            '  title "Top Projects by Estimated Cost"',
+            '  title "Top Projects by USD"',
             f"  x-axis {mermaid_list([f'P{index}' for index in range(1, len(top_projects) + 1)])}",
             f'  y-axis "USD" 0 --> {fmt_chart_value(chart_axis_max(top_project_values))}',
             f"  bar {mermaid_list(top_project_values)}",
@@ -634,7 +959,7 @@ def report() -> str:
     )
 
     lines.extend([
-        "### Top Sessions By Estimated Cost",
+        "### Top Sessions By USD",
         "",
         "Bars are labeled by rank; the session details table below maps each rank to title and thread id.",
         "",
@@ -644,7 +969,7 @@ def report() -> str:
         lines,
         [
             "xychart-beta",
-            '  title "Top Sessions by Estimated Cost"',
+            '  title "Top Sessions by USD"',
             f"  x-axis {mermaid_list([f'S{index}' for index in range(1, len(top_sessions) + 1)])}",
             f'  y-axis "USD" 0 --> {fmt_chart_value(chart_axis_max(top_session_values))}',
             f"  bar {mermaid_list(top_session_values)}",
@@ -654,14 +979,14 @@ def report() -> str:
     lines.extend([
         "### Coding Versus Cowork",
         "",
-        "This pie chart splits included estimated cost by the coding/cowork heuristic.",
+        "This pie chart splits included USD by the coding/cowork heuristic.",
         "",
     ])
     add_mermaid(
         lines,
         [
             "pie showData",
-            '  title "Estimated Cost by Work Type"',
+            '  title "Cost by Work Type"',
             f'  "Coding" : {fmt_chart_value(work_type_usd["coding"])}',
             f'  "Cowork" : {fmt_chart_value(work_type_usd["cowork"])}',
         ],
@@ -677,7 +1002,7 @@ def report() -> str:
         lines,
         [
             "xychart-beta",
-            '  title "Estimated Cost Per Week"',
+            '  title "Cost Per Week"',
             f"  x-axis {mermaid_list(week_labels)}",
             f'  y-axis "USD" 0 --> {fmt_chart_value(chart_axis_max(weekly_values))}',
             f"  line {mermaid_list(weekly_values)}",
@@ -691,28 +1016,28 @@ def report() -> str:
 
     add_table(
         lines,
-        ["Day", "Estimated USD"],
+        ["Day", "USD"],
         [[day, fmt_money(by_day[day])] for day in sorted(by_day)],
     )
 
     lines.append("## Cost By Month")
     add_table(
         lines,
-        ["Month", "Estimated USD"],
+        ["Month", "USD"],
         [[month, fmt_money(by_month[month])] for month in sorted(by_month)],
     )
 
     lines.append("## Cost By Year")
     add_table(
         lines,
-        ["Year", "Estimated USD"],
+        ["Year", "USD"],
         [[year, fmt_money(by_year[year])] for year in sorted(by_year)],
     )
 
     lines.append("## Cost By Work Type")
     add_table(
         lines,
-        ["Work Type", "Sessions", "Estimated USD", "Share"],
+        ["Work Type", "Sessions", "USD", "Share"],
         [
             [
                 work_type.title(),
@@ -752,7 +1077,7 @@ def report() -> str:
             "Sessions",
             "Coding",
             "Cowork",
-            "Estimated USD",
+            "USD",
             "Share",
             "Average Session",
             "Codex Credits",
@@ -802,14 +1127,17 @@ def report() -> str:
         ])
     add_table(
         lines,
-        ["Rank", "Date", "Project", "Session", "Model", "Work Type", "Estimated USD", "Codex Credits", "Tokens", "Thread ID"],
+        ["Rank", "Date", "Project", "Session", "Model", "Work Type", "USD", "Codex Credits", "Tokens", "Thread ID"],
         top_rows,
     )
 
     lines.append("## Data Gaps")
     if unknown_usd_models:
         for model, count in sorted(unknown_usd_models.items()):
-            lines.append(f"- No direct USD API rate configured for `{model}`; excluded from USD totals in {count} session(s).")
+            lines.append(
+                f"- No direct USD API rate configured for `{model}`; excluded from estimate-backed USD totals "
+                f"in {count} session(s) without actual recorded USD."
+            )
     else:
         lines.append("- No unknown USD model rates in included sessions.")
     for key, value in sorted(counters.items()):
@@ -829,11 +1157,13 @@ def report() -> str:
     lines.append("")
     lines.append(
         "For each token-count event, the active model comes from the most recent turn context. "
-        "Estimated USD is calculated as uncached input tokens times the input rate, cached "
-        "input tokens times the cached-input rate, and output tokens times the output rate, "
-        "using the script's short-context pricing table. Reasoning tokens are reported "
-        "separately but not charged a second time because they are included in output tokens. "
-        "The full-year projection multiplies the observed average daily estimated cost by 365."
+        "When a token-count event includes recorded USD fields, that actual value is used for "
+        "the session. Otherwise, estimated USD is calculated as uncached input tokens times "
+        "the input rate, cached input tokens times the cached-input rate, and output tokens "
+        "times the output rate, using the script's short-context pricing table. Reasoning "
+        "tokens are reported separately but not charged a second time because they are "
+        "included in output tokens. The full-year projection multiplies the observed average "
+        "daily USD by 365."
     )
     lines.append("")
     lines.append(FOOTER)
@@ -869,10 +1199,18 @@ def render_html(report_path: Path) -> Path:
 
 def main() -> None:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(report())
+    sessions, counters = build_sessions()
+    if not sessions:
+        raise SystemExit("No user-created Codex sessions with token usage found.")
+
+    REPORT_PATH.write_text(report(sessions, counters))
     html_path = render_html(REPORT_PATH)
+    cost_file_update = update_project_cost_files(sessions)
     print(f"Codex cost report generated: {REPORT_PATH.relative_to(REPO_ROOT)}")
     print(f"Codex cost report HTML rendered: {html_path.relative_to(REPO_ROOT)}")
+    print(f"Codex project cost files updated: {len(cost_file_update.updated)}")
+    if cost_file_update.skipped:
+        print(f"Codex projects skipped for COSTS.md: {len(cost_file_update.skipped)}")
 
 
 if __name__ == "__main__":
